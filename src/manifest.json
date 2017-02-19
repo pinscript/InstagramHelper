@@ -1,0 +1,32 @@
+{
+	"manifest_version":2,
+
+	"name":"Insta Followers",
+	"description":"Export followers into CSV file",
+	"version":"1.0",
+
+	"page_action": {
+		"default_icon":"img/icon.png",
+		"default_title":"Insta Followers",
+		"default_popup":"popup.html"
+	},
+
+	"background":{
+		"scripts":["eventPage.js", "lib/jquery-3.1.1.min.js"],
+		"persistent":false
+	},
+
+	"content_scripts":[
+		{
+			"matches":["https://www.instagram.com/*"],
+			"js":["instafollowers.js"]
+		}
+	],
+
+	"permissions":[
+		"tabs",
+		"https://www.instagram.com/*"
+	]
+
+		
+}
