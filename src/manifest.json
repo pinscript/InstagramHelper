@@ -3,7 +3,7 @@
 
 	"name":"Insta Followers",
 	"description":"Export followers into CSV file",
-	"version":"1.0",
+	"version":"0.1",
 
 	"page_action": {
 		"default_icon":"img/icon.png",
