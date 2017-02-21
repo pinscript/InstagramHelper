@@ -47,37 +47,37 @@ $(function () {
 			}, {
 				label: 'Followed',
 				name: 'followed_by_viewer',
-				width: '35',
+				width: '50',
 				formatter: 'checkbox',
 				align: 'center'
 			}, {
 				label: 'Follows',
 				name: 'follows_viewer',
-				width: '35',
+				width: '50',
 				formatter: 'checkbox',
 				align: 'center'
 			}, {
 				label: 'Private',
 				name: 'is_private',
-				width: '30',
+				width: '50',
 				formatter: 'checkbox',
 				align: 'center'
 			}, {
 				label: 'Followers',
 				name: 'followers_count',
-				width: '38',
+				width: '60',
 				align: 'center',
 				sorttype: 'number'
 			}, {
 				label: 'Following',
 				name: 'following_count',
-				width: '38',
+				width: '60',
 				align: 'center',
 				sorttype: 'number'
 			}, {
 				label: 'Posts',
 				name: 'media_count',
-				width: '38',
+				width: '40',
 				align: 'center',
 				sorttype: 'number'
 			}
@@ -107,13 +107,22 @@ $(function () {
 		console.log("request inside result.js - " + request.action);
 		if (request.action == "modifyResultPage") {
 			$("<ul>" + request.text + "</ul>").find("li").each(function () {
-				//get the username
+
+				var href = $(this).find("a").attr("href");
+				var user = href.replace(/\//g, "");
+				//console.log("found user name - " + user, myData.length);
+				//console.log(myData);
+				//it should not be here - as it is empty yet - move in callback procedure?
+				//check if already have it in myData
+				//for (var i in myData) {
+				//	console.log("I am here");
+				//	if (user === myData[i].username) {
+				//		console.log(`username ${user} is found at ${i}`);
+				//		return;
+				//	}
+				//}
 				
-				//check if already have it in myData, should I use Set?
-				
-				//if username is found, do exit
-				
-				var link = "https://www.instagram.com" + $(this).find("a").attr("href") + "?__a=1";
+				var link = "https://www.instagram.com" + href + "?__a=1";
 				$.ajax({
 					url: link,
 					success: function (result) {
@@ -149,9 +158,10 @@ $(function () {
 							followers_count,
 							media_count
 						});
-						myData.push(obj);
+						//myData.push(JSON.parse(JSON.stringify(obj))); //addRowData already adds
 						//$('#jqGrid').trigger('reloadGrid'); //temp solution
 						$('#jqGrid').jqGrid('addRowData', 0, obj);
+						console.log(myData.length);
 					},
 					async: true
 				});
