@@ -26,7 +26,8 @@ $(function () {
 				label: 'Info',
 				width: '300',
 				formatter: function (cellvalue, model, row) {
-					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>full name:<strong>${row.full_name}</strong><br/>`;
+					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`
+					ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
 					ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
 					ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
 					return ret;
@@ -103,11 +104,15 @@ $(function () {
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-
 		console.log("request inside result.js - " + request.action);
 		if (request.action == "modifyResultPage") {
-
 			$("<ul>" + request.text + "</ul>").find("li").each(function () {
+				//get the username
+				
+				//check if already have it in myData, should I use Set?
+				
+				//if username is found, do exit
+				
 				var link = "https://www.instagram.com" + $(this).find("a").attr("href") + "?__a=1";
 				$.ajax({
 					url: link,
