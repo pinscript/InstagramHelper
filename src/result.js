@@ -27,7 +27,8 @@ $(function () {
 				label: 'Info',
 				width: '300',
 				formatter: function (cellvalue, model, row) {
-					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`
+					console.log(arguments);
+					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
 					ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
 					ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
 					ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
@@ -83,8 +84,21 @@ $(function () {
 				sorttype: 'number'
 			}, {
 				name: 'username',
-				hidden:true
+				hidden: true
+			}, {
+				name: 'id',
+				hidden: true
+			}, {
+				name: 'full_name',
+				hidden: true
+			}, {
+				name: 'connected_fb_page',
+				hidden: true
+			}, {
+				name: 'external_url',
+				hidden: true
 			}
+			
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
 		caption: "Instagram followers",
@@ -104,7 +118,7 @@ $(function () {
 			includeFooter: true,
 			fileName: "jqGridExport.csv",
 			returnAsString: false
-		})
+		});
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -116,7 +130,6 @@ $(function () {
 				var user = href.replace(/\//g, "");
 
 				//check if user is already in array
-				console.log(myData.slice());
 				for (let i = 0; i < myData.length; i++) {
 					if (user === myData[i].username) {
 						console.log(`username ${user} is found at ${i}`);
@@ -124,47 +137,10 @@ $(function () {
 					}
 				}
 				
-				var link = "https://www.instagram.com" + href + "?__a=1";
-				$.ajax({
-					url: link,
-					success: function (result) {
-						var {
-							id,
-							username,
-							full_name,
-							profile_pic_url_hd,
-							biography,
-							connected_fb_page,
-							external_url,
-							followed_by_viewer,
-							follows_viewer,
-							is_private
-						} = result.user;
-						var following_count = result.user.follows.count;
-						var followers_count = result.user.followed_by.count;
-						var media_count = result.user.media.count;
-						var obj = {};
-						Object.assign(obj, {
-							id,
-							username,
-							full_name,
-							profile_pic_url_hd,
-							biography,
-							connected_fb_page,
-							external_url,
-							followed_by_viewer,
-							follows_viewer,
-							is_private,
-							following_count,
-							followers_count,
-							media_count
-						});
-						//myData.push(JSON.parse(JSON.stringify(obj))); //addRowData already adds an object into array
-						//$('#jqGrid').trigger('reloadGrid'); //temp solution
-						$('#jqGrid').jqGrid('addRowData', 0, obj);
-					},
-					async: true
+				getUserProfile(user, function(obj) {
+					$('#jqGrid').jqGrid('addRowData', obj.id, obj);					
 				});
+			
 			});
 		}
 	});
