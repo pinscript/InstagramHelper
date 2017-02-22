@@ -1,9 +1,17 @@
+/* globals chrome */
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-	if (request.action === "get_followers") {
-		chrome.runtime.sendMessage({
-			action: "return_followers",
-			text: document.getElementsByClassName("_539vh")[0].innerHTML
-		});
+	if (request.action === "get_insta_users") {
+		
+		var users = document.getElementsByClassName("_539vh");
+		if (0 === users.length) {
+			alert ("Please open followers or following list!");
+		} else {		
+			chrome.runtime.sendMessage({
+				action: "return_insta_users",
+				text: document.getElementsByClassName("_539vh")[0].innerHTML
+			});
+		}
 	} else if (request.action === "get_followers_count") {
 		//	chrome.runtime.sendMessage({ action : "return_followers_count", text : window._sharedData.entry_data.ProfilePage[0].user.followed_by.count });
 		var source = function () {
@@ -26,7 +34,6 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		elem.id = id;
 		document.head.appendChild(elem);
 		var ret = JSON.parse(elem.innerText);
-		console.log(ret);
 		var a = ret.callResult.entry_data.ProfilePage[0].user.followed_by.count; //doesn't work when I started with feed page
 		elem.parentNode.removeChild(elem);
 		delete (elem);

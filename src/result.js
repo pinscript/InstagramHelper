@@ -1,4 +1,5 @@
 /* jshint esnext: true */
+/* globals chrome */
 
 $(function () {
 
@@ -80,6 +81,9 @@ $(function () {
 				width: '40',
 				align: 'center',
 				sorttype: 'number'
+			}, {
+				name: 'username',
+				hidden:true
 			}
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
@@ -104,29 +108,26 @@ $(function () {
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		console.log("request inside result.js - " + request.action);
+
 		if (request.action == "modifyResultPage") {
 			$("<ul>" + request.text + "</ul>").find("li").each(function () {
 
 				var href = $(this).find("a").attr("href");
 				var user = href.replace(/\//g, "");
-				//console.log("found user name - " + user, myData.length);
-				//console.log(myData);
-				//it should not be here - as it is empty yet - move in callback procedure?
-				//check if already have it in myData
-				//for (var i in myData) {
-				//	console.log("I am here");
-				//	if (user === myData[i].username) {
-				//		console.log(`username ${user} is found at ${i}`);
-				//		return;
-				//	}
-				//}
+
+				//check if user is already in array
+				console.log(myData.slice());
+				for (let i = 0; i < myData.length; i++) {
+					if (user === myData[i].username) {
+						console.log(`username ${user} is found at ${i}`);
+						return;
+					}
+				}
 				
 				var link = "https://www.instagram.com" + href + "?__a=1";
 				$.ajax({
 					url: link,
 					success: function (result) {
-						console.log(result);
 						var {
 							id,
 							username,
@@ -158,10 +159,9 @@ $(function () {
 							followers_count,
 							media_count
 						});
-						//myData.push(JSON.parse(JSON.stringify(obj))); //addRowData already adds
+						//myData.push(JSON.parse(JSON.stringify(obj))); //addRowData already adds an object into array
 						//$('#jqGrid').trigger('reloadGrid'); //temp solution
 						$('#jqGrid').jqGrid('addRowData', 0, obj);
-						console.log(myData.length);
 					},
 					async: true
 				});
