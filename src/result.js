@@ -20,14 +20,16 @@ $(function () {
 				name: 'profile_pic_url_hd',
 				width: '320',
 				align: 'center',
+				sortable: false,
 				formatter: function (cellvalue, model, row) {
 					return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
-				}
+				},
+				search: false
 			}, {
 				label: 'Info',
-				width: '300',
+				width: '250',
+				sortable: false,
 				formatter: function (cellvalue, model, row) {
-					console.log(arguments);
 					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
 					ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
 					ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
@@ -36,52 +38,70 @@ $(function () {
 				},
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
-				}
+				},
+				search: false				
 			}, {
 				label: 'Bio',
 				name: 'biography',
+				sortable: false,
 				formatter: function (cellvalue, model, row) {
 					return cellvalue ? `<p>${cellvalue}</p>` : "";
 				},
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
-				}
+				},
+				search: false				
 			}, {
 				label: 'Followed',
 				name: 'followed_by_viewer',
-				width: '50',
+				width: '80',
 				formatter: 'checkbox',
-				align: 'center'
+				align: 'center',
+				stype: 'select', 
+				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
+				search: true				
 			}, {
 				label: 'Follows',
 				name: 'follows_viewer',
-				width: '50',
+				width: '80',
 				formatter: 'checkbox',
-				align: 'center'
+				align: 'center',
+				stype: 'select', 
+				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
+				search: true				
 			}, {
 				label: 'Private',
 				name: 'is_private',
-				width: '50',
+				width: '80',
 				formatter: 'checkbox',
-				align: 'center'
+				align: 'center',
+				stype: 'select', 
+				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
+				search: true
 			}, {
 				label: 'Followers',
 				name: 'followers_count',
-				width: '60',
+				width: '75',
 				align: 'center',
-				sorttype: 'number'
+				sorttype: 'number',
+				search: true,
+				searchoptions : { sopt: ["ge","le","eq"] }
 			}, {
 				label: 'Following',
 				name: 'following_count',
-				width: '60',
+				width: '75',
 				align: 'center',
-				sorttype: 'number'
+				sorttype: 'number',
+				search: true,
+				searchoptions : { sopt: ["ge","le","eq"] }
 			}, {
 				label: 'Posts',
 				name: 'media_count',
-				width: '40',
+				width: '75',
 				align: 'center',
-				sorttype: 'number'
+				sorttype: 'number',
+				search: true,
+				searchoptions : { sopt: ["ge","le","eq"] }
 			}, {
 				name: 'username',
 				hidden: true
@@ -98,10 +118,20 @@ $(function () {
 				name: 'external_url',
 				hidden: true
 			}
-			
+
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
+		loadonce: true,
 		caption: "Instagram followers",
+	});
+
+	$('#jqGrid').jqGrid('filterToolbar', {searchOperators: true});
+	$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
+		search: true, // show search button on the toolbar
+		add: false,
+		edit: false,
+		del: false,
+		refresh: true
 	});
 
 	$("#export").on("click", function () {
@@ -136,11 +166,11 @@ $(function () {
 						return;
 					}
 				}
-				
-				getUserProfile(user, function(obj) {
-					$('#jqGrid').jqGrid('addRowData', obj.id, obj);					
+
+				getUserProfile(user, function (obj) {
+					$('#jqGrid').jqGrid('addRowData', obj.id, obj);
 				});
-			
+
 			});
 		}
 	});
