@@ -1,7 +1,7 @@
 {
 	"manifest_version":2,
 
-	"name":"Insta Followers",
+	"name":"Instagram Helper",
 	"description":"Merge followers and following users; Export followers into CSV file",
 	"version":"0.1",
 	

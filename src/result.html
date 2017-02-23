@@ -1,9 +1,10 @@
 <!doctype html>
 <html>
     <head>
-        <title>Insta Followers</title>
+        <title>Insta Users</title>
 	    <script src="lib/jquery-3.1.1.min.js"></script>
     	<script src="getUserProfile.js"></script>
+    	<script src="prepareCSV.js"></script>
     	<script src="result.js"></script>
 		
 		<script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script>
@@ -15,7 +16,8 @@
     </head>
     <body>
 		
-		<button id="export">Export to Excel</button>	
+		<strong><a id="exportCSV" href="">Export to CSV file</a></strong>
+		<br/><br/>
 		<table id="jqGrid"></table>
 		<div id="jqGridPager"></div>
 		

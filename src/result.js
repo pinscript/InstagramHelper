@@ -27,6 +27,7 @@ $(function () {
 				search: false
 			}, {
 				label: 'Info',
+				name: 'id',
 				width: '250',
 				sortable: false,
 				formatter: function (cellvalue, model, row) {
@@ -134,21 +135,10 @@ $(function () {
 		refresh: true
 	});
 
-	$("#export").on("click", function () {
-		$("#jqGrid").jqGrid("exportToCsv", {
-			separator: ",",
-			separatorReplace: "", // in order to interpret numbers
-			quote: '"',
-			escquote: '"',
-			newLine: "\r\n", // navigator.userAgent.match(/Windows/) ?	'\r\n' : '\n';
-			replaceNewLine: " ",
-			includeCaption: true,
-			includeLabels: true,
-			includeGroupHeader: true,
-			includeFooter: true,
-			fileName: "jqGridExport.csv",
-			returnAsString: false
-		});
+	$("#exportCSV").click(function () {
+		var csv = arrayToCSV(myData);
+		this.download = "export.csv";
+		this.href = "data:application/csv;charset=UTF-16,"  + encodeURIComponent(csv);
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
