@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		} else {		
 			chrome.runtime.sendMessage({
 				action: "return_insta_users",
-				text: document.getElementsByClassName("_539vh")[0].innerHTML
+				text: users[0].innerHTML
 			});
 		}
 	} else if (request.action === "get_followers_count") {
