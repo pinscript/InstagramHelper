@@ -14,7 +14,7 @@
 
 	"page_action": {
 		"default_icon": "img/icon.png",
-		"default_title": "Insta Followers",
+		"default_title": "Instagram Helper",
 		"default_popup": "popup.html"
 	},
 

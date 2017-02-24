@@ -1,7 +1,8 @@
-/* globals chrome */
+/* jshint esnext: true */
+/* globals chrome, document */
 
 $(function () {
-	console.log("document ready - " + Date());
+	//console.log("document ready - " + Date());
 
 	$('#instaUsers').click(function () {
 		chrome.tabs.query({
@@ -16,7 +17,8 @@ $(function () {
 });
 
 window.onload = function () {
-	console.log("window onload - " + Date());
+	_gaq.push(['_trackPageview']);
+	//console.log("window onload - " + Date());
 
 	chrome.tabs.query({
 		active: true,

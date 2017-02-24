@@ -165,3 +165,8 @@ $(function () {
 		}
 	});
 });
+
+
+window.onload = function () {
+	_gaq.push(['_trackPageview']);
+}
