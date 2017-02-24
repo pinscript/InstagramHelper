@@ -3,15 +3,20 @@
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	if (request.action === "get_insta_users") {
 		
-		var users = document.getElementsByClassName("_539vh");
-		if (0 === users.length) {
-			alert ("Please open followers or following list!");
-		} else {		
-			chrome.runtime.sendMessage({
-				action: "return_insta_users",
-				text: users[0].innerHTML
-			});
-		}
+		chrome. storage.sync.get({
+			usersClass: '_539vh'
+		}, function (items) {
+			var users = document.getElementsByClassName(items.usersClass);
+			if (0 === users.length) {
+				alert ("Please open followers or following list!");
+			} else {		
+				chrome.runtime.sendMessage({
+					action: "return_insta_users",
+					text: users[0].innerHTML
+				});
+			}
+		});		
+		
 	} else if (request.action === "get_followers_count") {
 		//	chrome.runtime.sendMessage({ action : "return_followers_count", text : window._sharedData.entry_data.ProfilePage[0].user.followed_by.count });
 		var source = function () {

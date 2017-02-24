@@ -1,34 +1,37 @@
 {
-	"manifest_version":2,
+	"manifest_version": 2,
 
-	"name":"Instagram Helper",
-	"description":"Merge followers and following users; Export followers into CSV file",
-	"version":"0.1",
-	
-	"options_page": "options.html",
-	
-	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+	"name": "Instagram Helper",
+	"description": "Merge followers and following users; Export followers into CSV file",
+	"version": "0.1",
+
+	"options_ui": {
+		"page": "options.html",
+		"chrome_style": true
+	},
+
+	"content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'",
 
 	"page_action": {
-		"default_icon":"img/icon.png",
-		"default_title":"Insta Followers",
-		"default_popup":"popup.html"
+		"default_icon": "img/icon.png",
+		"default_title": "Insta Followers",
+		"default_popup": "popup.html"
 	},
 
-	"background":{
-		"scripts":["eventPage.js", "lib/jquery-3.1.1.min.js"],
-		"persistent":false
+	"background": {
+		"scripts": ["eventPage.js", "lib/jquery-3.1.1.min.js"],
+		"persistent": false
 	},
 
-	"content_scripts":[
-		{
-			"matches":["https://www.instagram.com/*"],
-			"js":["instafollowers.js"]
+	"content_scripts": [{
+			"matches": ["https://www.instagram.com/*"],
+			"js": ["instafollowers.js"]
 		}
 	],
 
-	"permissions":[
+	"permissions": [
 		"tabs",
+		"storage",
 		"https://www.instagram.com/*"
 	]
 
