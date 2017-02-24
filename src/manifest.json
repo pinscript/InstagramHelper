@@ -13,9 +13,16 @@
 	"content_security_policy": "script-src 'self' 'unsafe-eval' https://ssl.google-analytics.com; object-src 'self'",
 
 	"page_action": {
-		"default_icon": "img/icon.png",
+		"default_icon": "img/icon19.png",
 		"default_title": "Instagram Helper",
 		"default_popup": "popup.html"
+	},
+
+	"icons": {
+		"19": "img/icon19.png",
+		"32": "img/icon32.png",
+		"48": "img/icon48.png",
+		"64": "img/icon64.png"
 	},
 
 	"background": {
