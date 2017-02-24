@@ -123,7 +123,7 @@ $(function () {
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
 		loadonce: true,
-		caption: "Instagram followers",
+		caption: "Instagram Users",
 	});
 
 	$('#jqGrid').jqGrid('filterToolbar', {searchOperators: true});
