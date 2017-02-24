@@ -1,9 +1,10 @@
 {
 	"manifest_version": 2,
 
-	"name": "Instagram Helper",
-	"description": "Merge followers and following users; Export followers into CSV file",
-	"version": "0.2",
+	"name": "Instagram Helper and Scraper",
+	"short_name": "InstaHelper",
+	"description": "Allows to create the list of instagram users, and export them into CSV file, also includes other helpfers for instagram.com",
+	"version": "0.21",
 
 	"options_ui": {
 		"page": "options.html",
