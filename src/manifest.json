@@ -33,7 +33,7 @@
 
 	"content_scripts": [{
 			"matches": ["https://www.instagram.com/*"],
-			"js": ["instafollowers.js"]
+			"js": ["instagramHelper.js"]
 		}
 	],
 

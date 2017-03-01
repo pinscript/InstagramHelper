@@ -3,7 +3,8 @@
 function save_options() {
 	var usersClass = document.getElementById('usersClass').value;
 	chrome.storage.sync.set({
-		usersClass: usersClass
+		usersClass: usersClass,
+		pageSize: pageSize
 	}, function () {
 		// Update status to let user know options were saved.
 		var status = document.getElementById('status');
@@ -17,9 +18,11 @@ function save_options() {
 function restore_options() {
 	// Use default value color = 'red' and likesColor = true.
 	chrome. storage.sync.get({
-		usersClass: '_539vh'
+		usersClass: '_539vh',
+		pageSize: 20
 	}, function (items) {
 		document.getElementById('usersClass').value = items.usersClass;
+		document.getElementById('pageSize').value = items.pageSize;
 	});
 }
 
