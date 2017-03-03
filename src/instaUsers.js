@@ -162,19 +162,22 @@ $(function () {
 		if (request.action == "modifyResultPage") {
 
 			getUserProfile(request.userName, function (obj) {
-				fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id);
-
+				fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "followed_by");
+				//todo: add one more fetchInstaUsers
 			});
 		}
 	});
 });
 
-function fetchInstaUsers(request, userName, pageSize, csrfToken, userId) {
+function fetchInstaUsers(request, userName, pageSize, csrfToken, userId, type) {
+//type could be followed by or follows
+//	type = "followed_by"
+
 	console.log("fectch insta users");
 	console.log(arguments);
 
 	if (!request) {
-		request = "q=ig_user(" + userId + ")+%7B%0A++followed_by.first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%0A++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+		request = "q=ig_user(" + userId + ")+%7B%0A++" + type + ".first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
 	}
 
 	$.ajax({
@@ -189,11 +192,26 @@ function fetchInstaUsers(request, userName, pageSize, csrfToken, userId) {
 		method: 'POST',
 		data: request,
 		success: function (data) {
-			console.log(data);
+			console.log(data[type].nodes);
+			
+/*
+				//check if user is already in array
+				for (let i = 0; i < myData.length; i++) {
+					if (user === myData[i].username) {
+						console.log(`username ${user} is found at ${i}`);
+						return;
+					}
+				}
 
+				getUserProfile(user, function (obj) {
+					$('#jqGrid').jqGrid('addRowData', obj.id, obj);
+				});
+
+*/			
+			
 			if (data.followed_by.page_info.has_next_page) {
-				var next_req = "q=ig_user(" + userId + ")+%7B%0A++followed_by.after(" + data.followed_by.page_info.end_cursor + "%2C+500)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%0A++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
-				fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId);
+				var next_req = "q=ig_user(" + userId + ")+%7B%0A++" + type + ".after(" + data.followed_by.page_info.end_cursor + "%2C+20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+				fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId, type);
 			}
 		}
 	});
