@@ -76,3 +76,23 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		});	
 	}
 });
+
+chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
+
+    headers = details.requestHeaders;
+	//modify Referer to make instagram happier
+    for (header in headers) {
+		if (headers[header].name === "eferer") {
+			headers[header].name = "Referer";
+			break;
+		}
+    }
+    return {
+        requestHeaders: details.requestHeaders
+    };	
+	
+},
+{
+    urls: ["https://www.instagram.com/query/"]
+},
+['blocking', "requestHeaders"]);

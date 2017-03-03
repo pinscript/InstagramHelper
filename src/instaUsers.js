@@ -40,7 +40,7 @@ $(function () {
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
 				},
-				search: false				
+				search: false
 			}, {
 				label: 'Bio',
 				name: 'biography',
@@ -51,33 +51,42 @@ $(function () {
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
 				},
-				search: false				
+				search: false
 			}, {
 				label: 'Followed',
 				name: 'followed_by_viewer',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
-				search: true				
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
 			}, {
 				label: 'Follows',
 				name: 'follows_viewer',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
-				search: true				
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
 			}, {
 				label: 'Private',
 				name: 'is_private',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
 				search: true
 			}, {
 				label: 'Followers',
@@ -86,7 +95,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				label: 'Following',
 				name: 'following_count',
@@ -94,7 +105,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				label: 'Posts',
 				name: 'media_count',
@@ -102,7 +115,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				name: 'username',
 				hidden: true
@@ -126,7 +141,9 @@ $(function () {
 		caption: "Instagram Users",
 	});
 
-	$('#jqGrid').jqGrid('filterToolbar', {searchOperators: true});
+	$('#jqGrid').jqGrid('filterToolbar', {
+		searchOperators: true
+	});
 	$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
 		search: true, // show search button on the toolbar
 		add: false,
@@ -138,16 +155,50 @@ $(function () {
 	$("#exportCSV").click(function () {
 		var csv = arrayToCSV(myData);
 		this.download = "export.csv";
-		this.href = "data:application/csv;charset=UTF-16,"  + encodeURIComponent(csv);
+		this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
-			//fetch users
+
+			getUserProfile(request.userName, function (obj) {
+				fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id);
+
+			});
 		}
 	});
 });
 
+function fetchInstaUsers(request, userName, pageSize, csrfToken, userId) {
+	console.log("fectch insta users");
+	console.log(arguments);
+
+	if (!request) {
+		request = "q=ig_user(" + userId + ")+%7B%0A++followed_by.first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%0A++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+	}
+
+	$.ajax({
+		url: "https://www.instagram.com/query/",
+		crossDomain: true,
+		headers: {
+			"X-Instagram-AJAX": '1',
+			"X-CSRFToken": csrfToken,
+			"X-Requested-With": XMLHttpRequest,
+			"eferer": "https://www.instagram.com/" + userName + "/"
+		},
+		method: 'POST',
+		data: request,
+		success: function (data) {
+			console.log(data);
+
+			if (data.followed_by.page_info.has_next_page) {
+				var next_req = "q=ig_user(" + userId + ")+%7B%0A++followed_by.after(" + data.followed_by.page_info.end_cursor + "%2C+500)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%0A++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+				fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId);
+			}
+		}
+	});
+
+}
 
 window.onload = function () {
 	_gaq.push(['_trackPageview']);

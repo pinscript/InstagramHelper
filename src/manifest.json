@@ -27,8 +27,8 @@
 	},
 
 	"background": {
-		"scripts": ["eventPage.js", "lib/jquery-3.1.1.min.js"],
-		"persistent": false
+		"scripts": ["background.js", "lib/jquery-3.1.1.min.js"],
+		"persistent": true
 	},
 
 	"content_scripts": [{
@@ -40,6 +40,9 @@
 	"permissions": [
 		"tabs",
 		"storage",
+		"cookies",
+		"webRequest",
+		"webRequestBlocking",
 		"https://www.instagram.com/*"
 	]
 
