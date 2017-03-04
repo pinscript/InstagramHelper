@@ -41,14 +41,15 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		chrome.storage.sync.get({
 			pageSize: 20
 		}, function (items) {
-			var arr = document.URL.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
+			//var arr = document.URL.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 			var sharedData = getCsrfToken();
 
 			chrome.runtime.sendMessage({
 				action: "return_insta_users",
-				userName: arr[1],
+				userName: request.userName,
 				pageSize: items.pageSize,
-				csrfToken: sharedData.config.csrf_token
+				csrfToken: sharedData.config.csrf_token,
+				relType: request.relType
 			});
 /*
 			var injScript = document.createElement("script"); //maybe I don't need to inject jquery if I add it into manifest

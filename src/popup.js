@@ -4,6 +4,14 @@
 $(function () {
 	//console.log("document ready - " + Date());
 
+	$('#username').on("change", function() {
+		if ($(this).val()) {
+			$('#instaUsers').removeAttr("disabled");		
+		} else {
+			$('#instaUsers').attr("disabled", "disabled");
+		}
+	});
+	
 	$('#instaUsersOld').click(function () {
 		chrome.tabs.query({
 			active: true,
@@ -16,12 +24,15 @@ $(function () {
 	});
 
 	$('#instaUsers').click(function () {
+		//console.log($('input[name=relType]:checked').attr("id"));
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
 		}, function (tabs) {
 			chrome.tabs.sendMessage(tabs[0].id, {
-				action: "get_insta_users"
+				action: "get_insta_users", 
+				userName: $("#username").val(),
+				relType: $('input[name=relType]:checked').attr("id")
 			});
 		});
 	});
@@ -55,6 +66,7 @@ window.onload = function () {
 					}
 				}
 				$("#container").html($html);
+				$("#username").val(obj.username);
 			});	
 		} else {
 			$("#container").text("UserName is not found in URL");			
