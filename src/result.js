@@ -40,7 +40,7 @@ $(function () {
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
 				},
-				search: false				
+				search: false
 			}, {
 				label: 'Bio',
 				name: 'biography',
@@ -51,33 +51,42 @@ $(function () {
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
 					return 'style="white-space: normal;"';
 				},
-				search: false				
+				search: false
 			}, {
 				label: 'Followed',
 				name: 'followed_by_viewer',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
-				search: true				
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
 			}, {
 				label: 'Follows',
 				name: 'follows_viewer',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
-				search: true				
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
 			}, {
 				label: 'Private',
 				name: 'is_private',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
-				stype: 'select', 
-				searchoptions: { sopt: ["eq"], value: ":Any;true:Yes;false:No" },
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
 				search: true
 			}, {
 				label: 'Followers',
@@ -86,7 +95,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				label: 'Following',
 				name: 'following_count',
@@ -94,7 +105,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				label: 'Posts',
 				name: 'media_count',
@@ -102,7 +115,9 @@ $(function () {
 				align: 'center',
 				sorttype: 'number',
 				search: true,
-				searchoptions : { sopt: ["ge","le","eq"] }
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				}
 			}, {
 				name: 'username',
 				hidden: true
@@ -126,7 +141,9 @@ $(function () {
 		caption: "Instagram Users",
 	});
 
-	$('#jqGrid').jqGrid('filterToolbar', {searchOperators: true});
+	$('#jqGrid').jqGrid('filterToolbar', {
+		searchOperators: true
+	});
 	$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
 		search: true, // show search button on the toolbar
 		add: false,
@@ -138,7 +155,7 @@ $(function () {
 	$("#exportCSV").click(function () {
 		var csv = arrayToCSV(myData);
 		this.download = "export.csv";
-		this.href = "data:application/csv;charset=UTF-16,"  + encodeURIComponent(csv);
+		this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
 	});
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -166,7 +183,6 @@ $(function () {
 	});
 });
 
-
 window.onload = function () {
 	_gaq.push(['_trackPageview']);
-}
+};

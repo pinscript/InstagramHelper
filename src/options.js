@@ -19,7 +19,7 @@ function save_options() {
 }
 
 function restore_options() {
-	chrome. storage.sync.get({
+	chrome.storage.sync.get({
 		usersClass: '_539vh',
 		pageSize: 100,
 		delay: 1000
@@ -36,4 +36,4 @@ document.getElementById('save').addEventListener('click', save_options);
 
 window.onload = function () {
 	_gaq.push(['_trackPageview']);
-}
+};

@@ -35,7 +35,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 					chrome.tabs.onUpdated.addListener(sendModifyResultPage);
 				});
 
-			} else {	//tab is found, let's show it
+			} else { //tab is found, let's show it
 				chrome.tabs.update(tabs[0].id, {
 					active: true
 				});
@@ -48,7 +48,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	} else if ("return_insta_users" === request.action) {
 		var url = chrome.extension.getURL('instaUsers.html');
 		request.action = "modifyResultPage";
-		
+
 		//query if we already have result page opened
 		chrome.tabs.query({
 			url: url
@@ -67,32 +67,31 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 					chrome.tabs.onUpdated.addListener(sendModifyResultPage);
 				});
 
-			} else {	//tab is found, let's show it
+			} else { //tab is found, let's show it
 				chrome.tabs.update(tabs[0].id, {
 					active: true
 				});
 				chrome.tabs.sendMessage(tabs[0].id, request);
 			}
-		});	
+		});
 	}
 });
 
 chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
 
-    headers = details.requestHeaders;
+	headers = details.requestHeaders;
 	//modify Referer to make instagram happier
-    for (header in headers) {
+	for (var header in headers) {
 		if (headers[header].name === "eferer") {
 			headers[header].name = "Referer";
 			break;
 		}
-    }
-    return {
-        requestHeaders: details.requestHeaders
-    };	
-	
+	}
+	return {
+		requestHeaders: details.requestHeaders
+	};
+
+}, {
+	urls: ["https://www.instagram.com/query/"]
 },
-{
-    urls: ["https://www.instagram.com/query/"]
-},
-['blocking', "requestHeaders"]);
+	['blocking', "requestHeaders"]);
