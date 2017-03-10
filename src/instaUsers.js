@@ -162,15 +162,19 @@ $(function () {
 		if (request.action == "modifyResultPage") {
 
 			getUserProfile(request.userName, function (obj) {
-				//if ("All" === request.relType)
-				fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "followed_by");
+				if ("All" === request.relType) {
+					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "followed_by");
+					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "follows");
+				} else {
+					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, request.relType);
+				}
 				//todo: add one more fetchInstaUsers
 			});
 		}
 	});
 });
 
-function fetchInstaUsers(request, userName, pageSize, csrfToken, userId, type) {
+function fetchInstaUsers(request, userName, pageSize, csrfToken, userId, relType) {
 //type could be followed by or follows
 //	type = "followed_by"
 
@@ -188,7 +192,7 @@ media.count
 */
 	
 	if (!request) {
-		request = "q=ig_user(" + userId + ")+%7B%0A++" + type + ".first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+		request = "q=ig_user(" + userId + ")+%7B%0A++" + relType + ".first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
 	}
 
 	$.ajax({
@@ -202,27 +206,37 @@ media.count
 		},
 		method: 'POST',
 		data: request,
-		success: function (data) {
-			console.log(data[type].nodes);
+		success: function (data, textStatus, xhr) {
+			console.log("success ajax - " + xhr.status);
+			console.log(arguments);
+			console.log(data[relType].nodes);
 			
-/*
-				//check if user is already in array
-				for (let i = 0; i < myData.length; i++) {
-					if (user === myData[i].username) {
-						console.log(`username ${user} is found at ${i}`);
-						return;
-					}
-				}
-*/
 
-				for (let i = 0; i < data[type].nodes.length; i++) {
-					$('#jqGrid').jqGrid('addRowData', data[type].nodes[i].id, data[type].nodes[i]);
+				//check if user is already in array
+
+
+				for (let i = 0; i < data[relType].nodes.length; i++) {
+					for (let j = 0; j < myData.length; j++) {
+						if (data[relType].nodes[i].username === myData[j].username) {
+							console.log(`username ${myData[j].username} is found at ${i}`);
+							break;
+						}
+					}
+					$('#jqGrid').jqGrid('addRowData', data[relType].nodes[i].id, data[relType].nodes[i]);
 				}
 			
-			if (data.followed_by.page_info.has_next_page) {
-				var next_req = "q=ig_user(" + userId + ")+%7B%0A++" + type + ".after(" + data.followed_by.page_info.end_cursor + "%2C+20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
-				fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId, type);
+			if (data[relType].page_info.has_next_page) {
+				var next_req = "q=ig_user(" + userId + ")+%7B%0A++" + relType + ".after(" + data[relType].page_info.end_cursor + "%2C+20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+				
+				setTimeout(fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId, relType), 1000);
 			}
+		},
+		error: function () {
+			console.log("error ajax - ");
+			console.log(arguments);
+		},		
+		complete: function (textStatus, xhr) {
+			console.log("complete ajax - " + xhr.status);
 		}
 	});
 
