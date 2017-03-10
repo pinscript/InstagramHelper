@@ -1,9 +1,9 @@
 /* jshint esnext: true */
 /* globals chrome */
 
-$(function () {
+var myData = [];
 
-	var myData = [];
+$(function () {
 
 	//build grid
 	$("#jqGrid").jqGrid({
@@ -162,37 +162,44 @@ $(function () {
 		if (request.action == "modifyResultPage") {
 
 			getUserProfile(request.userName, function (obj) {
-				if ("All" === request.relType) {
-					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "followed_by");
-					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, "follows");
-				} else {
-					fetchInstaUsers(null, request.userName, request.pageSize, request.csrfToken, obj.id, request.relType);
+				var fetchSettings = {
+					request: null,
+					userName: request.userName,
+					pageSize: request.pageSize,
+					delay: request.delay,
+					csrfToken: request.csrfToken,
+					userId: obj.id,
+					relType: "All" === request.relType ? "followed_by" : request.relType,
+					callBoth: "All" === request.relType
 				}
-				//todo: add one more fetchInstaUsers
+				fetchInstaUsers(fetchSettings);
 			});
 		}
 	});
 });
 
-function fetchInstaUsers(request, userName, pageSize, csrfToken, userId, relType) {
-//type could be followed by or follows
-//	type = "followed_by"
+//function fetchInstaUsers(request, userName, pageSize, delay, csrfToken, userId, relType) {
+function fetchInstaUsers(obj) {
+	//	"followed_by" | "follows"
 
 	console.log("fectch insta users");
 	console.log(arguments);
-
-/*
-profile_pic_url_hd
-username
-full_name
-connected_fb_page
-external_url
-biography
-media.count
-*/
 	
-	if (!request) {
-		request = "q=ig_user(" + userId + ")+%7B%0A++" + relType + ".first(20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+	//if (obj.relType === "All")
+	//	obj.relType = "followed_by";
+
+	/*
+	profile_pic_url_hd
+	username
+	full_name
+	connected_fb_page
+	external_url
+	biography
+	media.count
+	 */
+
+	if (!obj.request) {
+		obj.request = "q=ig_user(" + obj.userId + ")+%7B%0A++" + obj.relType + ".first(" + obj.pageSize + ")+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
 	}
 
 	$.ajax({
@@ -200,43 +207,51 @@ media.count
 		crossDomain: true,
 		headers: {
 			"X-Instagram-AJAX": '1',
-			"X-CSRFToken": csrfToken,
+			"X-CSRFToken": obj.csrfToken,
 			"X-Requested-With": XMLHttpRequest,
-			"eferer": "https://www.instagram.com/" + userName + "/"
+			"eferer": "https://www.instagram.com/" + obj.userName + "/"
 		},
 		method: 'POST',
-		data: request,
-		success: function (data, textStatus, xhr) {
+		data: obj.request,
+		success: function ajaxSuccessResponse(data, textStatus, xhr) {
 			console.log("success ajax - " + xhr.status);
 			console.log(arguments);
-			console.log(data[relType].nodes);
-			
+			console.log(obj.relType);
+			console.log(data[obj.relType].nodes);
 
-				//check if user is already in array
-
-
-				for (let i = 0; i < data[relType].nodes.length; i++) {
-					for (let j = 0; j < myData.length; j++) {
-						if (data[relType].nodes[i].username === myData[j].username) {
-							console.log(`username ${myData[j].username} is found at ${i}`);
-							break;
-						}
+			for (let i = 0; i < data[obj.relType].nodes.length; i++) {
+				var found = false;
+				for (let j = 0; j < myData.length; j++) {
+					if (data[obj.relType].nodes[i].username === myData[j].username) {
+						found = true;
+						console.log(`username ${myData[j].username} is found at ${i}`);
+						break;
 					}
-					$('#jqGrid').jqGrid('addRowData', data[relType].nodes[i].id, data[relType].nodes[i]);
 				}
-			
-			if (data[relType].page_info.has_next_page) {
-				var next_req = "q=ig_user(" + userId + ")+%7B%0A++" + relType + ".after(" + data[relType].page_info.end_cursor + "%2C+20)+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
-				
-				setTimeout(fetchInstaUsers(next_req, userName, pageSize, csrfToken, userId, relType), 1000);
+				if (!(found))
+					$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
+			}
+
+			if (data[obj.relType].page_info.has_next_page) {
+				obj.request = "q=ig_user(" + obj.userId + ")+%7B%0A++" + obj.relType + ".after(" + data[obj.relType].page_info.end_cursor + "%2C+" + obj.pageSize + ")+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+
+				setTimeout(fetchInstaUsers(obj), obj.delay);
+			} else {
+				if (obj.callBoth) {
+					obj.request = null;
+					obj.relType = "follows";
+					obj.callBoth = false;
+					setTimeout(fetchInstaUsers(obj), obj.delay);
+				}
 			}
 		},
 		error: function () {
-			console.log("error ajax - ");
+			console.log("error ajax");
 			console.log(arguments);
-		},		
+		},
 		complete: function (textStatus, xhr) {
-			console.log("complete ajax - " + xhr.status);
+			console.log("complete ajax");
+			console.log(arguments);
 		}
 	});
 

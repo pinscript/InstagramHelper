@@ -39,7 +39,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	} else if (request.action === "get_insta_users") {
 
 		chrome.storage.sync.get({
-			pageSize: 20
+			pageSize: 100,
+			delay: 1000
 		}, function (items) {
 			//var arr = document.URL.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 			var sharedData = getCsrfToken();
@@ -48,6 +49,7 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 				action: "return_insta_users",
 				userName: request.userName,
 				pageSize: items.pageSize,
+				delay: items.delay,
 				csrfToken: sharedData.config.csrf_token,
 				relType: request.relType
 			});
