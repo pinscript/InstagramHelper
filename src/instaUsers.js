@@ -185,21 +185,12 @@ function fetchInstaUsers(obj) {
 	console.log("fectch insta users");
 	console.log(arguments);
 	
-	//if (obj.relType === "All")
-	//	obj.relType = "followed_by";
-
-	/*
-	profile_pic_url_hd
-	username
-	full_name
-	connected_fb_page
-	external_url
-	biography
-	media.count
-	 */
 
 	if (!obj.request) {
-		obj.request = "q=ig_user(" + obj.userId + ")+%7B%0A++" + obj.relType + ".first(" + obj.pageSize + ")+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2Cis_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+		obj.request = $.param({q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, 
+			nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
+			external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
+		ref: "relationships::follow_list"});
 	}
 
 	$.ajax({
@@ -216,8 +207,6 @@ function fetchInstaUsers(obj) {
 		success: function ajaxSuccessResponse(data, textStatus, xhr) {
 			console.log("success ajax - " + xhr.status);
 			console.log(arguments);
-			console.log(obj.relType);
-			console.log(data[obj.relType].nodes);
 
 			for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 				var found = false;
@@ -228,12 +217,20 @@ function fetchInstaUsers(obj) {
 						break;
 					}
 				}
-				if (!(found))
+				if (!(found)) {
+					data[obj.relType].nodes[i].followers_count = data[obj.relType].nodes[i].followed_by.count;
+					data[obj.relType].nodes[i].following_count = data[obj.relType].nodes[i].follows.count;
+					data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
 					$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
+				}
 			}
 
 			if (data[obj.relType].page_info.has_next_page) {
-				obj.request = "q=ig_user(" + obj.userId + ")+%7B%0A++" + obj.relType + ".after(" + data[obj.relType].page_info.end_cursor + "%2C+" + obj.pageSize + ")+%7B%0A++++count%2C%0A++++page_info+%7B%0A++++++end_cursor%2C%0A++++++has_next_page%0A++++%7D%2C%0A++++nodes+%7B%0A++++++id%2C%0A++++++is_verified%2C%0A++++++followed_by_viewer%2C%0A++++++requested_by_viewer%2C%0A++++++full_name%2C%0A++++++profile_pic_url%2C%0A++++++username%2C%0Afollows_viewer%2C1is_private%2Cfollows%7Bcount%7D%2Cfollowed_by%7Bcount%7D++++%7D%0A++%7D%0A%7D%0A&amp;ref=relationships%3A%3Afollow_list";
+				obj.request = $.param({q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page},    
+					nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
+					external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
+				ref: "relationships::follow_list"});
+
 
 				setTimeout(fetchInstaUsers(obj), obj.delay);
 			} else {
