@@ -5,7 +5,7 @@ $(function () {
 	//console.log("document ready - " + Date());
 
 	$('#username').on("change", function () {
-		if ($(this).val()) {
+		if ($(this).val().length > 0) {
 			$('#instaUsers').removeAttr("disabled");
 		} else {
 			$('#instaUsers').attr("disabled", "disabled");
@@ -69,6 +69,7 @@ window.onload = function () {
 			});
 		} else {
 			$("#container").text("UserName is not found in URL");
+			$('#instaUsers').attr("disabled", "disabled");
 		}
 	});
 };
