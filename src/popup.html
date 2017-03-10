@@ -8,7 +8,20 @@
         <script src="popup.js"></script>
     </head>
     <body>
-        <input id="instaUsers" type="submit" value="Get Insta Users" />
+		<div style="border: 1px solid; padding: 5px;">
+			<div style="padding: 5px;">
+			<input type = "text" id="username" style="width: 100%" />
+			<input type = "radio" name = "relType" id = "All" checked = "checked" />
+			<label for = "All">All</label><br/>
+			<input type = "radio" name = "relType" id = "follows" />
+			<label for = "follows">Follows</label><br/>
+			<input type = "radio" name = "relType" id = "followed_by" />
+			<label for = "followed_by">Followed by</label><br>
+			</div>
+			<input id="instaUsers" type="submit" value="Get Insta Users" />
+		</div>
+		<br />
+        <input id="instaUsersOld" type="submit" value="Get Insta Users (manual fetching)" />
 		<br /><br />
         <div id="container" style="white-space: nowrap;">User Info</div>
 		

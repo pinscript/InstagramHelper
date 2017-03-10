@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Insta Users</title>
+        <script src="ga.js"></script>
+        <script src="lib/jquery-3.1.1.min.js"></script>
+		<script src="getUserProfile.js"></script>		
+    	<script src="prepareCSV.js"></script>
+    	<script src="instaUsers.js"></script>
+		
+		<script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script>
+		<script type="text/ecmascript" src="lib/jqGrid/grid.locale-en.js"></script>
+		<link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/jquery-ui.css" />
+		<link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.css" />
+		
+		
+    </head>
+    <body>
+		
+		<strong><a id="exportCSV" href="">Export to CSV file</a></strong>
+		<br/><br/>
+		<table id="jqGrid"></table>
+		<div id="jqGridPager"></div>
+		
+    </body>
+
+</html>
