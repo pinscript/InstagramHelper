@@ -5,7 +5,7 @@ function getUserProfile(username, callback) {
 	var link = `https://www.instagram.com/${username}/?__a=1`;
 	$.ajax({
 		url: link,
-		success: function (result) {
+		success: function (data) {
 			var {
 				id,
 				username,
@@ -17,10 +17,10 @@ function getUserProfile(username, callback) {
 				followed_by_viewer,
 				follows_viewer,
 				is_private
-			} = result.user;
-			var following_count = result.user.follows.count;
-			var followers_count = result.user.followed_by.count;
-			var media_count = result.user.media.count;
+			} = data.user;
+			var following_count = data.user.follows.count;
+			var followers_count = data.user.followed_by.count;
+			var media_count = data.user.media.count;
 			var obj = {};
 			Object.assign(obj, {
 				id,
@@ -39,9 +39,10 @@ function getUserProfile(username, callback) {
 			});
 			callback(obj);
 		},
-		error: function () {
-			console.log(`Error calling ajax to get ${username} profile`);
+		error: function (xhr) {
+			console.log(`Error making ajax request to get ${username} profile, status - ${xhr.status}`);
 			console.log(arguments);
+			alert (`error getting the user ${username} profile, status - ${xhr.status}`);
 		},
 		async: true
 	});

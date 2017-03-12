@@ -171,7 +171,7 @@ $(function () {
 					userId: obj.id,
 					relType: "All" === request.relType ? "followed_by" : request.relType,
 					callBoth: "All" === request.relType,
-					checkDuplicates: false
+					checkDuplicates: myData.length > 0 //probably we are starting with already opened page 
 				};
 				fetchInstaUsers(fetchSettings);
 			});
@@ -181,9 +181,6 @@ $(function () {
 
 //function fetchInstaUsers(request, userName, pageSize, delay, csrfToken, userId, relType) {
 function fetchInstaUsers(obj) {
-	//	"followed_by" | "follows"
-
-	//console.log(arguments);
 
 	if (!obj.request) {
 		obj.request = $.param({
@@ -206,12 +203,16 @@ function fetchInstaUsers(obj) {
 		method: 'POST',
 		data: obj.request,
 		success: function (data, textStatus, xhr) {
-			//console.log("success ajax - " + xhr.status); //todo: check 429 here and handle it
-			//console.log(arguments);
-
+			if (429 == xhr.status) {
+				
+				setTimeout(fetchInstaUsers(obj), obj.delay * 500); //how do I test it?
+				alert("429 is returned, set delay before retry")
+				return;
+			}
+			//otherwise assume return code is 200?
 			for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 				var found = false;
-				if (obj.checkDuplicates) { //only when the second run happens
+				if (obj.checkDuplicates) { //only when the second run happens or we started with already opened result page
 					for (let j = 0; j < myData.length; j++) {
 						if (data[obj.relType].nodes[i].username === myData[j].username) {
 							found = true;

@@ -47,6 +47,10 @@ window.onload = function () {
 		currentWindow: true
 	}, function (tabs) {
 
+		if (tabs[0].incognito) {
+			console.log("incognito mode detected, not supported for getting the list of users"); //todo: how do I handle it?
+		}
+		
 		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 
 		if (arr) {
