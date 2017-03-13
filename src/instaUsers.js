@@ -28,7 +28,7 @@ $(function () {
 			}, {
 				label: 'Info',
 				name: 'id',
-				width: '250',
+				width: '220',
 				sortable: false,
 				formatter: function (cellvalue, model, row) {
 					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
@@ -53,8 +53,32 @@ $(function () {
 				},
 				search: false
 			}, {
-				label: 'Followed',
+				label: 'Followed by you',
 				name: 'followed_by_viewer',
+				width: '85',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
+			}, {
+				label: 'Follows you',
+				name: 'follows_viewer',
+				width: '85',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				search: true
+			}, {
+				label: 'Followed',
+				name: 'followed_by_user',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
@@ -66,7 +90,7 @@ $(function () {
 				search: true
 			}, {
 				label: 'Follows',
-				name: 'follows_viewer',
+				name: 'follows_user',
 				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
@@ -204,12 +228,12 @@ function fetchInstaUsers(obj) {
 		data: obj.request,
 		success: function (data, textStatus, xhr) {
 			if (429 == xhr.status) {
-				
-				setTimeout(fetchInstaUsers(obj), obj.delay * 500); //how do I test it?
+				setTimeout(fetchInstaUsers(obj), obj.delay * 500); //todo: test it
 				alert("429 is returned, set delay before retry")
 				return;
 			}
 			//otherwise assume return code is 200?
+			//relType could be followed_by / follows
 			for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 				var found = false;
 				if (obj.checkDuplicates) { //only when the second run happens or we started with already opened result page
@@ -217,6 +241,7 @@ function fetchInstaUsers(obj) {
 						if (data[obj.relType].nodes[i].username === myData[j].username) {
 							found = true;
 							console.log(`username ${myData[j].username} is found at ${i}`);
+							myData[j][obj.relType + "_user"] = true;
 							break;
 						}
 					}
@@ -225,6 +250,7 @@ function fetchInstaUsers(obj) {
 					data[obj.relType].nodes[i].followers_count = data[obj.relType].nodes[i].followed_by.count;
 					data[obj.relType].nodes[i].following_count = data[obj.relType].nodes[i].follows.count;
 					data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
+					data[obj.relType].nodes[i][obj.relType + "_user"] = true;
 					$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
 				}
 			}
@@ -246,6 +272,8 @@ function fetchInstaUsers(obj) {
 					obj.checkDuplicates = true;
 					setTimeout(fetchInstaUsers(obj), obj.delay);
 				}
+				//reload Grid
+				$('#jqGrid').trigger('reloadGrid');
 			}
 		},
 		error: function () {

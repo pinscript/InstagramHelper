@@ -4,7 +4,7 @@
 $(function () {
 	//console.log("document ready - " + Date());
 
-	$('#username').on("change", function () {
+	$('#username').on ("change keyup", function () {
 		if ($(this).val().length > 0) {
 			$('#instaUsers').removeAttr("disabled");
 		} else {
