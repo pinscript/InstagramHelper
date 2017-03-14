@@ -67,7 +67,7 @@ $(function () {
 			}, {
 				label: 'Follows you',
 				name: 'follows_viewer',
-				width: '85',
+				width: '90',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -77,9 +77,9 @@ $(function () {
 				},
 				search: true
 			}, {
-				label: 'Followed',
-				name: 'followed_by_user',
-				width: '80',
+				label: 'Follows user',
+				name: 'followed_by_user', //relationship: followed_by - the list of the user's followers
+				width: '90',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -89,9 +89,9 @@ $(function () {
 				},
 				search: true
 			}, {
-				label: 'Follows',
-				name: 'follows_user',
-				width: '80',
+				label: 'Followed by user',
+				name: 'follows_user', //relationship: follows - from the list of the followed person by user
+				width: '90',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -103,7 +103,7 @@ $(function () {
 			}, {
 				label: 'Private',
 				name: 'is_private',
-				width: '80',
+				width: '90',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -161,7 +161,7 @@ $(function () {
 
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
-		loadonce: true,
+		//loadonce: true,
 		caption: "Instagram Users",
 	});
 
@@ -242,6 +242,7 @@ function fetchInstaUsers(obj) {
 							found = true;
 							console.log(`username ${myData[j].username} is found at ${i}`);
 							myData[j][obj.relType + "_user"] = true;
+							$("#jqGrid").jqGrid('setCell', data[obj.relType].nodes[i].id, obj.relType + "_user", true);
 							break;
 						}
 					}
@@ -272,8 +273,10 @@ function fetchInstaUsers(obj) {
 					obj.checkDuplicates = true;
 					setTimeout(fetchInstaUsers(obj), obj.delay);
 				}
+				//we are done
+				console.log("Completed", new Date());
 				//reload Grid
-				$('#jqGrid').trigger('reloadGrid');
+				//$('#jqGrid').trigger('reloadGrid');
 			}
 		},
 		error: function () {
