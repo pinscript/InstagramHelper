@@ -5,11 +5,35 @@ var myData = [];
 
 $(function () {
 
+	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+		if (request.action == "modifyResultPage") {
+
+			getUserProfile(request.userName, function (obj) {
+				var fetchSettings = {
+					request: null,
+					userName: request.userName,
+					pageSize: request.pageSize,
+					delay: request.delay,
+					csrfToken: request.csrfToken,
+					userId: obj.id,
+					relType: "All" === request.relType ? "followed_by" : request.relType,
+					callBoth: "All" === request.relType,
+					checkDuplicates: myData.length > 0 //probably we are starting with already opened page 
+				};
+				prepareGrid();
+				fetchInstaUsers(fetchSettings);
+			});
+		}
+	});
+});
+
+function prepareGrid() {
 	//build grid
 	$("#jqGrid").jqGrid({
 		pager: "#jqGridPager",
 		datatype: "local",
 		data: myData,
+		rowNum: 9999,
 		//autowidth: false,
 		width: "98%",
 		shrinkToFit: true,
@@ -53,6 +77,21 @@ $(function () {
 				},
 				search: false
 			}, {
+				label: 'Follows you',
+				name: 'follows_viewer',
+				width: '90',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="background: #e6e6e6;"';
+				},
+				search: true
+			}, {
 				label: 'Followed by you',
 				name: 'followed_by_viewer',
 				width: '85',
@@ -63,17 +102,8 @@ $(function () {
 					sopt: ["eq"],
 					value: ":Any;true:Yes;false:No"
 				},
-				search: true
-			}, {
-				label: 'Follows you',
-				name: 'follows_viewer',
-				width: '90',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="background: #e6e6e6;"';
 				},
 				search: true
 			}, {
@@ -89,7 +119,7 @@ $(function () {
 				},
 				search: true
 			}, {
-				label: 'Followed by user',
+				label: 'Followed<br/> by user',
 				name: 'follows_user', //relationship: follows - from the list of the followed person by user
 				width: '90',
 				formatter: 'checkbox',
@@ -168,6 +198,7 @@ $(function () {
 	$('#jqGrid').jqGrid('filterToolbar', {
 		searchOperators: true
 	});
+	
 	$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
 		search: true, // show search button on the toolbar
 		add: false,
@@ -180,28 +211,8 @@ $(function () {
 		var csv = arrayToCSV(myData);
 		this.download = "export.csv";
 		this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
-	});
-
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		if (request.action == "modifyResultPage") {
-
-			getUserProfile(request.userName, function (obj) {
-				var fetchSettings = {
-					request: null,
-					userName: request.userName,
-					pageSize: request.pageSize,
-					delay: request.delay,
-					csrfToken: request.csrfToken,
-					userId: obj.id,
-					relType: "All" === request.relType ? "followed_by" : request.relType,
-					callBoth: "All" === request.relType,
-					checkDuplicates: myData.length > 0 //probably we are starting with already opened page 
-				};
-				fetchInstaUsers(fetchSettings);
-			});
-		}
-	});
-});
+	});	
+}
 
 //function fetchInstaUsers(request, userName, pageSize, delay, csrfToken, userId, relType) {
 function fetchInstaUsers(obj) {

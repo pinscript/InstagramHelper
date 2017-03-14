@@ -5,6 +5,7 @@ $(function () {
 	//console.log("document ready - " + Date());
 
 	$('#username').on ("change keyup", function () {
+		//todo: clear following / followers
 		if ($(this).val().length > 0) {
 			$('#instaUsers').removeAttr("disabled");
 		} else {
@@ -25,6 +26,9 @@ $(function () {
 
 	$('#instaUsers').click(function () {
 		//console.log($('input[name=relType]:checked').attr("id"));
+		//resolve user name
+		//update follower/following
+		//send them as message
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
@@ -70,6 +74,7 @@ window.onload = function () {
 				}
 				$("#container").html($html);
 				$("#username").val(obj.username);
+				//todo:: update followers / following
 			});
 		} else {
 			$("#container").text("UserName is not found in URL");
