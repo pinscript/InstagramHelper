@@ -44,5 +44,7 @@
 		"webRequest",
 		"webRequestBlocking",
 		"https://www.instagram.com/*"
-	]
+	],
+	
+	"incognito": "split"
 }

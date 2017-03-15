@@ -8,21 +8,19 @@ $(function () {
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
 
-			getUserProfile(request.userName, function (obj) {
 				var fetchSettings = {
 					request: null,
 					userName: request.userName,
 					pageSize: request.pageSize,
 					delay: request.delay,
 					csrfToken: request.csrfToken,
-					userId: obj.id,
+					userId: request.userId,
 					relType: "All" === request.relType ? "followed_by" : request.relType,
 					callBoth: "All" === request.relType,
 					checkDuplicates: myData.length > 0 //probably we are starting with already opened page 
 				};
 				prepareGrid();
 				fetchInstaUsers(fetchSettings);
-			});
 		}
 	});
 });

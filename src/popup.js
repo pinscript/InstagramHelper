@@ -25,22 +25,29 @@ $(function () {
 	});
 
 	$('#instaUsers').click(function () {
-		//console.log($('input[name=relType]:checked').attr("id"));
-		//resolve user name
-		//update follower/following
-		//send them as message
-		chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		}, function (tabs) {
-			chrome.tabs.sendMessage(tabs[0].id, {
-				action: "get_insta_users",
-				userName: $("#username").val(),
-				relType: $('input[name=relType]:checked').attr("id")
-			});
-		});
-	});
 
+		var userName = $("#username").val();
+		
+		if (!userName) 
+			return;
+		
+		getUserProfile(userName, function (obj) {
+		
+			chrome.tabs.query({
+				active: true,
+				currentWindow: true
+			}, function (tabs) {
+				chrome.tabs.sendMessage(tabs[0].id, {
+					action: "get_insta_users",
+					userName: $("#username").val(),
+					userId: obj.id,
+					followsCount: obj.following_count,
+					followedByCount: obj.followers_count,
+					relType: $('input[name=relType]:checked').attr("id")
+				});
+			});
+		});		
+	});
 });
 
 window.onload = function () {
@@ -74,6 +81,7 @@ window.onload = function () {
 				}
 				$("#container").html($html);
 				$("#username").val(obj.username);
+				$("#relationship").text(`followers - ${obj.followers_count} / following - ${obj.following_count}`);
 				//todo:: update followers / following
 			});
 		} else {

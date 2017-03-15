@@ -45,14 +45,11 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
 			var sharedData = getCsrfToken();
 
-			chrome.runtime.sendMessage({
-				action: "return_insta_users",
-				userName: request.userName,
-				pageSize: items.pageSize,
-				delay: items.delay,
-				csrfToken: sharedData.config.csrf_token,
-				relType: request.relType
-			});
+			request.action = "return_insta_users";
+			request.pageSize = items.pageSize;
+			request.delay = items.delay;
+			request.csrfToken = sharedData.config.csrf_token;
+			chrome.runtime.sendMessage(request);
 		});
 	}
 });
