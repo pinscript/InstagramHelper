@@ -52,7 +52,7 @@ function prepareGrid() {
 			}, {
 				label: 'Info',
 				name: 'id',
-				width: '220',
+				width: '200',
 				sortable: false,
 				formatter: function (cellvalue, model, row) {
 					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
@@ -77,9 +77,9 @@ function prepareGrid() {
 				},
 				search: false
 			}, {
-				label: 'Follows you',
+				label: 'Follows<br/>you',
 				name: 'follows_viewer',
-				width: '90',
+				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -88,13 +88,13 @@ function prepareGrid() {
 					value: ":Any;true:Yes;false:No"
 				},
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="background: #e6e6e6;"';
+					return 'style="background-color: #fbf9ee;"';
 				},
 				search: true
 			}, {
-				label: 'Followed by you',
+				label: 'Followed<br>by you',
 				name: 'followed_by_viewer',
-				width: '85',
+				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -103,13 +103,13 @@ function prepareGrid() {
 					value: ":Any;true:Yes;false:No"
 				},
 				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="background: #e6e6e6;"';
+					return 'style="background-color: #fbf9ee;"';
 				},
 				search: true
 			}, {
-				label: 'Follows user',
+				label: 'Follows<br/>user',
 				name: 'followed_by_user', //relationship: followed_by - the list of the user's followers
-				width: '90',
+				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -121,7 +121,7 @@ function prepareGrid() {
 			}, {
 				label: 'Followed<br/> by user',
 				name: 'follows_user', //relationship: follows - from the list of the followed person by user
-				width: '90',
+				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -133,7 +133,7 @@ function prepareGrid() {
 			}, {
 				label: 'Private',
 				name: 'is_private',
-				width: '90',
+				width: '80',
 				formatter: 'checkbox',
 				align: 'center',
 				stype: 'select',
@@ -145,7 +145,7 @@ function prepareGrid() {
 			}, {
 				label: 'Followers',
 				name: 'followers_count',
-				width: '75',
+				width: '70',
 				align: 'center',
 				sorttype: 'number',
 				search: true,
@@ -155,7 +155,7 @@ function prepareGrid() {
 			}, {
 				label: 'Following',
 				name: 'following_count',
-				width: '75',
+				width: '70',
 				align: 'center',
 				sorttype: 'number',
 				search: true,
@@ -165,7 +165,7 @@ function prepareGrid() {
 			}, {
 				label: 'Posts',
 				name: 'media_count',
-				width: '75',
+				width: '70',
 				align: 'center',
 				sorttype: 'number',
 				search: true,
