@@ -2,6 +2,7 @@
 /* globals chrome */
 
 var myData = [];
+var startTime;
 
 $(function () {
 
@@ -17,9 +18,12 @@ $(function () {
 					userId: request.userId,
 					relType: "All" === request.relType ? "followed_by" : request.relType,
 					callBoth: "All" === request.relType,
-					checkDuplicates: myData.length > 0 //probably we are starting with already opened page 
+					checkDuplicates: myData.length > 0, //probably we are starting with already opened page , TODO: what do we do about that
+					followsCount: request.followsCount,
+					followedByCount: request.followedByCount
 				};
 				prepareGrid();
+				startTime = new Date();
 				fetchInstaUsers(fetchSettings);
 		}
 	});
@@ -283,8 +287,8 @@ function fetchInstaUsers(obj) {
 					setTimeout(fetchInstaUsers(obj), obj.delay);
 				}
 				//we are done
-				console.log("Completed", new Date());
-				//reload Grid
+				var takenTime = parseInt((new Date() - startTime) / 1000, 10)
+				console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
 				//$('#jqGrid').trigger('reloadGrid');
 			}
 		},
