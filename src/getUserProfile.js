@@ -16,7 +16,11 @@ function getUserProfile(username, callback) {
 				external_url,
 				followed_by_viewer,
 				follows_viewer,
-				is_private
+				is_private,
+				has_requested_viewer,
+				blocked_by_viewer,
+				requested_by_viewer,
+				has_blocked_viewer
 			} = data.user;
 			var following_count = data.user.follows.count;
 			var followers_count = data.user.followed_by.count;
@@ -33,6 +37,10 @@ function getUserProfile(username, callback) {
 				followed_by_viewer,
 				follows_viewer,
 				is_private,
+				has_requested_viewer,
+				blocked_by_viewer,
+				requested_by_viewer,
+				has_blocked_viewer,
 				following_count,
 				followers_count,
 				media_count

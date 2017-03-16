@@ -216,6 +216,11 @@ function prepareGrid() {
 	});	
 }
 
+function generationCompleted(obj) {
+	var takenTime = parseInt((new Date() - startTime) / 1000, 10)
+	console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
+}
+
 //function fetchInstaUsers(request, userName, pageSize, delay, csrfToken, userId, relType) {
 function fetchInstaUsers(obj) {
 
@@ -287,9 +292,7 @@ function fetchInstaUsers(obj) {
 					setTimeout(fetchInstaUsers(obj), obj.delay);
 				}
 				//we are done
-				var takenTime = parseInt((new Date() - startTime) / 1000, 10)
-				console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
-				//$('#jqGrid').trigger('reloadGrid');
+				generationCompleted(obj);
 			}
 		},
 		error: function () {

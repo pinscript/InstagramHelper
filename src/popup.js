@@ -57,15 +57,10 @@ window.onload = function () {
 		active: true,
 		currentWindow: true
 	}, function (tabs) {
-
-		if (tabs[0].incognito) {
-			console.log("incognito mode detected, not supported for getting the list of users"); //todo: how do I handle it?
-		}
 		
 		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 
 		if (arr) {
-
 			getUserProfile(arr[1], function (obj) {
 
 				var $html = "";
@@ -79,13 +74,11 @@ window.onload = function () {
 						}
 					}
 				}
-				$("#container").html($html);
 				$("#username").val(obj.username);
-				$("#relationship").text(`followers - ${obj.followers_count} / following - ${obj.following_count}`);
-				//todo:: update followers / following
+				$("#details").html($html);
 			});
 		} else {
-			$("#container").text("UserName is not found in URL");
+			$("#details").text("UserName is not found in URL");
 			$('#instaUsers').attr("disabled", "disabled");
 		}
 	});
