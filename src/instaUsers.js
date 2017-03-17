@@ -22,7 +22,7 @@ $(function () {
 					followsCount: request.followsCount,
 					followedByCount: request.followedByCount
 				};
-				prepareGrid();
+				//prepareGrid();
 				startTime = new Date();
 				fetchInstaUsers(fetchSettings);
 		}
@@ -30,12 +30,11 @@ $(function () {
 });
 
 function prepareGrid() {
-	//build grid
 	$("#jqGrid").jqGrid({
 		pager: "#jqGridPager",
 		datatype: "local",
 		data: myData,
-		rowNum: 9999,
+		rowNum: 99999,
 		//autowidth: false,
 		width: "98%",
 		shrinkToFit: true,
@@ -193,7 +192,7 @@ function prepareGrid() {
 
 		],
 		viewrecords: true, // show the current page, data rang and total records on the toolbar
-		//loadonce: true,
+		loadonce: true,
 		caption: "Instagram Users",
 	});
 
@@ -209,19 +208,29 @@ function prepareGrid() {
 		refresh: true
 	});
 
-	$("#exportCSV").click(function () {
-		var csv = arrayToCSV(myData);
+}
+
+function prepareExportDiv() {
+
+	$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
+
+	$("#linkExportCSV").click(function () {
+		var csv = csvCreate.arrayToCSV(myData);
 		this.download = "export.csv";
 		this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
-	});	
+	});		
 }
 
 function generationCompleted(obj) {
-	var takenTime = parseInt((new Date() - startTime) / 1000, 10)
+	var endTime = new Date();
+	var takenTime = parseInt((endTime - startTime) / 1000, 10)
 	console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
+	prepareGrid();
+	prepareExportDiv();
+	takenTime = parseInt((new Date() - endTime) / 1000, 10)
+	console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
 }
 
-//function fetchInstaUsers(request, userName, pageSize, delay, csrfToken, userId, relType) {
 function fetchInstaUsers(obj) {
 
 	if (!obj.request) {
@@ -260,7 +269,7 @@ function fetchInstaUsers(obj) {
 							found = true;
 							console.log(`username ${myData[j].username} is found at ${i}`);
 							myData[j][obj.relType + "_user"] = true;
-							$("#jqGrid").jqGrid('setCell', data[obj.relType].nodes[i].id, obj.relType + "_user", true);
+							//$("#jqGrid").jqGrid('setCell', data[obj.relType].nodes[i].id, obj.relType + "_user", true);
 							break;
 						}
 					}
@@ -270,7 +279,8 @@ function fetchInstaUsers(obj) {
 					data[obj.relType].nodes[i].following_count = data[obj.relType].nodes[i].follows.count;
 					data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
 					data[obj.relType].nodes[i][obj.relType + "_user"] = true;
-					$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
+					myData.push(data[obj.relType].nodes[i]);
+					//$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
 				}
 			}
 
@@ -290,9 +300,10 @@ function fetchInstaUsers(obj) {
 					obj.callBoth = false;
 					obj.checkDuplicates = true;
 					setTimeout(fetchInstaUsers(obj), obj.delay);
-				}
+				} else {
 				//we are done
-				generationCompleted(obj);
+					generationCompleted(obj);
+				}
 			}
 		},
 		error: function () {

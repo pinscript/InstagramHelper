@@ -1,6 +1,9 @@
 /* globals chrome, document */
 
-function save_options() {
+options = function() {
+}
+
+options.save_options = function() {
 	var usersClass = document.getElementById('usersClass').value;
 	var pageSize = document.getElementById('pageSize').value;
 	var delay = document.getElementById('delay').value;
@@ -18,7 +21,7 @@ function save_options() {
 	});
 }
 
-function restore_options() {
+options restore_options() {
 	chrome.storage.sync.get({
 		usersClass: '_539vh',
 		pageSize: 100,
@@ -30,9 +33,9 @@ function restore_options() {
 	});
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);
+document.addEventListener('DOMContentLoaded', options.restore_options);
 
-document.getElementById('save').addEventListener('click', save_options);
+document.getElementById('save').addEventListener('click', options.save_options);
 
 window.onload = function () {
 	_gaq.push(['_trackPageview']);

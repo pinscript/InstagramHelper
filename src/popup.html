@@ -12,10 +12,11 @@
   <body>
     <div style="border: 1px solid; padding: 5px;">
       <div style="padding: 5px;">
+	  
+      <div id="main" style="border: 0.5px solid; padding: 3px; margin: 3px;">
       <label>UserName:</label>
-      <input type="text" id="username" style="width: 100%" />
-      <div id="details" style="padding: 2px;"></div>
-      <input type="radio" name="relType" id="All" checked="checked" /> 
+      <input type="text" id="username" style="width: 90%" />
+	  <input type="radio" name="relType" id="All" checked="checked" /> 
       <label for="All">All</label>
       <br />
       <input type="radio" name="relType" id="follows" /> 
@@ -23,7 +24,10 @@
       <br />
       <input type="radio" name="relType" id="followed_by" /> 
       <label for="followed_by">Followed by</label>
-      <br /></div>
+      </div>
+	  
+	  <div id="details" style="border: 0.5px solid; padding: 3px; margin: 3px;"></div>
+	  </div>
       <input id="instaUsers" type="submit" value="Get Insta Users" />
     </div>
     <br />

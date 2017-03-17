@@ -1,0 +1,9 @@
+th.ui-th-column div
+{
+        white-space:normal !important;
+        height:auto !important;
+        padding:2px;
+}
+.ui-jqgrid .ui-jqgrid-resize {
+	height:100% !important;
+}

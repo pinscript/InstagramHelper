@@ -1,20 +1,29 @@
 <!DOCTYPE html>
 <html>
-   <head>
-      <title>Instagram Helper: Options</title>
-       <script src="ga.js"></script>
-   </head>
-   <body>
-      <h1>Options</h1>
-      <span>Class to grab the users: </span><input type="text" id="usersClass" />
-	  <br />
-      <span>Page size for fetching users: </span><input type="text" id="pageSize" />
-	  <br />
-      <span>Interval between requests for fetching users, ms: </span><input type="text" id="delay" />
-      
-	  <div id="status"></div>
-      <button id="save">Save</button>
-	  
-	  <script src="options.js"></script>
-   </body>
+  <head>
+    <meta name="generator"
+    content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
+    <title>Instagram Helper: Options</title>
+    <script src="ga.js"></script>
+  </head>
+  <body>
+  <h1>Options</h1>
+  <div>
+  <span>Class to grab the users:</span> 
+  <input type="text" id="usersClass" />
+  <br />
+  <span>Page size for fetching users:</span> 
+  <input type="text" id="pageSize" />
+  <br />
+  <span>Interval between requests for fetching users, ms:</span> 
+  <input type="text" id="delay" /></div>
+  <div>
+  <label for="csv-fields">The fields to be exported into CSV:</label> 
+  <textarea id="csv-fields" placeholder="username, id" type="text"></textarea>
+  <div>
+    <em>The fields should be separated by comma(,)</em>
+  </div></div>
+  <div id="status"></div>
+  <button id="save">Save</button><button id="restoreDefaults">Restore Default Values</button>  
+  <script src="options.js"></script></body>
 </html>

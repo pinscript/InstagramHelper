@@ -4,7 +4,7 @@
 $(function () {
 	//console.log("document ready - " + Date());
 
-	$('#username').on ("change keyup", function () {
+	$('#username').on("change keyup", function () {
 		//todo: clear following / followers
 		if ($(this).val().length > 0) {
 			$('#instaUsers').removeAttr("disabled");
@@ -27,26 +27,37 @@ $(function () {
 	$('#instaUsers').click(function () {
 
 		var userName = $("#username").val();
-		
-		if (!userName) 
+
+		if (!userName)
 			return;
-		
-		getUserProfile(userName, function (obj) {
-		
-			chrome.tabs.query({
-				active: true,
-				currentWindow: true
-			}, function (tabs) {
-				chrome.tabs.sendMessage(tabs[0].id, {
-					action: "get_insta_users",
-					userName: $("#username").val(),
-					userId: obj.id,
-					followsCount: obj.following_count,
-					followedByCount: obj.followers_count,
-					relType: $('input[name=relType]:checked').attr("id")
+
+		//query if we already have result page opened
+		var url = chrome.extension.getURL('instaUsers.html');
+		chrome.tabs.query({
+			url: url
+		}, function (tabs) {
+			if (tabs.length > 0) { //result tab is found
+				alert("The result window is already opened. Please close it before processing");
+				
+			} else { //tab is not found, let's continue
+				userInfo.getUserProfile(userName, function (obj) {
+
+					chrome.tabs.query({
+						active: true,
+						currentWindow: true
+					}, function (tabs) {
+						chrome.tabs.sendMessage(tabs[0].id, {
+							action: "get_insta_users",
+							userName: $("#username").val(),
+							userId: obj.id,
+							followsCount: obj.following_count,
+							followedByCount: obj.followers_count,
+							relType: $('input[name=relType]:checked').attr("id")
+						});
+					});
 				});
-			});
-		});		
+			}
+		});
 	});
 });
 
@@ -57,11 +68,11 @@ window.onload = function () {
 		active: true,
 		currentWindow: true
 	}, function (tabs) {
-		
+
 		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 
 		if (arr) {
-			getUserProfile(arr[1], function (obj) {
+			userInfo.getUserProfile(arr[1], function (obj) {
 
 				var $html = "";
 				delete obj.profile_pic_url_hd;

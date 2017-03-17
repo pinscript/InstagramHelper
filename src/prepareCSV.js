@@ -1,4 +1,7 @@
-function arrayToCSV(arr) {
+csvCreate = function(){
+}
+
+csvCreate.arrayToCSV = function(arr) {
 
 	var columnNames = [];
 	var rows = [];
@@ -10,6 +13,8 @@ function arrayToCSV(arr) {
 		for (var key in obj) {
 			// Don't iterate through prototype stuff
 			if (!obj.hasOwnProperty(key))
+				continue;
+			if (("follows" === key) || ("followed_by" === key) || ("media" === key) || ("biography" === key)) //TODO: HAVE AN ARRAY FOR EXPORT
 				continue;
 			// Collect the column names only once
 			if (i === 0)

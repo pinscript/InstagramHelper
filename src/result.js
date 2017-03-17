@@ -174,7 +174,7 @@ $(function () {
 					}
 				}
 
-				getUserProfile(user, function (obj) {
+				userInfo.getUserProfile(user, function (obj) {
 					$('#jqGrid').jqGrid('addRowData', obj.id, obj);
 				});
 

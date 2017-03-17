@@ -1,6 +1,9 @@
 /* jshint esnext: true */
 
-function getUserProfile(username, callback) {
+userInfo = function(){
+}
+
+userInfo.getUserProfile = function(username, callback) {
 
 	var link = `https://www.instagram.com/${username}/?__a=1`;
 	$.ajax({
