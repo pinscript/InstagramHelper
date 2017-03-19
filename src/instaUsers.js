@@ -24,6 +24,7 @@ $(function () {
 				};
 				//prepareGrid();
 				startTime = new Date();
+				//todo : initialize progress bar
 				fetchInstaUsers(fetchSettings);
 		}
 	});
@@ -222,6 +223,7 @@ function prepareExportDiv() {
 }
 
 function generationCompleted(obj) {
+	//todo: remove progress bar
 	var endTime = new Date();
 	var takenTime = parseInt((endTime - startTime) / 1000, 10)
 	console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
@@ -259,6 +261,7 @@ function fetchInstaUsers(obj) {
 				alert("429 is returned, set delay before retry")
 				return;
 			}
+			console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
 			//otherwise assume return code is 200?
 			//relType could be followed_by / follows
 			for (let i = 0; i < data[obj.relType].nodes.length; i++) {
