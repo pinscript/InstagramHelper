@@ -281,6 +281,8 @@ function fetchInstaUsers(obj) {
 					data[obj.relType].nodes[i].followers_count = data[obj.relType].nodes[i].followed_by.count;
 					data[obj.relType].nodes[i].following_count = data[obj.relType].nodes[i].follows.count;
 					data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
+					data[obj.relType].nodes[i].follows_user = false; //explicitly set the value for correct search
+					data[obj.relType].nodes[i].followed_by_user = false; //explicitly set the value for correct search
 					data[obj.relType].nodes[i][obj.relType + "_user"] = true;
 					myData.push(data[obj.relType].nodes[i]);
 					//$('#jqGrid').jqGrid('addRowData', data[obj.relType].nodes[i].id, data[obj.relType].nodes[i]);
