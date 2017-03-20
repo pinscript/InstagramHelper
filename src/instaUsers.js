@@ -9,23 +9,25 @@ $(function () {
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
 
-				var fetchSettings = {
-					request: null,
-					userName: request.userName,
-					pageSize: request.pageSize,
-					delay: request.delay,
-					csrfToken: request.csrfToken,
-					userId: request.userId,
-					relType: "All" === request.relType ? "followed_by" : request.relType,
-					callBoth: "All" === request.relType,
-					checkDuplicates: myData.length > 0, //probably we are starting with already opened page , TODO: what do we do about that
-					followsCount: request.followsCount,
-					followedByCount: request.followedByCount
-				};
-				//prepareGrid();
-				startTime = new Date();
-				//todo : initialize progress bar
-				fetchInstaUsers(fetchSettings);
+			var fetchSettings = {
+				request: null,
+				userName: request.userName,
+				pageSize: request.pageSize,
+				delay: request.delay,
+				csrfToken: request.csrfToken,
+				userId: request.userId,
+				relType: "All" === request.relType ? "followed_by" : request.relType,
+				callBoth: "All" === request.relType,
+				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , TODO: what do we do about that
+				follows_count: request.follows_count,
+				followed_by_count: request.followed_by_count,
+				follows_processed: 0,
+				followed_by_processed: 0
+				
+			};
+			startTime = new Date();
+			prepareProgressBar(fetchSettings);
+			fetchInstaUsers(fetchSettings);
 		}
 	});
 });
@@ -146,7 +148,7 @@ function prepareGrid() {
 				search: true
 			}, {
 				label: 'Followers',
-				name: 'followers_count',
+				name: 'followed_by_count',
 				width: '70',
 				align: 'center',
 				sorttype: 'number',
@@ -156,7 +158,7 @@ function prepareGrid() {
 				}
 			}, {
 				label: 'Following',
-				name: 'following_count',
+				name: 'follows_count',
 				width: '70',
 				align: 'center',
 				sorttype: 'number',
@@ -200,7 +202,7 @@ function prepareGrid() {
 	$('#jqGrid').jqGrid('filterToolbar', {
 		searchOperators: true
 	});
-	
+
 	$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
 		search: true, // show search button on the toolbar
 		add: false,
@@ -219,17 +221,47 @@ function prepareExportDiv() {
 		var csv = csvCreate.arrayToCSV(myData);
 		this.download = "export.csv";
 		this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
-	});		
+	});
+}
+
+function prepareProgressBar(obj) {
+	console.log("prepareProgressBar", obj.followed_by_count, obj.follows_count);
+	$('.followed_by').asProgress({
+		namespace: 'progress',
+		min: 0,
+		max: obj.followed_by_count,
+		labelCallback(n) {
+			const percentage = this.getPercentage(n);
+			return `Followed by - ${percentage}%`;
+		}
+	});
+	$('.follows').asProgress({
+		namespace: 'progress',
+		min: 0,
+		max: obj.follows_count,
+		labelCallback(n) {
+			const percentage = this.getPercentage(n);
+			return `Follows - ${percentage}%`;
+		}
+	});
+}
+
+function updateProgressBar(obj, count) {
+	var $progressBar = $('.' + obj.relType); //todo : cache it?
+	var newValue = 0 + obj[obj.relType + "_processed"] + count;
+	console.log(count, newValue);
+	$progressBar.asProgress("go", newValue);
+	obj[obj.relType + "_processed"] = newValue;
 }
 
 function generationCompleted(obj) {
-	//todo: remove progress bar
+	//TODO: remove progress bar
 	var endTime = new Date();
-	var takenTime = parseInt((endTime - startTime) / 1000, 10)
-	console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.followsCount}, followed by - ${obj.followedByCount}`);
+	var takenTime = parseInt((endTime - startTime) / 1000, 10);
+	console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
 	prepareGrid();
 	prepareExportDiv();
-	takenTime = parseInt((new Date() - endTime) / 1000, 10)
+	takenTime = parseInt((new Date() - endTime) / 1000, 10);
 	console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
 }
 
@@ -258,9 +290,10 @@ function fetchInstaUsers(obj) {
 		success: function (data, textStatus, xhr) {
 			if (429 == xhr.status) {
 				setTimeout(fetchInstaUsers(obj), obj.delay * 500); //todo: test it
-				alert("429 is returned, set delay before retry")
+				alert("429 is returned, set delay before retry");
 				return;
 			}
+			updateProgressBar(obj, data[obj.relType].nodes.length);
 			console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
 			//otherwise assume return code is 200?
 			//relType could be followed_by / follows
@@ -278,8 +311,8 @@ function fetchInstaUsers(obj) {
 					}
 				}
 				if (!(found)) {
-					data[obj.relType].nodes[i].followers_count = data[obj.relType].nodes[i].followed_by.count;
-					data[obj.relType].nodes[i].following_count = data[obj.relType].nodes[i].follows.count;
+					data[obj.relType].nodes[i].followed_by_count = data[obj.relType].nodes[i].followed_by.count;
+					data[obj.relType].nodes[i].follows_count = data[obj.relType].nodes[i].follows.count;
 					data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
 					data[obj.relType].nodes[i].follows_user = false; //explicitly set the value for correct search
 					data[obj.relType].nodes[i].followed_by_user = false; //explicitly set the value for correct search
@@ -306,7 +339,7 @@ function fetchInstaUsers(obj) {
 					obj.checkDuplicates = true;
 					setTimeout(fetchInstaUsers(obj), obj.delay);
 				} else {
-				//we are done
+					//we are done
 					generationCompleted(obj);
 				}
 			}

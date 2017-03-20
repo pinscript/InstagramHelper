@@ -25,8 +25,8 @@ userInfo.getUserProfile = function(username, callback) {
 				requested_by_viewer,
 				has_blocked_viewer
 			} = data.user;
-			var following_count = data.user.follows.count;
-			var followers_count = data.user.followed_by.count;
+			var follows_count = data.user.follows.count;
+			var followed_by_count = data.user.followed_by.count;
 			var media_count = data.user.media.count;
 			var obj = {};
 			Object.assign(obj, {
@@ -44,8 +44,8 @@ userInfo.getUserProfile = function(username, callback) {
 				blocked_by_viewer,
 				requested_by_viewer,
 				has_blocked_viewer,
-				following_count,
-				followers_count,
+				follows_count,
+				followed_by_count,
 				media_count
 			});
 			callback(obj);

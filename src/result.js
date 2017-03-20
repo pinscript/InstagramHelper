@@ -90,7 +90,7 @@ $(function () {
 				search: true
 			}, {
 				label: 'Followers',
-				name: 'followers_count',
+				name: 'followed_by_count',
 				width: '75',
 				align: 'center',
 				sorttype: 'number',
@@ -100,7 +100,7 @@ $(function () {
 				}
 			}, {
 				label: 'Following',
-				name: 'following_count',
+				name: 'follows_count',
 				width: '75',
 				align: 'center',
 				sorttype: 'number',

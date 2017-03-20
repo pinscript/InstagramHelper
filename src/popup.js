@@ -50,8 +50,8 @@ $(function () {
 							action: "get_insta_users",
 							userName: $("#username").val(),
 							userId: obj.id,
-							followsCount: obj.following_count,
-							followedByCount: obj.followers_count,
+							follows_count: obj.follows_count,
+							followed_by_count: obj.followed_by_count,
 							relType: $('input[name=relType]:checked').attr("id")
 						});
 					});
