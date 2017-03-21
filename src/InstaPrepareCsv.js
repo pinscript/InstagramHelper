@@ -1,8 +1,7 @@
-(function () {
+var InstaPrepareCsv = function() {
+	"use strict";
 
-	csvCreate = function () {}
-
-	csvCreate.arrayToCSV = function (arr) {
+	function arrayToCsv(arr) {
 
 		var columnNames = [];
 		var rows = [];
@@ -40,5 +39,13 @@
 		val = val.replace(/\r/g, "").replace(/\n/g, "").replace(/"/g, '""');
 		return '"' + val + '"';
 	}
+
+	return {
+		arrayToCsv : arrayToCsv	
+	}
+};
+
+
+
 	
-})();
+

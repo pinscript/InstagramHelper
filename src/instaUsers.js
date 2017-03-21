@@ -1,8 +1,6 @@
 /* jshint esnext: true */
 /* globals chrome */
 
-
-
 $(function () {
 
 	"use strict";
@@ -220,7 +218,7 @@ $(function () {
 		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
 		$("#linkExportCSV").click(function () {
-			var csv = csvCreate.arrayToCSV(myData);
+			var csv = (new InstaPrepareCsv()).arrayToCsv(myData);
 			this.download = "export.csv";
 			this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
 		});

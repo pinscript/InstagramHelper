@@ -1,11 +1,8 @@
 /* globals chrome, document */
-
 (function () {
 	"use strict";
 
-	var instaExtOptions = function () {}
-
-	instaExtOptions.save_options = function () {
+	function save_options() {
 		var pageSize = document.getElementById('pageSize').value;
 		var delay = document.getElementById('delay').value;
 		chrome.storage.sync.set({
@@ -21,7 +18,7 @@
 		});
 	}
 
-	instaExtOptions.restore_options = function () {
+	function restore_options() {
 		chrome.storage.sync.get({
 			pageSize: 100,
 			delay: 1000
@@ -31,9 +28,9 @@
 		});
 	}
 
-	document.addEventListener('DOMContentLoaded', instaExtOptions.restore_options);
+	document.addEventListener('DOMContentLoaded', restore_options);
 
-	document.getElementById('save').addEventListener('click', instaExtOptions.save_options);
+	document.getElementById('save').addEventListener('click', save_options);
 
 })();
 

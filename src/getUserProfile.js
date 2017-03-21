@@ -4,6 +4,7 @@ userInfo = function(){
 }
 
 userInfo.getUserProfile = function(username, callback) {
+	"use strict";
 
 	var link = `https://www.instagram.com/${username}/?__a=1`;
 	$.ajax({
