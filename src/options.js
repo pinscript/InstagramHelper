@@ -1,41 +1,41 @@
 /* globals chrome, document */
 
-options = function() {
-}
+(function () {
+	"use strict";
 
-options.save_options = function() {
-	var usersClass = document.getElementById('usersClass').value;
-	var pageSize = document.getElementById('pageSize').value;
-	var delay = document.getElementById('delay').value;
-	chrome.storage.sync.set({
-		usersClass: usersClass,
-		pageSize: pageSize,
-		delay: delay
-	}, function () {
-		// Update status to let user know options were saved.
-		var status = document.getElementById('status');
-		status.textContent = 'Options saved.';
-		setTimeout(function () {
-			status.textContent = '';
-		}, 750);
-	});
-}
+	var instaExtOptions = function () {}
 
-options restore_options() {
-	chrome.storage.sync.get({
-		usersClass: '_539vh',
-		pageSize: 100,
-		delay: 1000
-	}, function (items) {
-		document.getElementById('usersClass').value = items.usersClass;
-		document.getElementById('pageSize').value = items.pageSize;
-		document.getElementById('delay').value = items.delay;
-	});
-}
+	instaExtOptions.save_options = function () {
+		var pageSize = document.getElementById('pageSize').value;
+		var delay = document.getElementById('delay').value;
+		chrome.storage.sync.set({
+			pageSize: pageSize,
+			delay: delay
+		}, function () {
+			// Update status to let user know options were saved.
+			var status = document.getElementById('status');
+			status.textContent = 'Options saved.';
+			setTimeout(function () {
+				status.textContent = '';
+			}, 750);
+		});
+	}
 
-document.addEventListener('DOMContentLoaded', options.restore_options);
+	instaExtOptions.restore_options = function () {
+		chrome.storage.sync.get({
+			pageSize: 100,
+			delay: 1000
+		}, function (items) {
+			document.getElementById('pageSize').value = items.pageSize;
+			document.getElementById('delay').value = items.delay;
+		});
+	}
 
-document.getElementById('save').addEventListener('click', options.save_options);
+	document.addEventListener('DOMContentLoaded', instaExtOptions.restore_options);
+
+	document.getElementById('save').addEventListener('click', instaExtOptions.save_options);
+
+})();
 
 window.onload = function () {
 	_gaq.push(['_trackPageview']);

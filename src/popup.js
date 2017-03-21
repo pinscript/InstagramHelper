@@ -2,6 +2,8 @@
 /* globals chrome, document */
 
 $(function () {
+	"use strict";
+
 	//console.log("document ready - " + Date());
 
 	$('#username').on("change keyup", function () {
@@ -11,17 +13,6 @@ $(function () {
 		} else {
 			$('#instaUsers').attr("disabled", "disabled");
 		}
-	});
-
-	$('#instaUsersOld').click(function () {
-		chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		}, function (tabs) {
-			chrome.tabs.sendMessage(tabs[0].id, {
-				action: "get_insta_users_old"
-			});
-		});
 	});
 
 	$('#instaUsers').click(function () {
@@ -38,7 +29,7 @@ $(function () {
 		}, function (tabs) {
 			if (tabs.length > 0) { //result tab is found
 				alert("The result window is already opened. Please close it before processing");
-				
+
 			} else { //tab is not found, let's continue
 				userInfo.getUserProfile(userName, function (obj) {
 
@@ -62,6 +53,8 @@ $(function () {
 });
 
 window.onload = function () {
+	"use strict";
+
 	_gaq.push(['_trackPageview']);
 
 	chrome.tabs.query({
