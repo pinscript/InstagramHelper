@@ -225,25 +225,30 @@ $(function () {
 	}
 
 	function prepareProgressBar(obj) {
-		console.log("prepareProgressBar", obj.followed_by_count, obj.follows_count);
-		$('.followed_by').asProgress({
-			namespace: 'progress',
-			min: 0,
-			max: obj.followed_by_count,
-			labelCallback(n) {
-				const percentage = this.getPercentage(n);
-				return `Followed by - ${percentage}%`;
-			}
-		});
-		$('.follows').asProgress({
-			namespace: 'progress',
-			min: 0,
-			max: obj.follows_count,
-			labelCallback(n) {
-				const percentage = this.getPercentage(n);
-				return `Follows - ${percentage}%`;
-			}
-		});
+		console.log("prepareProgressBar", obj.followed_by_count, obj.follows_count, obj.relType);
+		
+		if (obj.callBoth || ("followed_by" === obj.relType)) {
+			$('.followed_by').show().asProgress({
+				namespace: 'progress',
+				min: 0,
+				max: obj.followed_by_count,
+				labelCallback(n) {
+					const percentage = this.getPercentage(n);
+					return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+				}
+			});
+		};
+		if (obj.callBoth || ("follows" === obj.relType)) {
+			$('.follows').show().asProgress({
+				namespace: 'progress',
+				min: 0,
+				max: obj.follows_count,
+				labelCallback(n) {
+					const percentage = this.getPercentage(n);
+					return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
+				}
+			});
+		};
 	}
 
 	function updateProgressBar(obj, count) {
@@ -255,7 +260,8 @@ $(function () {
 	}
 
 	function generationCompleted(obj) {
-		//TODO: remove progress bar
+		$(".followed_by").remove();
+		$(".follows").remove();
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
 		console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
