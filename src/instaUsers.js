@@ -226,7 +226,7 @@ $(function () {
 
 	function prepareProgressBar(obj) {
 		console.log("prepareProgressBar", obj.followed_by_count, obj.follows_count, obj.relType);
-		
+
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
 			$('.followed_by').show().asProgress({
 				namespace: 'progress',
@@ -260,8 +260,10 @@ $(function () {
 	}
 
 	function generationCompleted(obj) {
-		$(".followed_by").remove();
-		$(".follows").remove();
+		setTimeout(function () {
+			$(".followed_by").remove();
+			$(".follows").remove();
+		}, 3000);
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
 		console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
@@ -272,6 +274,7 @@ $(function () {
 	}
 
 	function fetchInstaUsers(obj) {
+		console.log("fetchInstaUsers is started", new Date());
 
 		if (!obj.request) {
 			obj.request = $.param({
@@ -295,8 +298,10 @@ $(function () {
 			data: obj.request,
 			success: function (data, textStatus, xhr) {
 				if (429 == xhr.status) {
-					setTimeout(fetchInstaUsers(obj), obj.delay * 500); //todo: test it
-					alert("429 is returned, set delay before retry");
+					setTimeout(function () {
+						fetchInstaUsers(obj)
+					}, 180000); //todo: test it
+					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
 				//updateProgressBar(obj, data[obj.relType].nodes.length);
@@ -326,7 +331,8 @@ $(function () {
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
-				updateProgressBar(obj, data[obj.relType].nodes.length); 
+				console.log("calling update progress bar - " + data[obj.relType].nodes.length);
+				updateProgressBar(obj, data[obj.relType].nodes.length);
 
 				if (data[obj.relType].page_info.has_next_page) {
 					obj.request = $.param({
@@ -336,23 +342,47 @@ $(function () {
 							ref: "relationships::follow_list"
 						});
 
-					setTimeout(fetchInstaUsers(obj), obj.delay);
+					console.log("object delay >>>>>> - " + obj.delay, new Date());
+					setTimeout(function () {
+						fetchInstaUsers(obj)
+					}, obj.delay);
 				} else {
 					if (obj.callBoth) {
 						obj.request = null;
 						obj.relType = "follows";
 						obj.callBoth = false;
 						obj.checkDuplicates = true;
-						setTimeout(fetchInstaUsers(obj), obj.delay);
+						setTimeout(function () {
+							fetchInstaUsers(obj)
+						}, obj.delay);
 					} else {
 						//we are done
 						generationCompleted(obj);
 					}
 				}
 			},
-			error: function () {
+			error: function (jqXHR, exception) {
 				console.log("error ajax");
 				console.log(arguments);
+				if (jqXHR.status === 0) {
+					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
+					setTimeout(function () {
+						fetchInstaUsers(obj)
+					}, 180000); //todo: test it, make configurable
+					
+				} else if (jqXHR.status == 404) {
+					alert('Requested page not found. [404]');
+				} else if (jqXHR.status == 500) {
+					alert('Internal Server Error [500].');
+				} else if (exception === 'parsererror') {
+					alert('Requested JSON parse failed.');
+				} else if (exception === 'timeout') {
+					alert('Time out error.');
+				} else if (exception === 'abort') {
+					alert('Ajax request aborted.');
+				} else {
+					alert('Uncaught Error.\n' + jqXHR.responseText);
+				}
 			}
 		});
 

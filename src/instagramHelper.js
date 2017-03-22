@@ -21,22 +21,7 @@ function getCsrfToken() {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-	if (request.action === "get_insta_users_old") {
-
-		chrome.storage.sync.get({
-			usersClass: '_539vh'
-		}, function (items) {
-			var users = document.getElementsByClassName(items.usersClass);
-			if (0 === users.length) {
-				alert("Please open followers or following list!");
-			} else {
-				chrome.runtime.sendMessage({
-					action: "return_insta_users_old",
-					text: users[0].innerHTML
-				});
-			}
-		});
-	} else if (request.action === "get_insta_users") {
+	if (request.action === "get_insta_users") {
 
 		chrome.storage.sync.get({
 			pageSize: 100,
