@@ -5,19 +5,17 @@
   </head>
   <body>
   <h1>Options</h1>
-  <div>
-  <span>Page size for fetching users:</span> 
-  <input type="text" id="pageSize" />
+  <div>Page size for fetching users:
   <br />
-  <span>Interval between requests for fetching users, ms:</span> 
-  <input type="text" id="delay" /></div>
-  <div>
-  <label for="csv-fields">The fields to be exported into CSV:</label> 
-  <textarea id="csv-fields" placeholder="username, id" type="text"></textarea>
-  <div>
-    <em>The fields should be separated by comma(,)</em>
-  </div></div>
-  <div id="status"></div>
+  <input type="text" id="pageSize" />
+  <br />Interval between requests for fetching users, ms:
+  <br />
+  <input type="text" id="delay" />
+  <br />The fields to be exported into CSV (should be separated by comma): 
+  <textarea rows="5" cols="50" id="csvFields"
+  placeholder="id, username, full_name, profile_pic_url_hd, biography, connected_fb_page, external_url, followed_by_count, followed_by_user, followed_by_viewer, follows_count, follows_user, follows_viewer, is_private, is_verified, media_count, requested_by_viewer"
+  type="text"></textarea></div>
+  <div id="status" style="padding: 5px; font-weight: bold;"></div>
   <button id="save">Save</button> 
   <button id="restoreDefaults">Restore Default Values</button> 
   <script src="options.js"></script> 

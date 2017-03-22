@@ -299,7 +299,7 @@ $(function () {
 					alert("429 is returned, set delay before retry");
 					return;
 				}
-				updateProgressBar(obj, data[obj.relType].nodes.length);
+				//updateProgressBar(obj, data[obj.relType].nodes.length);
 				console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
 				//otherwise assume return code is 200?
 				//relType could be followed_by / follows
@@ -326,6 +326,7 @@ $(function () {
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
+				updateProgressBar(obj, data[obj.relType].nodes.length); 
 
 				if (data[obj.relType].page_info.has_next_page) {
 					obj.request = $.param({
