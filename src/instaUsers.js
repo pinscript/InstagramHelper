@@ -7,6 +7,7 @@ $(function () {
 
 	var myData = [];
 	var startTime;
+	var statusDiv;
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
@@ -20,7 +21,7 @@ $(function () {
 				userId: request.userId,
 				relType: "All" === request.relType ? "followed_by" : request.relType,
 				callBoth: "All" === request.relType,
-				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , TODO: what do we do about that
+				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
 				follows_count: request.follows_count,
 				followed_by_count: request.followed_by_count,
 				follows_processed: 0,
@@ -33,7 +34,14 @@ $(function () {
 		}
 	});
 
-	function prepareGrid() {
+	function updateStatusDiv(message) {
+		if (typeof statusDiv === "undefined") {
+			statusDiv = document.getElementById('status');
+		}			
+		statusDiv.textContent = message;
+	}
+
+	function prepareGrid(obj) {
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
@@ -196,7 +204,7 @@ $(function () {
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: "Instagram Users",
+			caption: "Users of " + obj.userName,
 		});
 
 		$('#jqGrid').jqGrid('filterToolbar', {
@@ -210,14 +218,13 @@ $(function () {
 			del: false,
 			refresh: true
 		});
-
 	}
 
 	function prepareExportDiv() {
 
 		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
-		//TODO: ALLOW TO UPDATE IT WHEN GRID IS GENERATED?
+		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
 		var csvFields;
 		chrome.storage.sync.get({
 			csvFields : "" //TODO: Use Default
@@ -228,7 +235,6 @@ $(function () {
 		$("#linkExportCSV").click(function () {
 
 			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
-			console.log("prepared data", csv);
 			this.download = "export.csv";
 			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
 
@@ -236,8 +242,6 @@ $(function () {
 	}
 
 	function prepareProgressBar(obj) {
-		console.log("prepareProgressBar", obj.followed_by_count, obj.follows_count, obj.relType);
-
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
 			$('.followed_by').show().asProgress({
 				namespace: 'progress',
@@ -265,7 +269,6 @@ $(function () {
 	function updateProgressBar(obj, count) {
 		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
-		console.log(count, newValue);
 		$progressBar.asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
@@ -281,15 +284,15 @@ $(function () {
 		}, 3000);
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
-		console.log(`Completed, taken time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
-		prepareGrid();
+		console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
+		updateStatusDiv(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		prepareGrid(obj);
 		prepareExportDiv();
 		takenTime = parseInt((new Date() - endTime) / 1000, 10);
 		console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
 	}
 
 	function fetchInstaUsers(obj) {
-		console.log("fetchInstaUsers is started", new Date());
 
 		if (!obj.request) {
 			obj.request = $.param({
@@ -321,11 +324,11 @@ $(function () {
 				}
 				//updateProgressBar(obj, data[obj.relType].nodes.length);
 				console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
+				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
 				//otherwise assume return code is 200?
-				//relType could be followed_by / follows
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 					var found = false;
-					if (obj.checkDuplicates) { //only when the second run happens or we started with already opened result page
+					if (obj.checkDuplicates) { //only when the second run happens (or we started with already opened result page)
 						for (let j = 0; j < myData.length; j++) {
 							if (data[obj.relType].nodes[i].username === myData[j].username) {
 								found = true;
@@ -345,7 +348,7 @@ $(function () {
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
-				console.log("calling update progress bar - " + data[obj.relType].nodes.length);
+				//console.log("calling update progress bar - " + data[obj.relType].nodes.length);
 				updateProgressBar(obj, data[obj.relType].nodes.length);
 
 				if (data[obj.relType].page_info.has_next_page) {
@@ -355,8 +358,6 @@ $(function () {
 					external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
 							ref: "relationships::follow_list"
 						});
-
-					console.log("object delay >>>>>> - " + obj.delay, new Date());
 					setTimeout(function () {
 						fetchInstaUsers(obj)
 					}, obj.delay);
