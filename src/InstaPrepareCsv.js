@@ -1,39 +1,41 @@
-var InstaPrepareCsv = function() {
+/* jshint esnext: true */
+
+var InstaPrepareCsv = function () {
 	"use strict";
 
-	function arrayToCsv(arr) {
-
-		var columnNames = [];
+	function arrayToCsv(arr, csvFields) {
 		var rows = [];
-		for (var i = 0, len = arr.length; i < len; i++) {
-			// Each obj represents a row in the table
+
+		var columnNames = csvFields.split(",").map(elem => elem.trim());
+		rows.push(columnNames.join(","));
+
+		for (var i = 0; i < arr.length; i++) {
+			var temp = [];
 			var obj = arr[i];
-			// row will collect data from obj
-			var row = [];
-			for (var key in obj) {
-				// Don't iterate through prototype stuff
-				if (!obj.hasOwnProperty(key))
-					continue;
-				if (("follows" === key) || ("followed_by" === key) || ("media" === key) || ("biography" === key)) //TODO: HAVE AN ARRAY FOR EXPORT
-					continue;
-				// Collect the column names only once
-				if (i === 0)
-					columnNames.push(prepareValueForCSV(key));
-				// Collect the data
-				row.push(prepareValueForCSV(obj[key]));
+			for (var j = 0; j < columnNames.length; j++) {
+				var val = arr[i][columnNames[j]];
+				if (val === null) {
+					temp.push("");
+				} else if (val === false) {
+					temp.push("N");
+				} else if (val === true) {
+					temp.push("Y");
+				} else if (typeof val === "number") { 
+					temp.push(val);
+				} else { //TODO: How do I can skip calling prepareValueForCsv even more, regexp?
+					temp.push(prepareValueForCsv(val));
+				}
 			}
-			// Push each row to the main collection as csv string
-			rows.push(row.join(','));
+			rows.push(temp.join(","));
 		}
-		// Put the columnNames at the beginning of all the rows
-		rows.unshift(columnNames.join(','));
-		// Return the csv string
+
 		return rows.join('\n');
+
 	}
 
 	// This function allows us to have commas, line breaks, and double
 	// quotes in our value without breaking CSV format.
-	function prepareValueForCSV(val) {
+	function prepareValueForCsv(val) {
 		val = '' + val;
 		// Escape quotes to avoid ending the value prematurely.
 		val = val.replace(/\r/g, "").replace(/\n/g, "").replace(/"/g, '""');
@@ -41,11 +43,6 @@ var InstaPrepareCsv = function() {
 	}
 
 	return {
-		arrayToCsv : arrayToCsv	
+		arrayToCsv: arrayToCsv
 	}
 };
-
-
-
-	
-

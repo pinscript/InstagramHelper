@@ -38,7 +38,7 @@ $(function () {
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
-			rowNum: 99999,
+			rowNum: 1000, //TODO: put it into options?
 			//autowidth: false,
 			width: "98%",
 			shrinkToFit: true,
@@ -113,7 +113,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Follows<br/>user',
-					name: 'followed_by_user', //relationship: followed_by - the list of the user's followers
+					name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -125,7 +125,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Followed<br/> by user',
-					name: 'follows_user', //relationship: follows - from the list of the followed person by user
+					name: 'user_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -217,10 +217,21 @@ $(function () {
 
 		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
+		//TODO: ALLOW TO UPDATE IT WHEN GRID IS GENERATED?
+		var csvFields;
+		chrome.storage.sync.get({
+			csvFields : "" //TODO: Use Default
+		}, (items) => { 	
+			csvFields = items.csvFields;
+		});		
+
 		$("#linkExportCSV").click(function () {
-			var csv = (new InstaPrepareCsv()).arrayToCsv(myData);
+
+			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
+			console.log("prepared data", csv);
 			this.download = "export.csv";
-			this.href = "data:application/csv;charset=UTF-16," + encodeURIComponent(csv);
+			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
+
 		});
 	}
 
@@ -237,7 +248,7 @@ $(function () {
 					return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
 				}
 			});
-		};
+		}
 		if (obj.callBoth || ("follows" === obj.relType)) {
 			$('.follows').show().asProgress({
 				namespace: 'progress',
@@ -248,15 +259,19 @@ $(function () {
 					return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
 				}
 			});
-		};
+		}
 	}
 
 	function updateProgressBar(obj, count) {
-		var $progressBar = $('.' + obj.relType); //todo : cache it?
+		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
 		console.log(count, newValue);
 		$progressBar.asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
+	}
+	
+	function stopProgressBar(obj) {
+		 $('.' + obj.relType).asProgress("finish").asProgress("stop");
 	}
 
 	function generationCompleted(obj) {
@@ -300,7 +315,7 @@ $(function () {
 				if (429 == xhr.status) {
 					setTimeout(function () {
 						fetchInstaUsers(obj)
-					}, 180000); //todo: test it
+					}, 180000); //TODO: Test
 					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
@@ -315,8 +330,7 @@ $(function () {
 							if (data[obj.relType].nodes[i].username === myData[j].username) {
 								found = true;
 								console.log(`username ${myData[j].username} is found at ${i}`);
-								myData[j][obj.relType + "_user"] = true;
-								//$("#jqGrid").jqGrid('setCell', data[obj.relType].nodes[i].id, obj.relType + "_user", true);
+								myData[j]["user_" + obj.relType] = true;
 								break;
 							}
 						}
@@ -325,9 +339,9 @@ $(function () {
 						data[obj.relType].nodes[i].followed_by_count = data[obj.relType].nodes[i].followed_by.count;
 						data[obj.relType].nodes[i].follows_count = data[obj.relType].nodes[i].follows.count;
 						data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
-						data[obj.relType].nodes[i].follows_user = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i].followed_by_user = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i][obj.relType + "_user"] = true;
+						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
+						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
+						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
@@ -347,6 +361,7 @@ $(function () {
 						fetchInstaUsers(obj)
 					}, obj.delay);
 				} else {
+					stopProgressBar(obj);
 					if (obj.callBoth) {
 						obj.request = null;
 						obj.relType = "follows";
@@ -368,7 +383,7 @@ $(function () {
 					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj)
-					}, 180000); //todo: test it, make configurable
+					}, 180000); //TODO: Test
 					
 				} else if (jqXHR.status == 404) {
 					alert('Requested page not found. [404]');

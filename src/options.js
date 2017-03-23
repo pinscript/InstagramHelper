@@ -5,6 +5,7 @@
 	var defPageSize = 100;
 	var defDelay = 1000;
 	var defCsvFields = document.getElementById('csvFields').placeholder;
+	//excluded from default - profile_pic_url_hd, biography,  is_verified, requested_by_viewer
 
 	function save_options() {
 		var pageSize = document.getElementById('pageSize').value;

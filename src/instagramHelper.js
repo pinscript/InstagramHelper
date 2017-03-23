@@ -24,8 +24,8 @@ chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 	if (request.action === "get_insta_users") {
 
 		chrome.storage.sync.get({
-			pageSize: 100,
-			delay: 1000
+			pageSize: 100, //TODO: Use Default
+			delay: 1000 //TODO: Use Default
 		}, function (items) {
 
 			var sharedData = getCsrfToken();
