@@ -8,6 +8,7 @@ $(function () {
 	var myData = [];
 	var startTime;
 	var statusDiv;
+	var timerInterval;
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
@@ -29,11 +30,20 @@ $(function () {
 
 			};
 			startTime = new Date();
+			startTimer(document.querySelector('#timer'), startTime);
 			prepareProgressBar(fetchSettings);
 			fetchInstaUsers(fetchSettings);
 		}
 	});
 
+	function startTimer(timer, startTime) {
+	
+		timerInterval = setInterval(function(){
+			timer.textContent = `${parseInt((new Date() - startTime) / 1000, 10)}sec`
+		}, 1000);
+	
+	}
+	
 	function updateStatusDiv(message) {
 		if (typeof statusDiv === "undefined") {
 			statusDiv = document.getElementById('status');
@@ -247,6 +257,7 @@ $(function () {
 				namespace: 'progress',
 				min: 0,
 				max: obj.followed_by_count,
+				goal: obj.followed_by_count,
 				labelCallback(n) {
 					const percentage = this.getPercentage(n);
 					return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
@@ -258,6 +269,7 @@ $(function () {
 				namespace: 'progress',
 				min: 0,
 				max: obj.follows_count,
+				goal: obj.follows_count,
 				labelCallback(n) {
 					const percentage = this.getPercentage(n);
 					return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
@@ -269,6 +281,7 @@ $(function () {
 	function updateProgressBar(obj, count) {
 		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
+		console.log(`updating the progressbar for ${obj.relType}, newValue - ${newValue}`);
 		$progressBar.asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
@@ -281,11 +294,13 @@ $(function () {
 		setTimeout(function () {
 			$(".followed_by").remove();
 			$(".follows").remove();
+			$("#timer").remove();
 		}, 3000);
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
 		console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
 		updateStatusDiv(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		clearInterval(timerInterval);
 		prepareGrid(obj);
 		prepareExportDiv();
 		takenTime = parseInt((new Date() - endTime) / 1000, 10);
