@@ -57,9 +57,9 @@ $(function () {
 			datatype: "local",
 			data: myData,
 			rowNum: 1000, //TODO: put it into options?
-			//autowidth: false,
-			width: "98%",
-			shrinkToFit: true,
+			autowidth: true,
+			//width: "95%",
+			//shrinkToFit: true,
 			height: "100%",
 			rownumbers: true,
 			colModel: [{
@@ -75,7 +75,7 @@ $(function () {
 				}, {
 					label: 'Info',
 					name: 'id',
-					width: '200',
+					//width: '200',
 					sortable: false,
 					formatter: function (cellvalue, model, row) {
 						var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
@@ -228,6 +228,9 @@ $(function () {
 			del: false,
 			refresh: true
 		});
+		
+		
+		$('#jqGrid').jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: why auto doesn't work
 	}
 
 	function prepareExportDiv() {
@@ -305,6 +308,7 @@ $(function () {
 		prepareExportDiv();
 		takenTime = parseInt((new Date() - endTime) / 1000, 10);
 		console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
+		
 	}
 
 	function fetchInstaUsers(obj) {
