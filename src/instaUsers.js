@@ -39,7 +39,7 @@ $(function () {
 	function startTimer(timer, startTime) {
 	
 		timerInterval = setInterval(function(){
-			timer.textContent = `${parseInt((new Date() - startTime) / 1000, 10)}sec`
+			timer.textContent = `${parseInt((new Date() - startTime) / 1000, 10)}sec`;
 		}, 1000);
 	
 	}
@@ -240,7 +240,7 @@ $(function () {
 		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
 		var csvFields;
 		chrome.storage.sync.get({
-			csvFields : "" //TODO: Use Default
+			csvFields : "id, username, full_name, connected_fb_page, external_url, followed_by_count, follows_count, user_followed_by, user_follows, followed_by_viewer, follows_viewer, is_private, media_count" //TODO: Use Default
 		}, (items) => { 	
 			csvFields = items.csvFields;
 		});		
@@ -284,7 +284,7 @@ $(function () {
 	function updateProgressBar(obj, count) {
 		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
-		console.log(`updating the progressbar for ${obj.relType}, newValue - ${newValue}`);
+		//console.log(`updating the progressbar for ${obj.relType}, newValue - ${newValue}`);
 		$progressBar.asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
@@ -301,13 +301,13 @@ $(function () {
 		}, 3000);
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
-		console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
+		//console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
 		updateStatusDiv(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
 		clearInterval(timerInterval);
 		prepareGrid(obj);
 		prepareExportDiv();
 		takenTime = parseInt((new Date() - endTime) / 1000, 10);
-		console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
+		//console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
 		
 	}
 
@@ -336,13 +336,13 @@ $(function () {
 			success: function (data, textStatus, xhr) {
 				if (429 == xhr.status) {
 					setTimeout(function () {
-						fetchInstaUsers(obj)
+						fetchInstaUsers(obj);
 					}, 180000); //TODO: Test
 					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
 				//updateProgressBar(obj, data[obj.relType].nodes.length);
-				console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
+				//console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
@@ -351,7 +351,7 @@ $(function () {
 						for (let j = 0; j < myData.length; j++) {
 							if (data[obj.relType].nodes[i].username === myData[j].username) {
 								found = true;
-								console.log(`username ${myData[j].username} is found at ${i}`);
+								//console.log(`username ${myData[j].username} is found at ${i}`);
 								myData[j]["user_" + obj.relType] = true;
 								break;
 							}
@@ -378,7 +378,7 @@ $(function () {
 							ref: "relationships::follow_list"
 						});
 					setTimeout(function () {
-						fetchInstaUsers(obj)
+						fetchInstaUsers(obj);
 					}, obj.delay);
 				} else {
 					stopProgressBar(obj);
@@ -388,7 +388,7 @@ $(function () {
 						obj.callBoth = false;
 						obj.checkDuplicates = true;
 						setTimeout(function () {
-							fetchInstaUsers(obj)
+							fetchInstaUsers(obj);
 						}, obj.delay);
 					} else {
 						//we are done
@@ -402,7 +402,7 @@ $(function () {
 				if (jqXHR.status === 0) {
 					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
-						fetchInstaUsers(obj)
+						fetchInstaUsers(obj);
 					}, 180000); //TODO: Test
 					
 				} else if (jqXHR.status == 404) {

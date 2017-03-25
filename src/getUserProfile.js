@@ -1,7 +1,7 @@
 /* jshint esnext: true */
 
 userInfo = function(){
-}
+};
 
 userInfo.getUserProfile = function(username, callback) {
 	"use strict";
@@ -58,4 +58,4 @@ userInfo.getUserProfile = function(username, callback) {
 		},
 		async: true
 	});
-}
+};

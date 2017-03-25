@@ -44,5 +44,5 @@ var InstaPrepareCsv = function () {
 
 	return {
 		arrayToCsv: arrayToCsv
-	}
+	};
 };
