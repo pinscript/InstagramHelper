@@ -6,8 +6,6 @@ $(function () {
 	"use strict";
 
 	var myData = [];
-	var startTime;
-	var timerInterval;
 	var statusDiv;
 	var followsProgressBar;
 	var followed_byProgressBar;
@@ -28,20 +26,18 @@ $(function () {
 				follows_count: request.follows_count,
 				followed_by_count: request.followed_by_count,
 				follows_processed: 0,
-				followed_by_processed: 0
-
+				followed_by_processed: 0,
+				startTime: new Date(),
+				timerInterval: startTimer(document.querySelector('#timer'), new Date())
 			};
-			startTime = new Date();
-			startTimer(document.querySelector('#timer'), startTime);
-			prepareProgressBar(fetchSettings);
-			statusDiv = document.getElementById('status');
+			prepareHtmlElements(fetchSettings);
 			fetchInstaUsers(fetchSettings);
 		}
 	});
 
 	function startTimer(timer, startTime) {
 	
-		timerInterval = setInterval(function(){
+		return setInterval(function(){
 			var ms = parseInt(new Date() - startTime);
 			var x = ms / 1000;
 			var seconds = parseInt(x % 60, 10);
@@ -57,7 +53,7 @@ $(function () {
 		statusDiv.textContent = message;
 	}
 
-	function prepareGrid(obj) {
+	function showJQGrid(obj) {
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
@@ -232,7 +228,7 @@ $(function () {
 		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 	}
 
-	function prepareExportDiv() {
+	function showExportDiv() {
 
 		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
@@ -253,7 +249,10 @@ $(function () {
 		});
 	}
 
-	function prepareProgressBar(obj) {
+	function prepareHtmlElements(obj) {
+		
+		statusDiv = document.getElementById('status');
+
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
 			$('.followed_by').show().asProgress({
 				namespace: 'progress',
@@ -292,20 +291,15 @@ $(function () {
 	}
 
 	function generationCompleted(obj) {
+		clearInterval(obj.timerInterval);
+		updateStatusDiv(`Completed, spent time - ${document.querySelector('#timer').textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
 		setTimeout(function () {
 			$(".followed_by").remove();
 			$(".follows").remove();
 			$("#timer").remove();
 		}, 3000);
-		var endTime = new Date();
-		var takenTime = parseInt((endTime - startTime) / 1000, 10);
-		//console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
-		updateStatusDiv(`Completed, spent time - ${takenTime} seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
-		clearInterval(timerInterval);
-		prepareGrid(obj);
-		prepareExportDiv();
-		takenTime = parseInt((new Date() - endTime) / 1000, 10);
-		//console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
+		showJQGrid(obj);
+		showExportDiv();
 	}
 
 	function fetchInstaUsers(obj) {
@@ -363,7 +357,6 @@ $(function () {
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
-				//console.log("calling update progress bar - " + data[obj.relType].nodes.length);
 				updateProgressBar(obj, data[obj.relType].nodes.length);
 
 				if (data[obj.relType].page_info.has_next_page) {
