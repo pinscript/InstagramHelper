@@ -6,9 +6,11 @@ $(function () {
 	"use strict";
 
 	var myData = [];
-	var statusDiv;
-	var followsProgressBar;
-	var followed_byProgressBar;
+	var htmlElements = {
+		statusDiv: document.getElementById('status'),
+		follows: $('#follows'),
+		followed_by: $('#followed_by')
+	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
@@ -50,7 +52,7 @@ $(function () {
 	}
 	
 	function updateStatusDiv(message) {
-		statusDiv.textContent = message;
+		htmlElements.statusDiv.textContent = message;
 	}
 
 	function showJQGrid(obj) {
@@ -241,20 +243,18 @@ $(function () {
 		});		
 
 		$("#linkExportCSV").click(function () {
-
 			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
 			this.download = "export.csv";
 			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
-
 		});
 	}
 
 	function prepareHtmlElements(obj) {
 		
-		statusDiv = document.getElementById('status');
+		//statusDiv = document.getElementById('status');
 
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
-			$('.followed_by').show().asProgress({
+			htmlElements.followed_by.show().asProgress({
 				namespace: 'progress',
 				min: 0,
 				max: obj.followed_by_count,
@@ -266,7 +266,7 @@ $(function () {
 			});
 		}
 		if (obj.callBoth || ("follows" === obj.relType)) {
-			$('.follows').show().asProgress({
+			htmlElements.follows.show().asProgress({
 				namespace: 'progress',
 				min: 0,
 				max: obj.follows_count,
@@ -281,22 +281,22 @@ $(function () {
 
 	function updateProgressBar(obj, count) {
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
-		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
-		$progressBar.asProgress("go", newValue);
+		htmlElements[obj.relType].asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
 	
 	function stopProgressBar(obj) {
-		 $('.' + obj.relType).asProgress("finish").asProgress("stop");
+		 htmlElements[obj.relType].asProgress("finish").asProgress("stop");
 	}
 
 	function generationCompleted(obj) {
 		clearInterval(obj.timerInterval);
-		updateStatusDiv(`Completed, spent time - ${document.querySelector('#timer').textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		var timer = document.querySelector('#timer');
+		updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
 		setTimeout(function () {
-			$(".followed_by").remove();
-			$(".follows").remove();
-			$("#timer").remove();
+			htmlElements.followed_by.remove();
+			htmlElements.follows.remove();
+			timer.parentNode.removeChild(timer);
 		}, 3000);
 		showJQGrid(obj);
 		showExportDiv();
@@ -328,11 +328,10 @@ $(function () {
 				if (429 == xhr.status) {
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, 180000); //TODO: Test
+					}, 180000); //TODO: Test and make configurable
 					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
-				//updateProgressBar(obj, data[obj.relType].nodes.length);
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
@@ -392,7 +391,7 @@ $(function () {
 					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, 180000); //TODO: Test
+					}, 180000); //TODO: Test and make configurable
 					
 				} else if (jqXHR.status == 404) {
 					alert('Requested page not found. [404]');
