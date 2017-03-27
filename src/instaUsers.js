@@ -7,8 +7,10 @@ $(function () {
 
 	var myData = [];
 	var startTime;
-	var statusDiv;
 	var timerInterval;
+	var statusDiv;
+	var followsProgressBar;
+	var followed_byProgressBar;
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
@@ -32,6 +34,7 @@ $(function () {
 			startTime = new Date();
 			startTimer(document.querySelector('#timer'), startTime);
 			prepareProgressBar(fetchSettings);
+			statusDiv = document.getElementById('status');
 			fetchInstaUsers(fetchSettings);
 		}
 	});
@@ -39,15 +42,18 @@ $(function () {
 	function startTimer(timer, startTime) {
 	
 		timerInterval = setInterval(function(){
-			timer.textContent = `${parseInt((new Date() - startTime) / 1000, 10)}sec`;
-		}, 1000);
-	
+			var ms = parseInt(new Date() - startTime);
+			var x = ms / 1000;
+			var seconds = parseInt(x % 60, 10);
+			x /= 60;
+			var minutes = parseInt(x % 60, 10);
+			x /= 60;
+			var hours = parseInt(x % 24, 10);
+			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length)  + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
+		}, 1000);	
 	}
 	
 	function updateStatusDiv(message) {
-		if (typeof statusDiv === "undefined") {
-			statusDiv = document.getElementById('status');
-		}			
 		statusDiv.textContent = message;
 	}
 
@@ -215,22 +221,15 @@ $(function () {
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
 			caption: "Users of " + obj.userName,
-		});
-
-		$('#jqGrid').jqGrid('filterToolbar', {
+		}).jqGrid('filterToolbar', {
 			searchOperators: true
-		});
-
-		$('#jqGrid').jqGrid('navGrid', "#jqGridPager", {
+		}).jqGrid('navGrid', "#jqGridPager", {
 			search: true, // show search button on the toolbar
 			add: false,
 			edit: false,
 			del: false,
 			refresh: true
-		});
-		
-		
-		$('#jqGrid').jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: why auto doesn't work
+		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 	}
 
 	function prepareExportDiv() {
@@ -282,9 +281,8 @@ $(function () {
 	}
 
 	function updateProgressBar(obj, count) {
-		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		var newValue = 0 + obj[obj.relType + "_processed"] + count;
-		//console.log(`updating the progressbar for ${obj.relType}, newValue - ${newValue}`);
+		var $progressBar = $('.' + obj.relType); //TODO : cache it for performance?
 		$progressBar.asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
@@ -302,13 +300,12 @@ $(function () {
 		var endTime = new Date();
 		var takenTime = parseInt((endTime - startTime) / 1000, 10);
 		//console.log(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length}, follows - ${obj.follows_count}, followed by - ${obj.followed_by_count}`);
-		updateStatusDiv(`Completed, spent time - ${takenTime}seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		updateStatusDiv(`Completed, spent time - ${takenTime} seconds, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
 		clearInterval(timerInterval);
 		prepareGrid(obj);
 		prepareExportDiv();
 		takenTime = parseInt((new Date() - endTime) / 1000, 10);
 		//console.log(`Completed grid generation, taken time - ${takenTime}seconds`);
-		
 	}
 
 	function fetchInstaUsers(obj) {
@@ -342,7 +339,6 @@ $(function () {
 					return;
 				}
 				//updateProgressBar(obj, data[obj.relType].nodes.length);
-				//console.log("received profiles - " + data[obj.relType].nodes.length + "," + obj.relType);
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
