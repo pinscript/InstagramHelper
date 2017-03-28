@@ -237,7 +237,7 @@ $(function () {
 		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
 		var csvFields;
 		chrome.storage.sync.get({
-			csvFields : "id, username, full_name, connected_fb_page, external_url, followed_by_count, follows_count, user_followed_by, user_follows, followed_by_viewer, follows_viewer, is_private, media_count" //TODO: Use Default
+			csvFields : instaDefOptions.defCsvFields //TODO: Use Default
 		}, (items) => { 	
 			csvFields = items.csvFields;
 		});		

@@ -2,9 +2,9 @@
 (function () {
 	"use strict";
 
-	var defPageSize = 100;
-	var defDelay = 1000;
-	var defCsvFields = document.getElementById('csvFields').placeholder;
+	var defPageSize = instaDefOptions.defPageSize;
+	var defDelay = instaDefOptions.defDelay;
+	var defCsvFields = instaDefOptions.defCsvFields;
 	//excluded from default - profile_pic_url_hd, biography,  is_verified, requested_by_viewer
 
 	function save_options() {
