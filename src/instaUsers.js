@@ -14,7 +14,7 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "modifyResultPage") {
-
+	
 			var fetchSettings = {
 				request: null,
 				userName: request.userName,
@@ -22,7 +22,7 @@ $(function () {
 				delay: request.delay,
 				csrfToken: request.csrfToken,
 				userId: request.userId,
-				relType: "All" === request.relType ? "followed_by" : request.relType,
+				relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
 				callBoth: "All" === request.relType,
 				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
 				follows_count: request.follows_count,
@@ -378,7 +378,7 @@ $(function () {
 					stopProgressBar(obj);
 					if (obj.callBoth) {
 						obj.request = null;
-						obj.relType = "follows";
+						obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
 						obj.callBoth = false;
 						obj.checkDuplicates = true;
 						setTimeout(function () {
