@@ -47,6 +47,44 @@ $(function () {
 			}
 		});
 	});
+	
+	$('#findCommonUsers').click(function () {
+
+		var userName = $("#username_1").val();
+
+		if (!userName)
+			return;
+
+		//query if we already have result page opened
+		var url = chrome.extension.getURL('instaUsers.html');
+		chrome.tabs.query({
+			url: url
+		}, function (tabs) {
+			if (tabs.length > 0) { //result tab is found
+				alert("The result window is already opened. Please close it before processing");
+
+			} else { //tab is not found, let's continue
+				userInfo.getUserProfile(userName, function (obj) {
+
+					chrome.tabs.query({
+						active: true,
+						currentWindow: true
+					}, function (tabs) {
+						chrome.tabs.sendMessage(tabs[0].id, {
+							action: "get_insta_users",
+							userName: $("#username").val(),
+							userId: obj.id,
+							follows_count: obj.follows_count,
+							followed_by_count: obj.followed_by_count,
+							relType: $('input[name=relType]:checked').attr("id")
+						});
+					});
+				});
+			}
+		});
+	});
+	
+	
 });
 
 window.onload = function () {
