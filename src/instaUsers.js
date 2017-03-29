@@ -244,6 +244,7 @@ $(function () {
 
 		$("#linkExportCSV").click(function () {
 			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
+			console.log("the length of returned CSV string - " + csv.length);
 			this.download = "export.csv";
 			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
 		});
@@ -254,6 +255,8 @@ $(function () {
 		//statusDiv = document.getElementById('status');
 
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
+			document.getElementById("followed_by_title").textContent = `${obj.userName} is followed by ${obj.followed_by_count} users`;
+			document.getElementById("followed_by_title").style.display = "block";
 			htmlElements.followed_by.show().asProgress({
 				namespace: 'progress',
 				min: 0,
@@ -266,6 +269,8 @@ $(function () {
 			});
 		}
 		if (obj.callBoth || ("follows" === obj.relType)) {
+			document.getElementById("follows_title").textContent = `${obj.userName} follows ${obj.follows_count} users`;
+			document.getElementById("follows_title").style.display = "block";
 			htmlElements.follows.show().asProgress({
 				namespace: 'progress',
 				min: 0,
@@ -294,9 +299,10 @@ $(function () {
 		var timer = document.querySelector('#timer');
 		updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
 		setTimeout(function () {
-			htmlElements.followed_by.remove();
-			htmlElements.follows.remove();
-			timer.parentNode.removeChild(timer);
+			document.getElementById('tempUiElements').remove();
+			//htmlElements.followed_by.remove();
+			//htmlElements.follows.remove();
+			//timer.parentNode.removeChild(timer);
 		}, 3000);
 		showJQGrid(obj);
 		showExportDiv();

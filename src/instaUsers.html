@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta name="generator"
-    content="HTML Tidy for HTML5 (experimental) for Windows https://github.com/w3c/tidy-html5/tree/c63cc39" />
     <title>Insta Users</title>
     <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/jquery-ui.css" />
     <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.css" />
@@ -12,15 +10,19 @@
   </head>
   <body>
   <div id="status" style="padding: 5px; font-weight: bold;"></div>
-  <div id="timer" style="padding: 5px; font-weight: bold;"></div>
-  <div id="followed_by" role="progressbar" style="display: none;">
-    <div class="progress__bar">
-      <span class="progress__label"></span>
+  <div id="tempUiElements">
+    <div id="timer" style="padding: 5px; font-weight: bold;">0h:00m:00s</div>
+    <div id="followed_by_title" style="font-weight: bold; display: none;">Followed By</div>
+    <div id="followed_by" role="progressbar" style="display: none;">
+      <div class="progress__bar">
+        <span class="progress__label"></span>
+      </div>
     </div>
-  </div>
-  <div id="follows" role="progressbar" style="display: none;">
-    <div class="progress__bar">
-      <span class="progress__label"></span>
+    <div id="follows_title" style="font-weight: bold; display: none;">Follows</div>
+    <div id="follows" role="progressbar" style="display: none;">
+      <div class="progress__bar">
+        <span class="progress__label"></span>
+      </div>
     </div>
   </div>
   <table id="jqGrid"></table>
@@ -31,6 +33,7 @@
   <script src="getUserProfile.js"></script> 
   <script src="InstaPrepareCsv.js"></script> 
   <script src="instaUsers.js"></script> 
+  <script src="instaDefOptions.js"></script> 
   <script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script> 
   <script type="text/ecmascript" src="lib/jqGrid/grid.locale-en.js"></script></body>
 </html>
