@@ -76,6 +76,7 @@ window.onload = function () {
 					}
 				}
 				$("#username").val(obj.username);
+				$("#username_1").val(obj.username);
 				$("#details").html($html);
 			});
 		} else {
