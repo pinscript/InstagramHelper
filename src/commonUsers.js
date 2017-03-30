@@ -13,8 +13,9 @@ $(function () {
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		if (request.action == "get_insta_users") {
-	
+		if (request.action == "return_common_users") {
+			$("#status").text("Message is got");
+	/*
 			var fetchSettings = {
 				request: null,
 				userName: request.userName,
@@ -33,7 +34,7 @@ $(function () {
 				timerInterval: startTimer(document.querySelector('#timer'), new Date())
 			};
 			prepareHtmlElements(fetchSettings);
-			fetchInstaUsers(fetchSettings);
+			fetchInstaUsers(fetchSettings);*/
 		}
 	});
 

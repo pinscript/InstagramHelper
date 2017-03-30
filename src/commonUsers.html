@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Insta Users</title>
+    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/jquery-ui.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.custom.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
+    <link rel="stylesheet" href="lib/asProgress/css/asProgress.css" />
+  </head>
+  <body>
+  <div id="status" style="padding: 5px; font-weight: bold;"></div>
+  <div id="tempUiElements">
+    <div id="timer" style="padding: 5px; font-weight: bold;">0h:00m:00s</div>
+    <div id="followed_by_title" style="font-weight: bold; display: none;">Followed By</div>
+    <div id="followed_by" role="progressbar" style="display: none;">
+      <div class="progress__bar">
+        <span class="progress__label"></span>
+      </div>
+    </div>
+    <div id="follows_title" style="font-weight: bold; display: none;">Follows</div>
+    <div id="follows" role="progressbar" style="display: none;">
+      <div class="progress__bar">
+        <span class="progress__label"></span>
+      </div>
+    </div>
+  </div>
+  <table id="jqGrid"></table>
+  <div id="jqGridPager"></div>
+  <script src="ga.js"></script> 
+  <script src="lib/jquery-3.1.1.min.js"></script> 
+  <script src="lib/asProgress/jquery-asProgress.js"></script> 
+  <script src="getUserProfile.js"></script> 
+  <script src="InstaPrepareCsv.js"></script> 
+  <script src="commonUsers.js"></script> 
+  <script src="instaDefOptions.js"></script> 
+  <script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script> 
+  <script type="text/ecmascript" src="lib/jqGrid/grid.locale-en.js"></script></body>
+</html>

@@ -2,8 +2,8 @@
 
 (function () {
 	"use strict";
-
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+
 		if (request.action == "show") {
 			chrome.tabs.query({
 				active: true,
@@ -11,9 +11,9 @@
 			}, function (tabs) {
 				chrome.pageAction.show(tabs[0].id);
 			});
-		} else if ("return_insta_users" === request.action) {
+		} else if ("get_insta_users" === request.action) {
 			var url = chrome.extension.getURL('instaUsers.html');
-			request.action = "modifyResultPage";
+			//request.action = "modifyResultPage";
 
 			//query if we already have result page opened
 			chrome.tabs.query({
@@ -45,7 +45,7 @@
 
 	chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
 
-		headers = details.requestHeaders;
+		var headers = details.requestHeaders;
 		//modify Referer to make instagram happier
 		for (var header in headers) {
 			if (headers[header].name === "eferer") {
@@ -61,5 +61,4 @@
 		urls: ["https://www.instagram.com/query/"]
 	},
 		['blocking', "requestHeaders"]);
-
 })();
