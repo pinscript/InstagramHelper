@@ -26,8 +26,7 @@ $(function () {
 				alert("The result window is already opened. Please close it before processing");
 
 			} else { //tab is not found, let's continue
-				userInfo.getUserProfile(userName, function (obj) {
-
+				userInfo.getUserProfile(userName).then(function (obj) {
 					chrome.tabs.query({
 						active: true,
 						currentWindow: true
@@ -57,9 +56,25 @@ $(function () {
 			url: url
 		}, function (tabs) {
 			if (tabs.length > 0) { //result tab is found
-				alert("The result window is already opened. Please close it before processing");
+				alert("The result window is already opened. Please close it before processing"); //TODO:
 			} else { //tab is not found, let's continue
-				userInfo.getUserProfile(userName, function (obj) {
+			
+				/*var p1 = new Promise ((resolve, reject) => {
+					userInfo.getUserProfile(userName, resolve);//what happens in case of error
+				});
+				p1.then(function(obj){
+					console.log(arguments);
+				}).catch(function(){
+					console.log(arguments);
+				});*/
+				
+				//Promise.all([p1, p2, p3]).then(function([result1, result2, resule3]) {	
+				//});
+			
+			
+			
+			
+			/*	userInfo.getUserProfile(userName, function (obj) {
 					
 					chrome.tabs.query({
 						active: true,
@@ -74,8 +89,9 @@ $(function () {
 							relType: $('input[name=relType]:checked').attr("id")
 						});
 					});
-				});
+				});*/
 			}
+			
 		});
 	});
 });
@@ -93,7 +109,7 @@ window.onload = function () {
 		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
 
 		if (arr) {
-			userInfo.getUserProfile(arr[1], function (obj) {
+			userInfo.getUserProfile(arr[1]).then(function (obj) {
 
 				var $html = "";
 				delete obj.profile_pic_url_hd;
