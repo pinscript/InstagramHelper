@@ -1,6 +1,6 @@
 /* jshint esnext: true */
 
-userInfo = function () {};
+var userInfo = function () {};
 
 userInfo.getUserProfile = function (username, callback) {
 	"use strict";
