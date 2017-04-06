@@ -6,6 +6,7 @@ $(function () {
 	"use strict";
 
 	var myData = [];
+
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
 		follows: $('#follows'),
@@ -13,7 +14,7 @@ $(function () {
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-		if (request.action == "return_common_users") {
+		if (request.action == "get_common_users") {
 			$("#status").text("Message is got");
 	/*
 			var fetchSettings = {

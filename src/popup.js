@@ -32,7 +32,8 @@ $(function () {
 				let[obj, tabs] = values;
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_insta_users",
-					userName: $("#username").val(),
+					page: "instaUsers.html",
+					userName: userName,
 					userId: obj.id,
 					follows_count: obj.follows_count,
 					followed_by_count: obj.followed_by_count,
@@ -62,14 +63,17 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo1, promiseUserInfo2, promiseQueryActiveTab]).then(values => {
 				let[obj1, obj2, tabs] = values;
-				console.log("sending get common users message");
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_common_users",
-					userName: $("#username").val(),
-					userId: obj1.id,
-					follows_count: obj1.follows_count,
-					followed_by_count: obj1.followed_by_count,
-					relType: $('input[name=relType]:checked').attr("id")
+					page: "commonUsers.html",
+					userName1: userName1,
+					userId1: obj1.id,
+					follows_count1: obj1.follows_count,
+					followed_by_count1: obj1.followed_by_count,
+					userName2: userName2,
+					userId2: obj2.id,
+					follows_count2: obj2.follows_count,
+					followed_by_count2: obj2.followed_by_count
 				});
 			});				
 		}, () => alert("Already found open tab with results, please close!"));

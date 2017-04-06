@@ -27,7 +27,7 @@
 	},
 
 	"background": {
-		"scripts": ["background.js"],
+		"scripts": ["PromiseChrome.js", "background.js"],
 		"persistent": true
 	},
 

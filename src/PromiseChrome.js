@@ -9,6 +9,13 @@ var PromiseChrome = function () {
 	  });
 	}	
 
+	function promiseCreateTab(options){
+	  return new Promise(function(resolve,reject){
+		chrome.tabs.create(options, resolve);
+	  });
+	}	
+	
+	
 	function promiseGetStorage(options){
 	  return new Promise(function(resolve,reject){
 		chrome.storage.sync.get(options, resolve);
@@ -19,7 +26,7 @@ var PromiseChrome = function () {
 	  return new Promise(function(resolve,reject){
 		chrome.tabs.query(options, function(tabs){
 			if (tabs.length > 0) { //result tab is found
-				reject();
+				reject(tabs);
 			} else {
 				resolve(tabs);
 			}
@@ -29,6 +36,7 @@ var PromiseChrome = function () {
 	
 	return {
 		promiseQuery: promiseQuery,
+		promiseCreateTab: promiseCreateTab,
 		promiseGetStorage: promiseGetStorage,
 		promiseCheckOpenTab: promiseCheckOpenTab
 	};

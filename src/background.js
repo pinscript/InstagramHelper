@@ -1,44 +1,39 @@
+/* jshint esnext: true */
 /* globals chrome */
 
 (function () {
 	"use strict";
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
+		let promiseChrome = new PromiseChrome();
+		let url;
+
+		function sendModifyResultPage(tabId, changeInfo, tab) {
+			if (tab.url === url && changeInfo.status === 'complete') {
+				chrome.tabs.sendMessage(tab.id, request);
+				chrome.tabs.onUpdated.removeListener(sendModifyResultPage);
+			}
+		}
+			
 		if (request.action == "show") {
-			chrome.tabs.query({
+			promiseChrome.promiseQuery({
 				active: true,
 				currentWindow: true
-			}, function (tabs) {
+			}).then(function (tabs) {
 				chrome.pageAction.show(tabs[0].id);
 			});
-		} else if ("get_insta_users" === request.action) {
-			var url = chrome.extension.getURL('instaUsers.html');
+		} else if (("get_insta_users" === request.action) || ("get_common_users" === request.action)) {
+			
+			url = chrome.extension.getURL(request.page);
 
-			//query if we already have result page opened
-			chrome.tabs.query({
-				url: url
-			}, function (tabs) {
-				if (0 === tabs.length) { //tab is not found, let's create it
-					chrome.tabs.create({
-						'url': url,
-						'selected': true
-					}, function (tab) {
-						function sendModifyResultPage(tabId, changeInfo, tab) {
-							if (tab.url.indexOf('instaUsers.html') != -1 && changeInfo.status == 'complete') {
-								chrome.tabs.sendMessage(tab.id, request);
-								chrome.tabs.onUpdated.removeListener(sendModifyResultPage);
-							}
-						}
-						chrome.tabs.onUpdated.addListener(sendModifyResultPage);
-					});
-				} else { //tab is found, let's show it
-					chrome.tabs.update(tabs[0].id, {
-						active: true
-					});
-					chrome.tabs.sendMessage(tabs[0].id, request);
-				}
+			promiseChrome.promiseCreateTab({
+				'url': url,
+				'selected': true
+			}).then(function (tab) {
+				chrome.tabs.onUpdated.addListener(sendModifyResultPage);
 			});
 		}
+
 	});
 
 	chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
