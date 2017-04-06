@@ -1,9 +1,11 @@
 /* jshint esnext: true */
-/* globals chrome, document */
+/* globals chrome, document, PromiseChrome, userInfo, _gaq */
 
 $(function () {
 	"use strict";
-	
+
+	var promiseChrome = new PromiseChrome();
+
 	$('#username').on("change keyup", function () {
 		if ($(this).val().length > 0) {
 			$('#instaUsers').removeAttr("disabled");
@@ -13,86 +15,64 @@ $(function () {
 	});
 
 	$('#instaUsers').click(function () {
-		
-		var userName = $("#username").val();
-		if (!userName) return;
 
-		var promiseChrome = new PromiseChrome();
-		//query if we already have result page opened
-		promiseChrome.promiseQuery({
+		var userName = $("#username").val();
+		if (!userName)
+			return;
+
+		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('instaUsers.html')
-		}).then(function(tabs){
-			if (tabs.length > 0) { //result tab is found
-				alert("The result window is already opened. Please close it before processing");
-			} else { //tab is not found, let's continue
-				var promiseUserInfo = userInfo.getUserProfile(userName);
-				var promiseQueryActiveTab = promiseChrome.promiseQuery({
+		}).then(function () {
+			var promiseUserInfo = userInfo.getUserProfile(userName);
+			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
 				});
-				Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => { 
-					let [obj, tabs] = values;
-					chrome.tabs.sendMessage(tabs[0].id, {
-						action: "get_insta_users",
-						userName: $("#username").val(),
-						userId: obj.id,
-						follows_count: obj.follows_count,
-						followed_by_count: obj.followed_by_count,
-						relType: $('input[name=relType]:checked').attr("id")
-					});				
-				});				
-			}			
-		});
+			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
+				let[obj, tabs] = values;
+				chrome.tabs.sendMessage(tabs[0].id, {
+					action: "get_insta_users",
+					userName: $("#username").val(),
+					userId: obj.id,
+					follows_count: obj.follows_count,
+					followed_by_count: obj.followed_by_count,
+					relType: $('input[name=relType]:checked').attr("id")
+				});
+			});
+		}, () => alert("Already found open tab with results, please close!"));
 	});
 
 	$('#findCommonUsers').click(function () {
-
-		var userName = $("#username_1").val();
-		if (!userName) return;
+		var userName1 = $("#username_1").val();
+		if (!userName1)
+			return;
 		
-		//query if we already have result page opened
-		var url = chrome.extension.getURL('commonUsers.html');
-		chrome.tabs.query({
-			url: url
-		}, function (tabs) {
-			if (tabs.length > 0) { //result tab is found
-				alert("The result window is already opened. Please close it before processing"); //TODO:
-			} else { //tab is not found, let's continue
-			
-				/*var p1 = new Promise ((resolve, reject) => {
-					userInfo.getUserProfile(userName, resolve);//what happens in case of error
+		var userName2 = $("#username_2").val();
+		if (!userName2)
+			return;
+
+		promiseChrome.promiseCheckOpenTab({
+			url: chrome.extension.getURL('commonUsers.html')
+		}).then(function () {
+			var promiseUserInfo1 = userInfo.getUserProfile(userName1);
+			var promiseUserInfo2 = '1222';// userInfo.getUserProfile(userName2);
+			var promiseQueryActiveTab = promiseChrome.promiseQuery({
+					active: true,
+					currentWindow: true
 				});
-				p1.then(function(obj){
-					console.log(arguments);
-				}).catch(function(){
-					console.log(arguments);
-				});*/
-				
-				//Promise.all([p1, p2, p3]).then(function([result1, result2, resule3]) {	
-				//});
-			
-			
-			
-			
-			/*	userInfo.getUserProfile(userName, function (obj) {
-					
-					chrome.tabs.query({
-						active: true,
-						currentWindow: true
-					}, function (tabs) {
-						chrome.tabs.sendMessage(tabs[0].id, {
-							action: "get_common_users",
-							userName: $("#username").val(),
-							userId: obj.id,
-							follows_count: obj.follows_count,
-							followed_by_count: obj.followed_by_count,
-							relType: $('input[name=relType]:checked').attr("id")
-						});
-					});
-				});*/
-			}
-			
-		});
+			Promise.all([promiseUserInfo1, promiseUserInfo2, promiseQueryActiveTab]).then(values => {
+				let[obj1, obj2, tabs] = values;
+				console.log("sending get common users message");
+				chrome.tabs.sendMessage(tabs[0].id, {
+					action: "get_common_users",
+					userName: $("#username").val(),
+					userId: obj1.id,
+					follows_count: obj1.follows_count,
+					followed_by_count: obj1.followed_by_count,
+					relType: $('input[name=relType]:checked').attr("id")
+				});
+			});				
+		}, () => alert("Already found open tab with results, please close!"));
 	});
 });
 

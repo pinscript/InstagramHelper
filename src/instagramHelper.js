@@ -1,5 +1,5 @@
 /* jshint esnext: true */
-/* globals chrome, document */
+/* globals chrome, document, instaDefOptions, PromiseChrome */
 (function () {
 	"use strict";
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -23,10 +23,10 @@
 		};
 
 		if (("get_insta_users" === request.action) || ("get_common_users" === request.action)) {
-			chrome.storage.sync.get({
+			(new PromiseChrome()).promiseGetStorage({
 				pageSize: instaDefOptions.defPageSize,
 				delay: instaDefOptions.defDelay
-			}, function (items) {
+			}).then(function (items) {
 
 				var sharedData = getCsrfToken();
 
@@ -41,4 +41,5 @@
 	chrome.runtime.sendMessage({
 		action: "show"
 	});
+
 })();

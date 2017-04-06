@@ -27,13 +27,13 @@
 	},
 
 	"background": {
-		"scripts": ["background.js", "lib/jquery-3.1.1.min.js"],
+		"scripts": ["background.js"],
 		"persistent": true
 	},
 
 	"content_scripts": [{
 			"matches": ["https://www.instagram.com/*"],
-			"js": ["instaDefOptions.js", "instagramHelper.js"]
+			"js": ["instaDefOptions.js", "PromiseChrome.js", "instagramHelper.js"]
 		}
 	],
 

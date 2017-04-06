@@ -13,7 +13,6 @@
 			});
 		} else if ("get_insta_users" === request.action) {
 			var url = chrome.extension.getURL('instaUsers.html');
-			//request.action = "modifyResultPage";
 
 			//query if we already have result page opened
 			chrome.tabs.query({
@@ -32,7 +31,6 @@
 						}
 						chrome.tabs.onUpdated.addListener(sendModifyResultPage);
 					});
-
 				} else { //tab is found, let's show it
 					chrome.tabs.update(tabs[0].id, {
 						active: true
