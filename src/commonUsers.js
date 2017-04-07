@@ -9,33 +9,58 @@ $(function () {
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
-		follows: $('#follows'),
-		followed_by: $('#followed_by')
+		follows_1: $('#follows_1'),
+		followed_by_1: $('#followed_by_1'),
+		follows_2: $('#follows_2'),
+		followed_by_2: $('#followed_by_2')
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_common_users") {
-			$("#status").text("Message is got");
-	/*
-			var fetchSettings = {
+			prepareHtmlElements(request);
+			var startTime = new Date();
+			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
+			var fetchSettings_1 = {
 				request: null,
-				userName: request.userName,
+				userName: request.userName_1,
 				pageSize: request.pageSize,
 				delay: request.delay,
 				csrfToken: request.csrfToken,
-				userId: request.userId,
+				userId: request.userId_1,
 				relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
 				callBoth: "All" === request.relType,
-				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
-				follows_count: request.follows_count,
-				followed_by_count: request.followed_by_count,
+				checkDuplicates: false,
+				follows_count: request.follows_1_count,
+				followed_by_count: request.followed_by_1_count,
 				follows_processed: 0,
 				followed_by_processed: 0,
-				startTime: new Date(),
-				timerInterval: startTimer(document.querySelector('#timer'), new Date())
+				startTime: startTime,
+				timerInterval: timerInterval,
+				myData: []				
 			};
-			prepareHtmlElements(fetchSettings);
-			fetchInstaUsers(fetchSettings);*/
+			console.log(fetchSettings_1);
+			fetchInstaUsers(fetchSettings_1);
+			var fetchSettings_2 = {
+				request: null,
+				userName: request.userName_2,
+				pageSize: request.pageSize,
+				delay: request.delay,
+				csrfToken: request.csrfToken,
+				userId: request.userId_2,
+				relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
+				callBoth: "All" === request.relType,
+				checkDuplicates: false, 
+				follows_count: request.follows_2_count,
+				followed_by_count: request.followed_by_2_count,
+				follows_processed: 0,
+				followed_by_processed: 0,
+				startTime: startTime,
+				timerInterval: timerInterval,
+				myData: []
+			};
+			console.log(fetchSettings_2);
+			//todo : insert flag to generate completion!!!!
+			fetchInstaUsers(fetchSettings_2);
 		}
 	});
 
@@ -58,6 +83,7 @@ $(function () {
 	}
 
 	function showJQGrid(obj) {
+		//todo : correctly initialize column title
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
@@ -136,8 +162,8 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Follows<br/>user',
-					name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
+					label: 'Follows<br/>user 1',
+					name: 'user_followed_by_1', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -148,8 +174,32 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Followed<br/> by user',
-					name: 'user_follows', //relationship: follows - from the list of the followed person by user
+					label: 'Followed<br/> by user 1',
+					name: 'user_follows_1', //relationship: follows - from the list of the followed person by user
+					width: '80',
+					formatter: 'checkbox',
+					align: 'center',
+					stype: 'select',
+					searchoptions: {
+						sopt: ["eq"],
+						value: ":Any;true:Yes;false:No"
+					},
+					search: true
+				}, {
+					label: 'Follows<br/>user 2',
+					name: 'user_followed_by_2', //relationship: followed_by - the list of the user's followers
+					width: '80',
+					formatter: 'checkbox',
+					align: 'center',
+					stype: 'select',
+					searchoptions: {
+						sopt: ["eq"],
+						value: ":Any;true:Yes;false:No"
+					},
+					search: true
+				}, {
+					label: 'Followed<br/> by user 2',
+					name: 'user_follows_2', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -232,58 +282,61 @@ $(function () {
 		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 	}
 
-	function showExportDiv() {
-
-		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
-
-		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
-		var csvFields;
-		chrome.storage.sync.get({
-			csvFields : instaDefOptions.defCsvFields //TODO: Use Default
-		}, (items) => { 	
-			csvFields = items.csvFields;
-		});		
-
-		$("#linkExportCSV").click(function () {
-			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
-			console.log("the length of returned CSV string - " + csv.length);
-			this.download = "export.csv";
-			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
-		});
-	}
-
 	function prepareHtmlElements(obj) {
+		//TODO: IMPLEMENT PERCENTAGE
 		
-		//statusDiv = document.getElementById('status');
+		document.getElementById("followed_by_1_title").textContent = `${obj.userName_1} is followed by ${obj.followed_by_1_count} users`;
+		//document.getElementById("followed_by_1_title").style.display = "block";
+		htmlElements.followed_by_1.show().asProgress({
+			namespace: 'progress',
+			min: 0,
+			max: obj.followed_by_1_count,
+			goal: obj.followed_by_1_count,
+			labelCallback(n) {
+				const percentage = this.getPercentage(n);
+				//return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+			}
+		});
 
-		if (obj.callBoth || ("followed_by" === obj.relType)) {
-			document.getElementById("followed_by_title").textContent = `${obj.userName} is followed by ${obj.followed_by_count} users`;
-			document.getElementById("followed_by_title").style.display = "block";
-			htmlElements.followed_by.show().asProgress({
-				namespace: 'progress',
-				min: 0,
-				max: obj.followed_by_count,
-				goal: obj.followed_by_count,
-				labelCallback(n) {
-					const percentage = this.getPercentage(n);
-					return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
-				}
-			});
-		}
-		if (obj.callBoth || ("follows" === obj.relType)) {
-			document.getElementById("follows_title").textContent = `${obj.userName} follows ${obj.follows_count} users`;
-			document.getElementById("follows_title").style.display = "block";
-			htmlElements.follows.show().asProgress({
-				namespace: 'progress',
-				min: 0,
-				max: obj.follows_count,
-				goal: obj.follows_count,
-				labelCallback(n) {
-					const percentage = this.getPercentage(n);
-					return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
-				}
-			});
-		}
+		document.getElementById("follows_1_title").textContent = `${obj.userName_1} follows ${obj.follows_1_count} users`;
+		//document.getElementById("follows_title").style.display = "block";
+		htmlElements.follows_1.show().asProgress({
+			namespace: 'progress',
+			min: 0,
+			max: obj.follows_1_count,
+			goal: obj.follows_1_count,
+			labelCallback(n) {
+				const percentage = this.getPercentage(n);
+				//return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
+			}
+		});
+
+		document.getElementById("followed_by_2_title").textContent = `${obj.userName_2} is followed by ${obj.followed_by_2_count} users`;
+		//document.getElementById("followed_by_2_title").style.display = "block";
+		htmlElements.followed_by_2.show().asProgress({
+			namespace: 'progress',
+			min: 0,
+			max: obj.followed_by_2_count,
+			goal: obj.followed_by_2_count,
+			labelCallback(n) {
+				const percentage = this.getPercentage(n);
+				//return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+			}
+		});
+
+		document.getElementById("follows_2_title").textContent = `${obj.userName_2} follows ${obj.follows_2_count} users`;
+		//document.getElementById("follows_title").style.display = "block";
+		htmlElements.follows_2.show().asProgress({
+			namespace: 'progress',
+			min: 0,
+			max: obj.follows_2_count,
+			goal: obj.follows_2_count,
+			labelCallback(n) {
+				const percentage = this.getPercentage(n);
+				//return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
+			}
+		});
+		
 	}
 
 	function updateProgressBar(obj, count) {
@@ -307,16 +360,13 @@ $(function () {
 			//timer.parentNode.removeChild(timer);
 		}, 3000);
 		showJQGrid(obj);
-		showExportDiv();
 	}
 
 	function fetchInstaUsers(obj) {
 
 		if (!obj.request) {
 			obj.request = $.param({
-					q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page},
-			nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
-			external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
+					q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id}}}`, 
 					ref: "relationships::follow_list"
 				});
 		}
@@ -349,28 +399,23 @@ $(function () {
 							if (data[obj.relType].nodes[i].username === myData[j].username) {
 								found = true;
 								//console.log(`username ${myData[j].username} is found at ${i}`);
-								myData[j]["user_" + obj.relType] = true;
+								obj.myData[j]["user_" + obj.relType] = true;
 								break;
 							}
 						}
 					}
 					if (!(found)) {
-						data[obj.relType].nodes[i].followed_by_count = data[obj.relType].nodes[i].followed_by.count;
-						data[obj.relType].nodes[i].follows_count = data[obj.relType].nodes[i].follows.count;
-						data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
 						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
 						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
 						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
-						myData.push(data[obj.relType].nodes[i]);
+						obj.myData.push(data[obj.relType].nodes[i]);
 					}
 				}
 				updateProgressBar(obj, data[obj.relType].nodes.length);
 
 				if (data[obj.relType].page_info.has_next_page) {
 					obj.request = $.param({
-							q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page},
-					nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
-					external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
+							q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id}}}`, 
 							ref: "relationships::follow_list"
 						});
 					setTimeout(function () {
@@ -387,8 +432,8 @@ $(function () {
 							fetchInstaUsers(obj);
 						}, obj.delay);
 					} else {
-						//we are done
-						generationCompleted(obj);
+						//we are done //todo: fix that
+						//generationCompleted(obj);
 					}
 				}
 			},

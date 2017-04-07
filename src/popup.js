@@ -44,19 +44,20 @@ $(function () {
 	});
 
 	$('#findCommonUsers').click(function () {
-		var userName1 = $("#username_1").val();
-		if (!userName1)
+		var userName_1 = $("#username_1").val();
+		if (!userName_1)
 			return;
 		
-		var userName2 = $("#username_2").val();
-		if (!userName2)
-			return;
-
+		var userName_2 = $("#username_2").val();
+		if (!userName_2)
+			//return; //assign myself?
+			userName_2 = "ana.na.letonia";
+			
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
 		}).then(function () {
-			var promiseUserInfo1 = userInfo.getUserProfile(userName1);
-			var promiseUserInfo2 = '1222';// userInfo.getUserProfile(userName2);
+			var promiseUserInfo1 = userInfo.getUserProfile(userName_1);
+			var promiseUserInfo2 = userInfo.getUserProfile(userName_2);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
@@ -66,14 +67,15 @@ $(function () {
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_common_users",
 					page: "commonUsers.html",
-					userName1: userName1,
-					userId1: obj1.id,
-					follows_count1: obj1.follows_count,
-					followed_by_count1: obj1.followed_by_count,
-					userName2: userName2,
-					userId2: obj2.id,
-					follows_count2: obj2.follows_count,
-					followed_by_count2: obj2.followed_by_count
+					userName_1: userName_1,
+					userId_1: obj1.id,
+					follows_1_count: obj1.follows_count,
+					followed_by_1_count: obj1.followed_by_count,
+					userName_2: userName_2,
+					userId_2: obj2.id,
+					follows_2_count: obj2.follows_count,
+					followed_by_2_count: obj2.followed_by_count,
+					relType: "All"
 				});
 			});				
 		}, () => alert("Already found open tab with results, please close!"));
