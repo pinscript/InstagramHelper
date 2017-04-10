@@ -14,7 +14,6 @@ $(function () {
 		follows_2: $('#follows_2'),
 		followed_by_2: $('#followed_by_2'),
 		intersection: $("#intersection")
-		//add intersection alianse
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -75,15 +74,40 @@ $(function () {
 				console.log(obj2);
 				//prepareHtmlElementsForIntersection();
 				var arr = intersectArrays(obj1.myData, obj2.myData); 
-				promiseGetFullInfo(arr).then(generationCompleted(obj1, obj2));
+				promiseGetFullInfo(arr).then(function(){
+					console.log("generation completed");
+					console.log(myData);
+					generationCompleted(obj1, obj2);
+				});
 			});
 		}
 	});
 
 	function promiseGetFullInfo(arr) {
-		
+	  return new Promise(function(resolve,reject){
+		getFullInfo(arr, 0, resolve);
+	  });				
 	}
-	
+
+	function getFullInfo(arr, index, resolve) {
+		userInfo.getUserProfile(arr[index].username).then(function(obj){
+			obj.user_1_followed_by = arr[index].user_1_followed_by;
+			obj.user_1_follows = arr[index].user_1_follows;
+			obj.user_2_followed_by = arr[index].user_2_followed_by;
+			obj.user_2_follows = arr[index].user_2_follows;
+			
+			console.log(arr);
+			console.log(obj);
+			myData.push(obj);
+			if (index === arr.length - 1) {
+				resolve(); //todo : do I need input parameters
+			} else {
+				index += 1;
+				getFullInfo(arr, index, resolve);	//do I need delay requesting user info?
+			}
+		});
+	}
+
 	function promiseFetchInstaUsers(obj) {
 	  return new Promise(function(resolve,reject){
 		fetchInstaUsers(obj, resolve);
@@ -107,14 +131,13 @@ $(function () {
 				result.push({
 					id : arr1.id,
 					username : arr1.username,
-					user_1_followed_by : arr1.user_followed_by
-					user_1_follows : arr1.user_follows
-					user_2_followed_by : arr2.user_followed_by
+					user_1_followed_by : arr1.user_followed_by,
+					user_1_follows : arr1.user_follows,
+					user_2_followed_by : arr2.user_followed_by,
 					user_2_follows : arr2.user_follows
 				});
 			}
 		}
-		//obj1.myData, obj2.myData
 		console.log(a);
 		console.log(b);
 		console.log(result);
@@ -141,8 +164,7 @@ $(function () {
 		htmlElements.statusDiv.textContent = message;
 	}
 
-	function showJQGrid(obj) {
-		//todo : correctly initialize column title
+	function showJQGrid() {
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
@@ -222,7 +244,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Follows<br/>user 1',
-					name: 'user_followed_by_1', //relationship: followed_by - the list of the user's followers
+					name: 'user_1_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -234,7 +256,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Followed<br/> by user 1',
-					name: 'user_follows_1', //relationship: follows - from the list of the followed person by user
+					name: 'user_1_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -246,7 +268,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Follows<br/>user 2',
-					name: 'user_followed_by_2', //relationship: followed_by - the list of the user's followers
+					name: 'user_2_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -258,7 +280,7 @@ $(function () {
 					search: true
 				}, {
 					label: 'Followed<br/> by user 2',
-					name: 'user_follows_2', //relationship: follows - from the list of the followed person by user
+					name: 'user_2_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
 					align: 'center',
@@ -329,7 +351,7 @@ $(function () {
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: "Users of " + obj.userName,
+			caption: "Common Users of ", // + obj.userName,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
 		}).jqGrid('navGrid', "#jqGridPager", {
@@ -342,7 +364,6 @@ $(function () {
 	}
 
 	function prepareHtmlElements(obj) {
-		//TODO: IMPLEMENT PERCENTAGE
 
 		document.getElementById("followed_by_1_title").textContent = `${obj.userName_1} is followed by ${obj.followed_by_1_count} users`;
 		//document.getElementById("followed_by_1_title").style.display = "block";
@@ -399,7 +420,6 @@ $(function () {
 	}
 
 	function prepareHtmlElementsForIntersection(obj) {
-		//TODO: IMPLEMENT PERCENTAGE
 
 		document.getElementById("intersection_title").textContent = `${obj.userName_1} is followed by ${obj.followed_by_1_count} users`;
 		htmlElements.intersection.asProgress({
@@ -431,7 +451,7 @@ $(function () {
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 		}, 3000);
-		showJQGrid(obj);
+		showJQGrid();
 	}
 
 
