@@ -18,10 +18,10 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_common_users") {
-			prepareHtmlElements(request);
 			
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
+			request.timerInterval = timerInterval;
 			
 			var fetchSettings_1 = {
 				id: 1,
@@ -42,9 +42,7 @@ $(function () {
 				timerInterval: timerInterval,
 				myData: []
 			};
-			
 			console.log(fetchSettings_1);
-			var p1 = promiseFetchInstaUsers(fetchSettings_1);
 			var fetchSettings_2 = {
 				id: 2,
 				request: null,
@@ -65,19 +63,20 @@ $(function () {
 				myData: []
 			};
 			console.log(fetchSettings_2);
+
+			prepareHtmlElements(request, fetchSettings_1, fetchSettings_2);
+
+			var p1 = promiseFetchInstaUsers(fetchSettings_1);			
 			var p2 = promiseFetchInstaUsers(fetchSettings_2);
 			
 			Promise.all([p1, p2]).then(values => {
 				let[obj1, obj2] = values;
-				console.log("Promise .....................");
-				console.log(obj1);
-				console.log(obj2);
-				//prepareHtmlElementsForIntersection();
-				var arr = intersectArrays(obj1.myData, obj2.myData); 
+				let arr = intersectArrays(obj1.myData, obj2.myData); 
+				prepareHtmlElementsForIntersection(arr);
 				promiseGetFullInfo(arr).then(function(){
 					console.log("generation completed");
 					console.log(myData);
-					generationCompleted(obj1, obj2);
+					generationCompleted(request);
 				});
 			});
 		}
@@ -100,9 +99,10 @@ $(function () {
 			console.log(obj);
 			myData.push(obj);
 			if (index === arr.length - 1) {
-				resolve(); //todo : do I need input parameters
+				resolve();
 			} else {
-				index += 1;
+				//index += 1;
+				htmlElements.intersection.asProgress("go", ++index);
 				getFullInfo(arr, index, resolve);	//do I need delay requesting user info?
 			}
 		});
@@ -142,7 +142,7 @@ $(function () {
 		console.log(b);
 		console.log(result);
 		console.log(result.length);
-		console.log(`intersect array took ${new Date() - startTime}ms`)
+		console.log(`intersect arrays took ${new Date() - startTime}ms`)
 		return result;
 	}
 
@@ -164,15 +164,13 @@ $(function () {
 		htmlElements.statusDiv.textContent = message;
 	}
 
-	function showJQGrid() {
+	function showJQGrid(request) {
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
 			rowNum: 1000, //TODO: put it into options?
 			autowidth: true,
-			//width: "95%",
-			//shrinkToFit: true,
 			height: "100%",
 			rownumbers: true,
 			colModel: [{
@@ -188,7 +186,6 @@ $(function () {
 				}, {
 					label: 'Info',
 					name: 'id',
-					//width: '200',
 					sortable: false,
 					formatter: function (cellvalue, model, row) {
 						var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
@@ -224,7 +221,7 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;"';
+						return 'style="background-color: #fbf9ee;"  title="Follows you';
 					},
 					search: true
 				}, {
@@ -239,11 +236,11 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;"';
+						return 'style="background-color: #fbf9ee;" title="Followed by you"';
 					},
 					search: true
 				}, {
-					label: 'Follows<br/>user 1',
+					label: `Follows<br/>${request.userName_1}`,
 					name: 'user_1_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -253,9 +250,12 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return `title="Follows ${request.userName_1}"`;
+					},
 					search: true
 				}, {
-					label: 'Followed<br/> by user 1',
+					label: `Followed<br/> by ${request.userName_1}`,
 					name: 'user_1_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -265,9 +265,12 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return `title="Followed by ${request.userName_1}"`;
+					},
 					search: true
 				}, {
-					label: 'Follows<br/>user 2',
+					label: `Follows<br/>${request.userName_2}`,
 					name: 'user_2_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -277,9 +280,12 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return `title="Follows ${request.userName_2}"`;
+					},					
 					search: true
 				}, {
-					label: 'Followed<br/> by user 2',
+					label: `Followed<br/> by ${request.userName_2}`,
 					name: 'user_2_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -289,6 +295,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return `title="Followed by ${request.userName_2}"`;
+					},					
 					search: true
 				}, {
 					label: 'Private',
@@ -301,6 +310,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return 'title="Is private"';
+					},					
 					search: true
 				}, {
 					label: 'Followers',
@@ -311,7 +323,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Followers"';
+					}					
 				}, {
 					label: 'Following',
 					name: 'follows_count',
@@ -321,7 +336,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Following"';
+					}					
 				}, {
 					label: 'Posts',
 					name: 'media_count',
@@ -331,7 +349,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Posts"';
+					}					
 				}, {
 					name: 'username',
 					hidden: true
@@ -351,7 +372,7 @@ $(function () {
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: "Common Users of ", // + obj.userName,
+			caption: `Common Users of ${request.userName_1} and ${request.userName_2}`, 
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
 		}).jqGrid('navGrid', "#jqGridPager", {
@@ -363,10 +384,9 @@ $(function () {
 		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 	}
 
-	function prepareHtmlElements(obj) {
+	function prepareHtmlElements(obj, obj1, obj2) {
 
 		document.getElementById("followed_by_1_title").textContent = `${obj.userName_1} is followed by ${obj.followed_by_1_count} users`;
-		//document.getElementById("followed_by_1_title").style.display = "block";
 		htmlElements.followed_by_1.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -374,12 +394,11 @@ $(function () {
 			goal: obj.followed_by_1_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				//return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+				return `Followed by:${obj1.followed_by_processed}/${obj.followed_by_1_count}/${percentage}%`;
 			}
 		});
 
 		document.getElementById("follows_1_title").textContent = `${obj.userName_1} follows ${obj.follows_1_count} users`;
-		//document.getElementById("follows_title").style.display = "block";
 		htmlElements.follows_1.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -387,12 +406,11 @@ $(function () {
 			goal: obj.follows_1_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				//return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
+				return `Follows:${obj1.follows_processed}/${obj.follows_1_count}/${percentage}%`;
 			}
 		});
 
 		document.getElementById("followed_by_2_title").textContent = `${obj.userName_2} is followed by ${obj.followed_by_2_count} users`;
-		//document.getElementById("followed_by_2_title").style.display = "block";
 		htmlElements.followed_by_2.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -400,12 +418,11 @@ $(function () {
 			goal: obj.followed_by_2_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				//return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+				return `Followed by:${obj2.followed_by_processed}/${obj.followed_by_1_count}/${percentage}%`;
 			}
 		});
 
 		document.getElementById("follows_2_title").textContent = `${obj.userName_2} follows ${obj.follows_2_count} users`;
-		//document.getElementById("follows_title").style.display = "block";
 		htmlElements.follows_2.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -413,23 +430,23 @@ $(function () {
 			goal: obj.follows_2_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				//return `Follows:${obj.follows_processed}/${obj.follows_count}/${percentage}%`;
+				return `Follows:${obj2.follows_processed}/${obj.follows_1_count}/${percentage}%`;
 			}
 		});
 
 	}
 
-	function prepareHtmlElementsForIntersection(obj) {
+	function prepareHtmlElementsForIntersection(arr) {
 
-		document.getElementById("intersection_title").textContent = `${obj.userName_1} is followed by ${obj.followed_by_1_count} users`;
+		updateStatusDiv(`Found common users ${arr.length}`);
+		document.getElementById("intersection_title").textContent = "Getting the detailed info";
 		htmlElements.intersection.asProgress({
 			namespace: 'progress',
 			min: 0,
-			max: obj.followed_by_1_count,
-			goal: obj.followed_by_1_count,
+			max: arr.length,
+			goal: arr.length,
 			labelCallback(n) {
-				const percentage = this.getPercentage(n);
-				//return `Followed by:${obj.followed_by_processed}/${obj.followed_by_count}/${percentage}%`;
+				return this.getPercentage(n) + "%";
 			}
 		});
 	}
@@ -439,19 +456,22 @@ $(function () {
 		htmlElements[obj.relType + "_" + obj.id].asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
-
+		
 	function stopProgressBar(obj) {
 		htmlElements[obj.relType + "_" + obj.id].asProgress("finish").asProgress("stop");
 	}
 
-	function generationCompleted(obj1, obj2) {
-		clearInterval(obj1.timerInterval);
+	function generationCompleted(request) {
+		clearInterval(request.timerInterval);
 		var timer = document.querySelector('#timer');
-		//updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		htmlElements.intersection.asProgress("finish").asProgress("stop");
+		updateStatusDiv(`Completed, spent time - ${timer.textContent}, found common users - ${myData.length} 
+			(${request.userName_1} follows - ${request.follows_1_count} and followed by - ${request.followed_by_1_count} &&
+			${request.userName_2} follows - ${request.follows_2_count} and followed by - ${request.followed_by_2_count})`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 		}, 3000);
-		showJQGrid();
+		showJQGrid(request);
 	}
 
 
