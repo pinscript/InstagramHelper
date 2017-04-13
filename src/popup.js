@@ -45,13 +45,16 @@ $(function () {
 
 	$('#findCommonUsers').click(function () {
 		var userName_1 = $("#username_1").val();
-		if (!userName_1)
+		if (!userName_1) {
+			alert("Please specify the 1st user name");
 			return;
+		}
 		
 		var userName_2 = $("#username_2").val();
-		if (!userName_2)
-			//return; //assign myself?
-			userName_2 = "ana.na.letonia";
+		if (!userName_2) {
+			alert("Please specify the 2nd user name");
+			return;
+		}
 			
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
