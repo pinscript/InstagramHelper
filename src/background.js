@@ -39,7 +39,7 @@
 	chrome.webRequest.onBeforeSendHeaders.addListener(function (details) {
 
 		var headers = details.requestHeaders;
-		//modify Referer to make instagram happier
+		//modify Referer to make insta happy
 		for (var header in headers) {
 			if (headers[header].name === "eferer") {
 				headers[header].name = "Referer";
