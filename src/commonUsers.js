@@ -42,7 +42,6 @@ $(function () {
 				timerInterval: timerInterval,
 				myData: []
 			};
-			console.log(fetchSettings_1);
 			var fetchSettings_2 = {
 				id: 2,
 				request: null,
@@ -62,7 +61,6 @@ $(function () {
 				timerInterval: timerInterval,
 				myData: []
 			};
-			console.log(fetchSettings_2);
 
 			prepareHtmlElements(request, fetchSettings_1, fetchSettings_2);
 
@@ -74,8 +72,6 @@ $(function () {
 				let arr = intersectArrays(obj1.myData, obj2.myData); 
 				prepareHtmlElementsForIntersection(arr);
 				promiseGetFullInfo(arr).then(function(){
-					console.log("generation completed");
-					console.log(myData);
 					generationCompleted(request);
 				});
 			});
@@ -95,13 +91,10 @@ $(function () {
 			obj.user_2_followed_by = arr[index].user_2_followed_by;
 			obj.user_2_follows = arr[index].user_2_follows;
 			
-			console.log(arr);
-			console.log(obj);
 			myData.push(obj);
 			if (index === arr.length - 1) {
 				resolve();
 			} else {
-				//index += 1;
 				htmlElements.intersection.asProgress("go", ++index);
 				getFullInfo(arr, index, resolve);	//do I need delay requesting user info?
 			}
@@ -138,11 +131,7 @@ $(function () {
 				});
 			}
 		}
-		console.log(a);
-		console.log(b);
-		console.log(result);
-		console.log(result.length);
-		console.log(`intersect arrays took ${new Date() - startTime}ms`)
+		console.log(`intersect arrays took ${new Date() - startTime}ms`);
 		return result;
 	}
 
@@ -381,7 +370,7 @@ $(function () {
 			edit: false,
 			del: false,
 			refresh: true
-		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
+		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: autowidth doesn't work
 	}
 
 	function prepareHtmlElements(obj, obj1, obj2) {
@@ -545,7 +534,6 @@ $(function () {
 								fetchInstaUsers(obj, resolve);
 							}, obj.delay);
 						} else {
-							console.log("calling resolve ...");
 							resolve(obj);
 						}
 					}

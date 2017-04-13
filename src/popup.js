@@ -1,5 +1,5 @@
 /* jshint esnext: true */
-/* globals chrome, document, PromiseChrome, userInfo, _gaq */
+/* globals chrome, PromiseChrome, userInfo, _gaq */
 
 $(function () {
 	"use strict";
@@ -49,13 +49,13 @@ $(function () {
 			alert("Please specify the 1st user name");
 			return;
 		}
-		
+
 		var userName_2 = $("#username_2").val();
 		if (!userName_2) {
 			alert("Please specify the 2nd user name");
 			return;
 		}
-			
+
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
 		}).then(function () {
@@ -80,7 +80,7 @@ $(function () {
 					followed_by_2_count: obj2.followed_by_count,
 					relType: "All"
 				});
-			});				
+			});
 		}, () => alert("Already found open tab with results, please close!"));
 	});
 });

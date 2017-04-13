@@ -14,7 +14,7 @@
 				chrome.tabs.onUpdated.removeListener(sendModifyResultPage);
 			}
 		}
-			
+
 		if (request.action == "show") {
 			promiseChrome.promiseQuery({
 				active: true,
@@ -23,7 +23,7 @@
 				chrome.pageAction.show(tabs[0].id);
 			});
 		} else if (("get_insta_users" === request.action) || ("get_common_users" === request.action)) {
-			
+
 			url = chrome.extension.getURL(request.page);
 
 			promiseChrome.promiseCreateTab({

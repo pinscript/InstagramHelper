@@ -4,7 +4,7 @@
 	"name": "Instagram Helper (Scraper)",
 	"short_name": "InstaHelper",
 	"description": "Allows to create the list of instagram users, and export them into CSV file, also includes other helpfers for instagram.com",
-	"version": "0.240",
+	"version": "0.250",
 
 	"options_ui": {
 		"page": "options.html",
