@@ -210,7 +210,7 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;"  title="Follows you';
+						return 'style="background-color: #fbf9ee;"  title="Follows you"';
 					},
 					search: true
 				}, {
@@ -315,7 +315,7 @@ $(function () {
 					},
 					cellattr: function() {
 						return 'title="Followers"';
-					}					
+					}
 				}, {
 					label: 'Following',
 					name: 'follows_count',
@@ -328,7 +328,7 @@ $(function () {
 					},
 					cellattr: function() {
 						return 'title="Following"';
-					}					
+					}
 				}, {
 					label: 'Posts',
 					name: 'media_count',
@@ -341,7 +341,7 @@ $(function () {
 					},
 					cellattr: function() {
 						return 'title="Posts"';
-					}					
+					}
 				}, {
 					name: 'username',
 					hidden: true

@@ -30,6 +30,10 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
 				let[obj, tabs] = values;
+				if (userInfo.isNotValidUser(obj)) {
+					alert(`Cannot proceed with ${obj.userName}, it is private and you are not follow them`);
+					return;
+				} 
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_insta_users",
 					page: "instaUsers.html",
@@ -67,6 +71,14 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo1, promiseUserInfo2, promiseQueryActiveTab]).then(values => {
 				let[obj1, obj2, tabs] = values;
+				if (userInfo.isNotValidUser(obj1)) {
+					alert(`Cannot proceed with ${obj1.userName}, it is private and you are not follow them`);
+					return;
+				} 
+				if (userInfo.isNotValidUser(obj2)) {
+					alert(`Cannot proceed with ${obj2.userName}, it is private and you are not follow them`);
+					return;
+				} 
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_common_users",
 					page: "commonUsers.html",

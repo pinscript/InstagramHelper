@@ -60,9 +60,8 @@ $(function () {
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
-			rowNum: 1000, //TODO: put it into options?
+			rowNum: 1000,
 			autowidth: true,
-			//width: "95%",
 			//shrinkToFit: true,
 			height: "100%",
 			rownumbers: true,
@@ -115,7 +114,7 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;"';
+						return 'style="background-color: #fbf9ee;" title="Follows you"';
 					},
 					search: true
 				}, {
@@ -130,7 +129,7 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;"';
+						return 'style="background-color: #fbf9ee;" title="Followed by you"';
 					},
 					search: true
 				}, {
@@ -144,6 +143,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return `title="Follows ${obj.userName}"`;
+					},
 					search: true
 				}, {
 					label: 'Followed<br/> by user',
@@ -155,6 +157,9 @@ $(function () {
 					searchoptions: {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
+					},
+					cellattr: function() {
+						return `title="Followed by ${obj.userName}"`;
 					},
 					search: true
 				}, {
@@ -168,6 +173,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
+					cellattr: function() {
+						return 'title="Is private"';
+					},					
 					search: true
 				}, {
 					label: 'Followers',
@@ -178,7 +186,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Followers"';
+					}					
 				}, {
 					label: 'Following',
 					name: 'follows_count',
@@ -188,7 +199,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Following"';
+					}					
 				}, {
 					label: 'Posts',
 					name: 'media_count',
@@ -198,7 +212,10 @@ $(function () {
 					search: true,
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
-					}
+					},
+					cellattr: function() {
+						return 'title="Posts"';
+					}					
 				}, {
 					name: 'username',
 					hidden: true
@@ -338,6 +355,10 @@ $(function () {
 					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
+				//if (typeof data[obj.relType].nodes === "undefined") {
+				//	alert("the users are not returned, seems you are not logged in or trying to gather the list of users of shared account");
+				//  return;
+				//}
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {

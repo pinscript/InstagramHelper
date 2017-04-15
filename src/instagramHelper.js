@@ -33,7 +33,11 @@
 				request.pageSize = items.pageSize;
 				request.delay = items.delay;
 				request.csrfToken = sharedData.config.csrf_token;
-				chrome.runtime.sendMessage(request);
+				if (sharedData.config.viewer === null) {
+					alert("You are not logged in, cannot get the list of users.");
+				} else {
+					chrome.runtime.sendMessage(request);
+				}
 			});
 		}
 	});
