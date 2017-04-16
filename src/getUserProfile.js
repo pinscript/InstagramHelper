@@ -2,11 +2,6 @@
 
 var userInfo = function () {};
 
-userInfo.isNotValidUser = function(obj) {
-	"use strict";
-	return (obj.is_private && !obj.followed_by_viewer)
-};
-
 userInfo.getUserProfile = function (username, callback) {
 	"use strict";
 

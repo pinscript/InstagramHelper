@@ -30,15 +30,13 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
 				let[obj, tabs] = values;
-				if (userInfo.isNotValidUser(obj)) {
-					alert(`Cannot proceed with ${obj.userName}, it is private and you are not follow them`);
-					return;
-				} 
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_insta_users",
 					page: "instaUsers.html",
 					userName: userName,
 					userId: obj.id,
+					user_is_private: obj.is_private,
+					user_followed_by_viewer: obj.followed_by_viewer,					
 					follows_count: obj.follows_count,
 					followed_by_count: obj.followed_by_count,
 					relType: $('input[name=relType]:checked').attr("id")
@@ -71,23 +69,19 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo1, promiseUserInfo2, promiseQueryActiveTab]).then(values => {
 				let[obj1, obj2, tabs] = values;
-				if (userInfo.isNotValidUser(obj1)) {
-					alert(`Cannot proceed with ${obj1.userName}, it is private and you are not follow them`);
-					return;
-				} 
-				if (userInfo.isNotValidUser(obj2)) {
-					alert(`Cannot proceed with ${obj2.userName}, it is private and you are not follow them`);
-					return;
-				} 
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_common_users",
 					page: "commonUsers.html",
 					userName_1: userName_1,
 					userId_1: obj1.id,
+					user_1_is_private: obj1.is_private,
+					user_1_followed_by_viewer: obj1.followed_by_viewer,
 					follows_1_count: obj1.follows_count,
 					followed_by_1_count: obj1.followed_by_count,
 					userName_2: userName_2,
 					userId_2: obj2.id,
+					user_2_is_private: obj2.is_private,
+					user_2_followed_by_viewer: obj2.followed_by_viewer,
 					follows_2_count: obj2.follows_count,
 					followed_by_2_count: obj2.followed_by_count,
 					relType: "All"
