@@ -48,7 +48,8 @@ $(function () {
 				follows_processed: 0,
 				followed_by_processed: 0,
 				startTime: new Date(),
-				timerInterval: startTimer(document.querySelector('#timer'), new Date())
+				timerInterval: startTimer(document.querySelector('#timer'), new Date()),
+				receivedResponses: 0
 			};
 			prepareHtmlElements(fetchSettings);
 			fetchInstaUsers(fetchSettings);	
@@ -365,6 +366,7 @@ $(function () {
 			method: 'POST',
 			data: obj.request,
 			success: function (data, textStatus, xhr) {
+				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
 					setTimeout(function () {
 						fetchInstaUsers(obj);
@@ -411,7 +413,7 @@ $(function () {
 						});
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, obj.delay);
+					}, calculateTimeOut(obj));
 				} else {
 					stopProgressBar(obj);
 					if (obj.callBoth) {
@@ -421,7 +423,7 @@ $(function () {
 						obj.checkDuplicates = true;
 						setTimeout(function () {
 							fetchInstaUsers(obj);
-						}, obj.delay);
+						}, calculateTimeOut(obj));
 					} else {
 						//we are done
 						generationCompleted(obj);
@@ -455,6 +457,13 @@ $(function () {
 
 	}
 
+	function calculateTimeOut(obj) {
+		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < instaDefOptions.requestsToSkipDelay)) {
+			return 0;
+		}
+		return obj.delay;
+	}
+	
 });
 
 window.onload = function () {
