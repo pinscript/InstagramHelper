@@ -15,6 +15,24 @@ $(function () {
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_insta_users") {
 	
+			if (instaDefOptions.you === request.userName) {
+						request.userName = request.viewerUserName;
+						userInfo.getUserProfile(request.viewerUserName).then(function(obj){
+							request.user_is_private = obj.is_private;
+							request.follows_count = obj.follows_count;
+							request.followed_by_count = obj.followed_by_count;
+							request.userId = obj.id;
+							request.user_followed_by_viewer = false;
+							startFetching(request)
+						});
+			} else {
+				startFetching(request);
+			}
+		}
+	});
+
+	function startFetching(request) {
+		
 			var fetchSettings = {
 				request: null,
 				userName: request.userName,
@@ -33,10 +51,9 @@ $(function () {
 				timerInterval: startTimer(document.querySelector('#timer'), new Date())
 			};
 			prepareHtmlElements(fetchSettings);
-			fetchInstaUsers(fetchSettings);
-		}
-	});
-
+			fetchInstaUsers(fetchSettings);	
+	}
+	
 	function startTimer(timer, startTime) {
 	
 		return setInterval(function(){

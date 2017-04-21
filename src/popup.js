@@ -17,26 +17,27 @@ $(function () {
 	$('#instaUsers').click(function () {
 
 		var userName = $("#username").val();
-		if (!userName)
-			return;
+		//if (!userName) return;
 
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('instaUsers.html')
 		}).then(function () {
-			var promiseUserInfo = userInfo.getUserProfile(userName);
+			//todo: how do I handle it here
+			var promiseUserInfo = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
 				});
 			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
 				let[obj, tabs] = values;
+				console.log(obj);
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_insta_users",
 					page: "instaUsers.html",
 					userName: userName,
 					userId: obj.id,
 					user_is_private: obj.is_private,
-					user_followed_by_viewer: obj.followed_by_viewer,					
+					user_followed_by_viewer: obj.followed_by_viewer,
 					follows_count: obj.follows_count,
 					followed_by_count: obj.followed_by_count,
 					relType: $('input[name=relType]:checked').attr("id")
@@ -123,7 +124,8 @@ window.onload = function () {
 			});
 		} else {
 			$("#details").text("UserName is not found in URL");
-			$('#instaUsers').attr("disabled", "disabled");
+				$("#username").val(instaDefOptions.you);
+			//$('#instaUsers').attr("disabled", "disabled");
 		}
 	});
 };
