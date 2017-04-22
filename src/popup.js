@@ -6,23 +6,17 @@ $(function () {
 
 	var promiseChrome = new PromiseChrome();
 
-	$('#username').on("change keyup", function () {
-		if ($(this).val().length > 0) {
-			$('#instaUsers').removeAttr("disabled");
-		} else {
-			$('#instaUsers').attr("disabled", "disabled");
-		}
-	});
-
 	$('#instaUsers').click(function () {
 
 		var userName = $("#username").val();
-		//if (!userName) return;
+		if (!userName) {
+			alert("Please specify the user name");
+			return;
+		}
 
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('instaUsers.html')
 		}).then(function () {
-			//todo: how do I handle it here
 			var promiseUserInfo = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,

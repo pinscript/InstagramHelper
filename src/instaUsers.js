@@ -370,7 +370,7 @@ $(function () {
 				if (429 == xhr.status) {
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, 180000); //TODO: Test and make configurable
+					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 					return;
 				}
@@ -432,13 +432,18 @@ $(function () {
 			},
 			error: function (jqXHR, exception) {
 				console.log("error ajax");
-				console.log(arguments);
+				console.log(arguments);//jqXHR.status
 				if (jqXHR.status === 0) {
 					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, 180000); //TODO: Test and make configurable
+					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 					
+				} else if (jqXHR.status === 429) { 
+					alert('429 error');
+					setTimeout(function () {
+						fetchInstaUsers(obj);
+					}, instaDefOptions.retryInterval); //TODO: Test and make configurable				
 				} else if (jqXHR.status == 404) {
 					alert('Requested page not found. [404]');
 				} else if (jqXHR.status == 500) {

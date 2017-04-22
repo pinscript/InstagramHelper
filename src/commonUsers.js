@@ -40,7 +40,8 @@ $(function () {
 				followed_by_processed: 0,
 				startTime: startTime,
 				timerInterval: timerInterval,
-				myData: []
+				myData: [],
+				receivedResponses: 0
 			};
 			var fetchSettings_2 = {
 				id: 2,
@@ -59,7 +60,8 @@ $(function () {
 				followed_by_processed: 0,
 				startTime: startTime,
 				timerInterval: timerInterval,
-				myData: []
+				myData: [],
+				receivedResponses: 0
 			};
 
 			prepareHtmlElements(request, fetchSettings_1, fetchSettings_2);
@@ -485,10 +487,11 @@ $(function () {
 				method: 'POST',
 				data: obj.request,
 				success: function (data, textStatus, xhr) {
+					obj.receivedResponses += 1;
 					if (429 == xhr.status) {
 						setTimeout(function () {
 							fetchInstaUsers(obj, resolve);
-						}, 180000); //TODO: Test and make configurable
+						}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 						alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
 						return;
 					}
@@ -522,7 +525,7 @@ $(function () {
 							});
 						setTimeout(function () {
 							fetchInstaUsers(obj, resolve);
-						}, obj.delay);
+						}, calculateTimeOut(obj));
 					} else {
 						stopProgressBar(obj);
 						if (obj.callBoth) {
@@ -532,7 +535,7 @@ $(function () {
 							obj.checkDuplicates = true;
 							setTimeout(function () {
 								fetchInstaUsers(obj, resolve);
-							}, obj.delay);
+							}, calculateTimeOut(obj));
 						} else {
 							resolve(obj);
 						}
@@ -545,7 +548,12 @@ $(function () {
 						alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 						setTimeout(function () {
 							fetchInstaUsers(obj, resolve);
-						}, 180000); //TODO: Test and make configurable
+						}, instaDefOptions.retryInterval); //TODO: Test and make configurable
+				} else if (jqXHR.status === 429) { 
+					alert('429 error');
+					setTimeout(function () {
+						fetchInstaUsers(obj);
+					}, instaDefOptions.retryInterval); //TODO: Test and make configurable				
 
 					} else if (jqXHR.status == 404) {
 						alert('Requested page not found. [404]');
@@ -564,6 +572,14 @@ $(function () {
 			});
 	}
 
+	function calculateTimeOut(obj) {
+		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < instaDefOptions.requestsToSkipDelay / 2)) {
+			return 0;
+		}
+		return obj.delay;
+	}
+	
+	
 });
 
 window.onload = function () {

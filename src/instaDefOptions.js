@@ -5,6 +5,7 @@ var instaDefOptions = function() {
 		defPageSize : 100,
 		defCsvFields : "id, username, full_name, connected_fb_page, external_url, followed_by_count, follows_count, user_followed_by, user_follows, followed_by_viewer, follows_viewer, is_private, media_count",
 		noDelayForInit : true,
-		requestsToSkipDelay : 10
+		requestsToSkipDelay : 100, 
+		retryInterval : 180000
 	}
 }();
