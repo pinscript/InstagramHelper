@@ -52,6 +52,11 @@ $(function () {
 			alert("Please specify the 2nd user name");
 			return;
 		}
+		
+		if (userName_1 === userName_2) {
+			alert("User is the same, should be different to proceed");
+			return
+		}
 
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')

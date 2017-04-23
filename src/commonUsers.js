@@ -18,11 +18,11 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_common_users") {
-			
+
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
 			request.timerInterval = timerInterval;
-			
+
 			var fetchSettings_1 = {
 				id: 1,
 				request: null,
@@ -66,14 +66,14 @@ $(function () {
 
 			prepareHtmlElements(request, fetchSettings_1, fetchSettings_2);
 
-			var p1 = promiseFetchInstaUsers(fetchSettings_1);			
+			var p1 = promiseFetchInstaUsers(fetchSettings_1);
 			var p2 = promiseFetchInstaUsers(fetchSettings_2);
-			
+
 			Promise.all([p1, p2]).then(values => {
 				let[obj1, obj2] = values;
-				let arr = intersectArrays(obj1.myData, obj2.myData); 
+				let arr = intersectArrays(obj1.myData, obj2.myData);
 				prepareHtmlElementsForIntersection(arr);
-				promiseGetFullInfo(arr).then(function(){
+				promiseGetFullInfo(arr).then(function () {
 					generationCompleted(request);
 				});
 			});
@@ -81,37 +81,37 @@ $(function () {
 	});
 
 	function promiseGetFullInfo(arr) {
-	  return new Promise(function(resolve,reject){
-		getFullInfo(arr, 0, resolve);
-	  });				
+		return new Promise(function (resolve, reject) {
+			getFullInfo(arr, 0, resolve);
+		});
 	}
 
 	function getFullInfo(arr, index, resolve) {
-		userInfo.getUserProfile(arr[index].username).then(function(obj){
+		userInfo.getUserProfile(arr[index].username).then(function (obj) {
 			obj.user_1_followed_by = arr[index].user_1_followed_by;
 			obj.user_1_follows = arr[index].user_1_follows;
 			obj.user_2_followed_by = arr[index].user_2_followed_by;
 			obj.user_2_follows = arr[index].user_2_follows;
-			
+
 			myData.push(obj);
 			if (index === arr.length - 1) {
 				resolve();
 			} else {
 				htmlElements.intersection.asProgress("go", ++index);
-				getFullInfo(arr, index, resolve);	//do I need delay requesting user info?
+				getFullInfo(arr, index, resolve); //do I need delay requesting user info?
 			}
 		});
 	}
 
 	function promiseFetchInstaUsers(obj) {
-	  return new Promise(function(resolve,reject){
-		fetchInstaUsers(obj, resolve);
-	  });		
+		return new Promise(function (resolve, reject) {
+			fetchInstaUsers(obj, resolve);
+		});
 	}
-	
+
 	function intersectArrays(a, b) {
 		var startTime = new Date();
-		const sortArray = (a,b) => +a.id - +b.id;
+		const sortArray = (a, b) => +a.id - +b.id;
 		a.sort(sortArray);
 		b.sort(sortArray);
 		var result = [];
@@ -124,12 +124,12 @@ $(function () {
 				var arr1 = a.shift();
 				var arr2 = b.shift();
 				result.push({
-					id : arr1.id,
-					username : arr1.username,
-					user_1_followed_by : arr1.user_followed_by,
-					user_1_follows : arr1.user_follows,
-					user_2_followed_by : arr2.user_followed_by,
-					user_2_follows : arr2.user_follows
+					id: arr1.id,
+					username: arr1.username,
+					user_1_followed_by: arr1.user_followed_by,
+					user_1_follows: arr1.user_follows,
+					user_2_followed_by: arr2.user_followed_by,
+					user_2_follows: arr2.user_follows
 				});
 			}
 		}
@@ -241,7 +241,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Follows ${request.userName_1}"`;
 					},
 					search: true
@@ -256,7 +256,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Followed by ${request.userName_1}"`;
 					},
 					search: true
@@ -271,9 +271,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Follows ${request.userName_2}"`;
-					},					
+					},
 					search: true
 				}, {
 					label: `Followed<br/> by ${request.userName_2}`,
@@ -286,9 +286,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Followed by ${request.userName_2}"`;
-					},					
+					},
 					search: true
 				}, {
 					label: 'Private',
@@ -301,9 +301,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Is private"';
-					},					
+					},
 					search: true
 				}, {
 					label: 'Followers',
@@ -315,7 +315,7 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Followers"';
 					}
 				}, {
@@ -328,7 +328,7 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Following"';
 					}
 				}, {
@@ -341,7 +341,7 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Posts"';
 					}
 				}, {
@@ -363,7 +363,7 @@ $(function () {
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: `Common Users of ${request.userName_1} and ${request.userName_2}`, 
+			caption: `Common Users of ${request.userName_1} and ${request.userName_2}`,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
 		}).jqGrid('navGrid', "#jqGridPager", {
@@ -409,7 +409,7 @@ $(function () {
 			goal: obj.followed_by_2_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				return `Followed by:${obj2.followed_by_processed}/${obj.followed_by_1_count}/${percentage}%`;
+				return `Followed by:${obj2.followed_by_processed}/${obj.followed_by_2_count}/${percentage}%`;
 			}
 		});
 
@@ -421,7 +421,7 @@ $(function () {
 			goal: obj.follows_2_count,
 			labelCallback(n) {
 				const percentage = this.getPercentage(n);
-				return `Follows:${obj2.follows_processed}/${obj.follows_1_count}/${percentage}%`;
+				return `Follows:${obj2.follows_processed}/${obj.follows_2_count}/${percentage}%`;
 			}
 		});
 
@@ -447,7 +447,7 @@ $(function () {
 		htmlElements[obj.relType + "_" + obj.id].asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
-		
+
 	function stopProgressBar(obj) {
 		htmlElements[obj.relType + "_" + obj.id].asProgress("finish").asProgress("stop");
 	}
@@ -456,7 +456,7 @@ $(function () {
 		clearInterval(request.timerInterval);
 		var timer = document.querySelector('#timer');
 		htmlElements.intersection.asProgress("finish").asProgress("stop");
-		updateStatusDiv(`Completed, spent time - ${timer.textContent}, found common users - ${myData.length} 
+		updateStatusDiv(`Completed, spent time - ${timer.textContent}, found common users - ${myData.length}
 			(${request.userName_1} follows - ${request.follows_1_count} and followed by - ${request.followed_by_1_count} &&
 			${request.userName_2} follows - ${request.follows_2_count} and followed by - ${request.followed_by_2_count})`);
 		setTimeout(function () {
@@ -465,121 +465,119 @@ $(function () {
 		showJQGrid(request);
 	}
 
-
 	function fetchInstaUsers(obj, resolve) {
 
-			if (!obj.request) {
-				obj.request = $.param({
-						q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
-						ref: "relationships::follow_list"
-					});
-			}
+		if (!obj.request) {
+			obj.request = $.param({
+					q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
+					ref: "relationships::follow_list"
+				});
+		}
 
-			$.ajax({
-				url: "https://www.instagram.com/query/",
-				crossDomain: true,
-				headers: {
-					"X-Instagram-AJAX": '1',
-					"X-CSRFToken": obj.csrfToken,
-					"X-Requested-With": XMLHttpRequest,
-					"eferer": "https://www.instagram.com/" + obj.userName + "/"
-				},
-				method: 'POST',
-				data: obj.request,
-				success: function (data, textStatus, xhr) {
-					obj.receivedResponses += 1;
-					if (429 == xhr.status) {
-						setTimeout(function () {
-							fetchInstaUsers(obj, resolve);
-						}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-						alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
-						return;
-					}
-					updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
-					//otherwise assume return code is 200?
-					for (let i = 0; i < data[obj.relType].nodes.length; i++) {
-						var found = false;
-						if (obj.checkDuplicates) { //only when the second run happens (or we started with already opened result page)
-							for (let j = 0; j < obj.myData.length; j++) {
-								if (data[obj.relType].nodes[i].username === obj.myData[j].username) {
-									found = true;
-									//console.log(`username ${myData[j].username} is found at ${i}`);
-									obj.myData[j]["user_" + obj.relType] = true;
-									break;
-								}
+		$.ajax({
+			url: "https://www.instagram.com/query/",
+			crossDomain: true,
+			headers: {
+				"X-Instagram-AJAX": '1',
+				"X-CSRFToken": obj.csrfToken,
+				"X-Requested-With": XMLHttpRequest,
+				"eferer": "https://www.instagram.com/" + obj.userName + "/"
+			},
+			method: 'POST',
+			data: obj.request,
+			success: function (data, textStatus, xhr) {
+				obj.receivedResponses += 1;
+				if (429 == xhr.status) {
+					setTimeout(function () {
+						fetchInstaUsers(obj, resolve);
+					}, instaDefOptions.retryInterval);
+					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
+					return;
+				}
+				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
+				//otherwise assume return code is 200?
+				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
+					var found = false;
+					if (obj.checkDuplicates) { //only when the second run happens (or we started with already opened result page)
+						for (let j = 0; j < obj.myData.length; j++) {
+							if (data[obj.relType].nodes[i].username === obj.myData[j].username) {
+								found = true;
+								//console.log(`username ${myData[j].username} is found at ${i}`);
+								obj.myData[j]["user_" + obj.relType] = true;
+								break;
 							}
 						}
-						if (!(found)) {
-							data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
-							data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
-							data[obj.relType].nodes[i]["user_" + obj.relType] = true;
-							obj.myData.push(data[obj.relType].nodes[i]);
-						}
 					}
-					updateProgressBar(obj, data[obj.relType].nodes.length);
+					if (!(found)) {
+						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
+						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
+						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
+						obj.myData.push(data[obj.relType].nodes[i]);
+					}
+				}
+				updateProgressBar(obj, data[obj.relType].nodes.length);
 
-					if (data[obj.relType].page_info.has_next_page) {
-						obj.request = $.param({
-								q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
-								ref: "relationships::follow_list"
-							});
+				if (data[obj.relType].page_info.has_next_page) {
+					obj.request = $.param({
+							q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
+							ref: "relationships::follow_list"
+						});
+					setTimeout(function () {
+						fetchInstaUsers(obj, resolve);
+					}, calculateTimeOut(obj));
+				} else {
+					stopProgressBar(obj);
+					if (obj.callBoth) {
+						obj.request = null;
+						obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
+						obj.callBoth = false;
+						obj.checkDuplicates = true;
 						setTimeout(function () {
 							fetchInstaUsers(obj, resolve);
 						}, calculateTimeOut(obj));
 					} else {
-						stopProgressBar(obj);
-						if (obj.callBoth) {
-							obj.request = null;
-							obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
-							obj.callBoth = false;
-							obj.checkDuplicates = true;
-							setTimeout(function () {
-								fetchInstaUsers(obj, resolve);
-							}, calculateTimeOut(obj));
-						} else {
-							resolve(obj);
-						}
-					}
-				},
-				error: function (jqXHR, exception) {
-					console.log("error ajax");
-					console.log(arguments);
-					if (jqXHR.status === 0) {
-						alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
-						setTimeout(function () {
-							fetchInstaUsers(obj, resolve);
-						}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-				} else if (jqXHR.status === 429) { 
-					alert('429 error');
-					setTimeout(function () {
-						fetchInstaUsers(obj);
-					}, instaDefOptions.retryInterval); //TODO: Test and make configurable				
-
-					} else if (jqXHR.status == 404) {
-						alert('Requested page not found. [404]');
-					} else if (jqXHR.status == 500) {
-						alert('Internal Server Error [500].');
-					} else if (exception === 'parsererror') {
-						alert('Requested JSON parse failed.');
-					} else if (exception === 'timeout') {
-						alert('Time out error.');
-					} else if (exception === 'abort') {
-						alert('Ajax request aborted.');
-					} else {
-						alert('Uncaught Error.\n' + jqXHR.responseText);
+						resolve(obj);
 					}
 				}
-			});
+			},
+			error: function (jqXHR, exception) {
+				console.log("error ajax");
+				console.log(arguments);
+				if (jqXHR.status === 0) {
+					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
+					setTimeout(function () {
+						fetchInstaUsers(obj, resolve);
+					}, instaDefOptions.retryInterval);
+				} else if (jqXHR.status === 429) {
+					alert('429 error');
+					setTimeout(function () {
+						fetchInstaUsers(obj, resolve);
+					}, instaDefOptions.retryInterval);
+
+				} else if (jqXHR.status == 404) {
+					alert('Requested page not found. [404]');
+				} else if (jqXHR.status == 500) {
+					alert('Internal Server Error [500].');
+				} else if (exception === 'parsererror') {
+					alert('Requested JSON parse failed.');
+				} else if (exception === 'timeout') {
+					alert('Time out error.');
+				} else if (exception === 'abort') {
+					alert('Ajax request aborted.');
+				} else {
+					alert('Uncaught Error.\n' + jqXHR.responseText);
+				}
+			}
+		});
 	}
 
 	function calculateTimeOut(obj) {
-		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < instaDefOptions.requestsToSkipDelay / 2)) {
+		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < (instaDefOptions.requestsToSkipDelay / 2))) {
 			return 0;
 		}
-		return obj.delay;
+		return  +obj.delay * 2; //TODO : ?
 	}
-	
-	
+
 });
 
 window.onload = function () {
