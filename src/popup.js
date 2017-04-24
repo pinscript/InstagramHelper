@@ -61,8 +61,8 @@ $(function () {
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
 		}).then(function () {
-			var promiseUserInfo1 = userInfo.getUserProfile(userName_1);
-			var promiseUserInfo2 = userInfo.getUserProfile(userName_2);
+			var promiseUserInfo1 = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName_1);
+			var promiseUserInfo2 = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName_2);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
