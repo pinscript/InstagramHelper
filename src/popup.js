@@ -119,12 +119,13 @@ window.onload = function () {
 				}
 				$("#username").val(obj.username);
 				$("#username_1").val(obj.username);
+				$("#username_2").val(instaDefOptions.you);
 				$("#details").html($html);
 			});
 		} else {
 			$("#details").text("UserName is not found in URL");
-				$("#username").val(instaDefOptions.you);
-			//$('#instaUsers').attr("disabled", "disabled");
+			$("#username").val(instaDefOptions.you);
+			$("#username_1").val(instaDefOptions.you);
 		}
 	});
 };
