@@ -14,17 +14,17 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_insta_users") {
-	
+
 			if (instaDefOptions.you === request.userName) {
-						request.userName = request.viewerUserName;
-						userInfo.getUserProfile(request.viewerUserName).then(function(obj){
-							request.user_is_private = obj.is_private;
-							request.follows_count = obj.follows_count;
-							request.followed_by_count = obj.followed_by_count;
-							request.userId = obj.id;
-							request.user_followed_by_viewer = false;
-							startFetching(request)
-						});
+				request.userName = request.viewerUserName;
+				userInfo.getUserProfile(request.viewerUserName).then(function (obj) {
+					request.user_is_private = obj.is_private;
+					request.follows_count = obj.follows_count;
+					request.followed_by_count = obj.followed_by_count;
+					request.userId = obj.id;
+					request.user_followed_by_viewer = false;
+					startFetching(request)
+				});
 			} else {
 				startFetching(request);
 			}
@@ -32,32 +32,32 @@ $(function () {
 	});
 
 	function startFetching(request) {
-		
-			var fetchSettings = {
-				request: null,
-				userName: request.userName,
-				pageSize: request.pageSize,
-				delay: request.delay,
-				csrfToken: request.csrfToken,
-				userId: request.userId,
-				relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
-				callBoth: "All" === request.relType,
-				checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
-				follows_count: request.follows_count,
-				followed_by_count: request.followed_by_count,
-				follows_processed: 0,
-				followed_by_processed: 0,
-				startTime: new Date(),
-				timerInterval: startTimer(document.querySelector('#timer'), new Date()),
-				receivedResponses: 0
-			};
-			prepareHtmlElements(fetchSettings);
-			fetchInstaUsers(fetchSettings);	
+
+		var fetchSettings = {
+			request: null,
+			userName: request.userName,
+			pageSize: request.pageSize,
+			delay: request.delay,
+			csrfToken: request.csrfToken,
+			userId: request.userId,
+			relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
+			callBoth: "All" === request.relType,
+			checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
+			follows_count: request.follows_count,
+			followed_by_count: request.followed_by_count,
+			follows_processed: 0,
+			followed_by_processed: 0,
+			startTime: new Date(),
+			timerInterval: startTimer(document.querySelector('#timer'), new Date()),
+			receivedResponses: 0
+		};
+		prepareHtmlElements(fetchSettings);
+		fetchInstaUsers(fetchSettings);
 	}
-	
+
 	function startTimer(timer, startTime) {
-	
-		return setInterval(function(){
+
+		return setInterval(function () {
 			var ms = parseInt(new Date() - startTime);
 			var x = ms / 1000;
 			var seconds = parseInt(x % 60, 10);
@@ -66,9 +66,9 @@ $(function () {
 			x /= 60;
 			var hours = parseInt(x % 24, 10);
 			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length)  + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
-		}, 1000);	
+		}, 1000);
 	}
-	
+
 	function updateStatusDiv(message) {
 		htmlElements.statusDiv.textContent = message;
 	}
@@ -161,7 +161,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Follows ${obj.userName}"`;
 					},
 					search: true
@@ -176,7 +176,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return `title="Followed by ${obj.userName}"`;
 					},
 					search: true
@@ -191,9 +191,9 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Is private"';
-					},					
+					},
 					search: true
 				}, {
 					label: 'Followers',
@@ -205,9 +205,9 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Followers"';
-					}					
+					}
 				}, {
 					label: 'Following',
 					name: 'follows_count',
@@ -218,9 +218,9 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Following"';
-					}					
+					}
 				}, {
 					label: 'Posts',
 					name: 'media_count',
@@ -231,9 +231,9 @@ $(function () {
 					searchoptions: {
 						sopt: ["ge", "le", "eq"]
 					},
-					cellattr: function() {
+					cellattr: function () {
 						return 'title="Posts"';
-					}					
+					}
 				}, {
 					name: 'username',
 					hidden: true
@@ -272,10 +272,10 @@ $(function () {
 		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
 		var csvFields;
 		chrome.storage.sync.get({
-			csvFields : instaDefOptions.defCsvFields //TODO: Use Default
-		}, (items) => { 	
+			csvFields: instaDefOptions.defCsvFields //TODO: Use Default
+		}, (items) => {
 			csvFields = items.csvFields;
-		});		
+		});
 
 		$("#linkExportCSV").click(function () {
 			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
@@ -286,7 +286,7 @@ $(function () {
 	}
 
 	function prepareHtmlElements(obj) {
-		
+
 		//statusDiv = document.getElementById('status');
 
 		if (obj.callBoth || ("followed_by" === obj.relType)) {
@@ -324,9 +324,9 @@ $(function () {
 		htmlElements[obj.relType].asProgress("go", newValue);
 		obj[obj.relType + "_processed"] = newValue;
 	}
-	
+
 	function stopProgressBar(obj) {
-		 htmlElements[obj.relType].asProgress("finish").asProgress("stop");
+		htmlElements[obj.relType].asProgress("finish").asProgress("stop");
 	}
 
 	function generationCompleted(obj) {
@@ -378,7 +378,7 @@ $(function () {
 				//	alert("the users are not returned, seems you are not logged in or trying to gather the list of users of shared account");
 				//  return;
 				//}
-				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");				
+				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 					var found = false;
@@ -432,18 +432,18 @@ $(function () {
 			},
 			error: function (jqXHR, exception) {
 				console.log("error ajax");
-				console.log(arguments);//jqXHR.status
+				console.log(arguments); //jqXHR.status
 				if (jqXHR.status === 0) {
 					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-					
-				} else if (jqXHR.status === 429) { 
+
+				} else if (jqXHR.status === 429) {
 					alert('429 error');
 					setTimeout(function () {
 						fetchInstaUsers(obj);
-					}, instaDefOptions.retryInterval); //TODO: Test and make configurable				
+					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 				} else if (jqXHR.status == 404) {
 					alert('Requested page not found. [404]');
 				} else if (jqXHR.status == 500) {
@@ -468,7 +468,7 @@ $(function () {
 		}
 		return obj.delay;
 	}
-	
+
 });
 
 window.onload = function () {

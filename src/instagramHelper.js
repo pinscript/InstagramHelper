@@ -42,17 +42,17 @@
 				
 					
 				if ("get_common_users" === request.action) {
-					if ((request.viewerUserName === request.userName_1) || (request.viewerUserName === request.userName_1)) {
-						if ((request.userName_1 === instaDefOptions.you) || (request.userName_2 === instaDefOptions.you)) {
+					if ((request.viewerUserName === request.user_1.userName) || (request.viewerUserName === request.user_2.userName)) {
+						if ((request.user_1.userName === instaDefOptions.you) || (request.user_2.userName === instaDefOptions.you)) {
 							alert("You are going to find the common users between yourself, please provide different userName_1 or userName_2");
 							return;
 						}
 					}
-					if (request.user_1_is_private && !request.user_1_followed_by_viewer && request.viewerUserName != request.userName_1) {
+					if (request.user_1.user_is_private && !request.user_1.user_followed_by_viewer && request.viewerUserName != request.user_1.userName) {
 						alert(`Username ${request.userName_1} is not valid`);
 						return;
 					}
-					if (request.user_2_is_private && !request.user_2_followed_by_viewer && request.viewerUserName != request.userName_2) {
+					if (request.user_2.user_is_private && !request.user_2.user_followed_by_viewer && request.viewerUserName != request.user_2.userName) {
 						alert(`Username ${request.userName_1} is not valid`);
 						return;
 					}

@@ -61,8 +61,8 @@ $(function () {
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
 		}).then(function () {
-			var promiseUserInfo1 = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName_1);
-			var promiseUserInfo2 = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName_2);
+			var promiseUserInfo1 = instaDefOptions.you === userName_1 ? userName_1 : userInfo.getUserProfile(userName_1);
+			var promiseUserInfo2 = instaDefOptions.you === userName_2 ? userName_2 : userInfo.getUserProfile(userName_2);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
@@ -72,18 +72,22 @@ $(function () {
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_common_users",
 					page: "commonUsers.html",
-					userName_1: userName_1,
-					userId_1: obj1.id,
-					user_1_is_private: obj1.is_private,
-					user_1_followed_by_viewer: obj1.followed_by_viewer,
-					follows_1_count: obj1.follows_count,
-					followed_by_1_count: obj1.followed_by_count,
-					userName_2: userName_2,
-					userId_2: obj2.id,
-					user_2_is_private: obj2.is_private,
-					user_2_followed_by_viewer: obj2.followed_by_viewer,
-					follows_2_count: obj2.follows_count,
-					followed_by_2_count: obj2.followed_by_count,
+					user_1: {
+						userName: userName_1,
+						userId: obj1.id,
+						user_is_private: obj1.is_private,
+						user_followed_by_viewer: obj1.followed_by_viewer,
+						follows_count: obj1.follows_count,
+						followed_by_count: obj1.followed_by_count
+					},
+					user_2: {
+						userName: userName_2,
+						userId: obj2.id,
+						user_is_private: obj2.is_private,
+						user_followed_by_viewer: obj2.followed_by_viewer,
+						follows_count: obj2.follows_count,
+						followed_by_count: obj2.followed_by_count,
+					},
 					relType: "All"
 				});
 			});
