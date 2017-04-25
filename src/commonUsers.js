@@ -18,13 +18,35 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_common_users") {
-
-			console.log(request);
 		
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
 			request.timerInterval = timerInterval;
+			var promise1 =  instaDefOptions.you === request.user_1.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
+			var promise2 =  instaDefOptions.you === request.user_2.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
+			Promise.all([promise1, promise2]).then(values => {
+				if (typeof values[0] === "object") {
+					request.user_1.userName = request.viewerUserName;
+					request.user_1.user_is_private = values[0].is_private;
+					request.user_1.follows_count = values[0].follows_count;
+					request.user_1.followed_by_count = values[0].followed_by_count;
+					request.user_1.userId = values[0].id;
+					request.user_1.user_followed_by_viewer = false;
+				}
+				if (typeof values[1] === "object") {
+					request.user_2.userName = request.viewerUserName;
+					request.user_2.user_is_private = values[1].is_private;
+					request.user_2.follows_count = values[1].follows_count;
+					request.user_2.followed_by_count = values[1].followed_by_count;
+					request.user_2.userId = values[1].id;
+					request.user_2.user_followed_by_viewer = false;
+				}
+				startFetching(request, startTime, timerInterval);
+			});
+		}
+	});
 
+	function startFetching(request, startTime, timerInterval) {
 			var fetchSettings_1 = {
 				id: 1,
 				request: null,
@@ -45,6 +67,7 @@ $(function () {
 				myData: [],
 				receivedResponses: 0
 			};
+
 			var fetchSettings_2 = {
 				id: 2,
 				request: null,
@@ -65,7 +88,7 @@ $(function () {
 				myData: [],
 				receivedResponses: 0
 			};
-			console.log(fetchSettings_1);
+			
 			prepareHtmlElements(fetchSettings_1, fetchSettings_2);
 
 			var p1 = promiseFetchInstaUsers(fetchSettings_1);
@@ -83,8 +106,7 @@ $(function () {
 					generationCompleted(request);
 				}
 			});
-		}
-	});
+	}
 
 	function promiseGetFullInfo(arr) {
 		return new Promise(function (resolve, reject) {

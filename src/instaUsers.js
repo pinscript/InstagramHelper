@@ -15,6 +15,19 @@ $(function () {
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_insta_users") {
 
+			var promise =  instaDefOptions.you === request.userName ? userInfo.getUserProfile(request.viewerUserName) : request.userName;
+			Promise.all([promise]).then(values => {
+				if (typeof values[0] === "object") {
+					request.userName = request.viewerUserName;
+					request.user_is_private = values[0].is_private;
+					request.follows_count = values[0].follows_count;
+					request.followed_by_count = values[0].followed_by_count;
+					request.userId = values[0].id;
+					request.user_followed_by_viewer = false;
+				}
+				startFetching(request);
+			});
+/*
 			if (instaDefOptions.you === request.userName) {
 				request.userName = request.viewerUserName;
 				userInfo.getUserProfile(request.viewerUserName).then(function (obj) {
@@ -27,7 +40,7 @@ $(function () {
 				});
 			} else {
 				startFetching(request);
-			}
+			}*/
 		}
 	});
 

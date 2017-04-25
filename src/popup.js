@@ -24,7 +24,6 @@ $(function () {
 				});
 			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
 				let[obj, tabs] = values;
-				console.log(obj);
 				chrome.tabs.sendMessage(tabs[0].id, {
 					action: "get_insta_users",
 					page: "instaUsers.html",
