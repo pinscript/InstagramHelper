@@ -6,6 +6,7 @@ $(function () {
 	"use strict";
 
 	var myData = [];
+	var running = 0;
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
@@ -91,6 +92,7 @@ $(function () {
 			
 			prepareHtmlElements(fetchSettings_1, fetchSettings_2);
 
+			running = 2;
 			var p1 = promiseFetchInstaUsers(fetchSettings_1);
 			var p2 = promiseFetchInstaUsers(fetchSettings_2);
 
@@ -519,7 +521,7 @@ $(function () {
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
-					alert("HTTP 429 status code is returned, request will be retried in 3 minutes");
+					alert("Instagram returned HTTP 429 Error Code that means too many requests were generated. The request will be retried in 3 minutes after ");
 					return;
 				}
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
@@ -564,6 +566,7 @@ $(function () {
 							fetchInstaUsers(obj, resolve);
 						}, calculateTimeOut(obj));
 					} else {
+						running--;
 						resolve(obj);
 					}
 				}
@@ -603,7 +606,7 @@ $(function () {
 		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < (instaDefOptions.requestsToSkipDelay / 2))) {
 			return 0;
 		}
-		return  obj.delay;
+		return  running * +obj.delay;
 	}
 
 });
