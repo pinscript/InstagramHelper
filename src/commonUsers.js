@@ -521,7 +521,7 @@ $(function () {
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
-					alert("Instagram returned HTTP 429 Error Code that means too many requests were generated. The request will be retried in 3 minutes after ");
+					alert(messages.getMessage("HTTP429"), +instaDefOptions.retryInterval / 60000);
 					return;
 				}
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
@@ -580,10 +580,10 @@ $(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
 				} else if (jqXHR.status === 429) {
-					alert('429 error');
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
+					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 
 				} else if (jqXHR.status == 404) {
 					alert('Requested page not found. [404]');
