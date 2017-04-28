@@ -263,7 +263,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: `Follows<br/>${request.userName_1}`,
+					label: `Follows<br/>${request.user_1.userName}`,
 					name: 'user_1_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -274,11 +274,11 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function () {
-						return `title="Follows ${request.userName_1}"`;
+						return `title="Follows ${request.user_1.userName}"`;
 					},
 					search: true
 				}, {
-					label: `Followed<br/> by ${request.userName_1}`,
+					label: `Followed<br/> by ${request.user_1.userName}`,
 					name: 'user_1_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -289,11 +289,11 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function () {
-						return `title="Followed by ${request.userName_1}"`;
+						return `title="Followed by ${request.user_1.userName}"`;
 					},
 					search: true
 				}, {
-					label: `Follows<br/>${request.userName_2}`,
+					label: `Follows<br/>${request.user_2.userName}`,
 					name: 'user_2_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -304,11 +304,11 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function () {
-						return `title="Follows ${request.userName_2}"`;
+						return `title="Follows ${request.user_2.userName}"`;
 					},
 					search: true
 				}, {
-					label: `Followed<br/> by ${request.userName_2}`,
+					label: `Followed<br/> by ${request.user_2.userName}`,
 					name: 'user_2_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -319,7 +319,7 @@ $(function () {
 						value: ":Any;true:Yes;false:No"
 					},
 					cellattr: function () {
-						return `title="Followed by ${request.userName_2}"`;
+						return `title="Followed by ${request.user_2.userName}"`;
 					},
 					search: true
 				}, {
