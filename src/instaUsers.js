@@ -373,7 +373,7 @@ $(function () {
 			headers: {
 				"X-Instagram-AJAX": '1',
 				"X-CSRFToken": obj.csrfToken,
-				"X-Requested-With": XMLHttpRequest,
+				//"X-Requested-With": XMLHttpRequest,
 				"eferer": "https://www.instagram.com/" + obj.userName + "/"
 			},
 			method: 'POST',
@@ -381,10 +381,12 @@ $(function () {
 			success: function (data, textStatus, xhr) {
 				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
+					console.log("HTTP429 error.", new Date());					
 					setTimeout(function () {
+						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-					alert(messages.getMessage("HTTP429"), +instaDefOptions.retryInterval / 60000);
+					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					return;
 				}
 				//if (typeof data[obj.relType].nodes === "undefined") {
@@ -447,28 +449,29 @@ $(function () {
 				console.log("error ajax");
 				console.log(arguments); //jqXHR.status
 				if (jqXHR.status === 0) {
-					alert('Not connect. Verify Network. Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-
+					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
+					console.log("HTTP429 error.", new Date());					
 					setTimeout(function () {
+						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval); 
-					alert(messages.getMessage("HTTP429"), +instaDefOptions.retryInterval / 60000);
+					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status == 404) {
-					alert('Requested page not found. [404]');
+					alert(messages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
-					alert('Internal Server Error [500].');
+					alert(messages.getMessage("HTTP500"));
 				} else if (exception === 'parsererror') {
-					alert('Requested JSON parse failed.');
+					alert(messages.getMessage("JSONPARSEERROR"));
 				} else if (exception === 'timeout') {
-					alert('Time out error.');
+					alert(messages.getMessage("TIMEOUT"));
 				} else if (exception === 'abort') {
-					alert('Ajax request aborted.');
+					alert(messages.getMessage("AJAXABORT"));
 				} else {
-					alert('Uncaught Error.\n' + jqXHR.responseText);
+					alert(messages.getMessage("UNCAUGHT", jqXHR.responseText));
 				}
 			}
 		});

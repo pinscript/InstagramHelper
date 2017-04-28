@@ -10,7 +10,7 @@ $(function () {
 
 		var userName = $("#username").val();
 		if (!userName) {
-			alert("Please specify the user name");
+			alert(messages.getMessage("USERNAMEISREQ"));
 			return;
 		}
 
@@ -36,24 +36,24 @@ $(function () {
 					relType: $('input[name=relType]:checked').attr("id")
 				});
 			});
-		}, () => alert("Already found open tab with results, please close!"));
+		}, () => alert(messages.getMessage("TABISOPEN")));
 	});
 
 	$('#findCommonUsers').click(function () {
 		var userName_1 = $("#username_1").val();
 		if (!userName_1) {
-			alert("Please specify the 1st user name");
+			alert(messages.getMessage("USERNAMEISREQPAR", "1st"));
 			return;
 		}
 
 		var userName_2 = $("#username_2").val();
 		if (!userName_2) {
-			alert("Please specify the 2nd user name");
+			alert(messages.getMessage("USERNAMEISREQPAR", "2nd"));
 			return;
 		}
-		
+
 		if (userName_1 === userName_2) {
-			alert("User is the same, should be different to proceed");
+			alert(messages.getMessage("THESAMEUSERS"));
 			return
 		}
 
@@ -90,7 +90,7 @@ $(function () {
 					relType: "All"
 				});
 			});
-		}, () => alert("Already found open tab with results, please close!"));
+		}, () => alert(messages.getMessage("TABISOPEN")));
 	});
 });
 

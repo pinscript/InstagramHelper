@@ -19,12 +19,12 @@ $(function () {
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_common_users") {
-		
+
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
 			request.timerInterval = timerInterval;
-			var promise1 =  instaDefOptions.you === request.user_1.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
-			var promise2 =  instaDefOptions.you === request.user_2.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
+			var promise1 = instaDefOptions.you === request.user_1.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
+			var promise2 = instaDefOptions.you === request.user_2.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
 			Promise.all([promise1, promise2]).then(values => {
 				if (typeof values[0] === "object") {
 					request.user_1.userName = request.viewerUserName;
@@ -48,66 +48,66 @@ $(function () {
 	});
 
 	function startFetching(request, startTime, timerInterval) {
-			var fetchSettings_1 = {
-				id: 1,
-				request: null,
-				userName: request.user_1.userName,
-				pageSize: request.pageSize,
-				delay: request.delay,
-				csrfToken: request.csrfToken,
-				userId: request.user_1.userId,
-				relType: "All" === request.relType ? request.user_1.follows_count > request.user_1.followed_by_count ? "follows" : "followed_by" : request.relType,
-				callBoth: "All" === request.relType,
-				checkDuplicates: false,
-				follows_count: request.user_1.follows_count,
-				followed_by_count: request.user_1.followed_by_count,
-				follows_processed: 0,
-				followed_by_processed: 0,
-				startTime: startTime,
-				timerInterval: timerInterval,
-				myData: [],
-				receivedResponses: 0
-			};
+		var fetchSettings_1 = {
+			id: 1,
+			request: null,
+			userName: request.user_1.userName,
+			pageSize: request.pageSize,
+			delay: request.delay,
+			csrfToken: request.csrfToken,
+			userId: request.user_1.userId,
+			relType: "All" === request.relType ? request.user_1.follows_count > request.user_1.followed_by_count ? "follows" : "followed_by" : request.relType,
+			callBoth: "All" === request.relType,
+			checkDuplicates: false,
+			follows_count: request.user_1.follows_count,
+			followed_by_count: request.user_1.followed_by_count,
+			follows_processed: 0,
+			followed_by_processed: 0,
+			startTime: startTime,
+			timerInterval: timerInterval,
+			myData: [],
+			receivedResponses: 0
+		};
 
-			var fetchSettings_2 = {
-				id: 2,
-				request: null,
-				userName: request.user_2.userName,
-				pageSize: request.pageSize,
-				delay: request.delay,
-				csrfToken: request.csrfToken,
-				userId: request.user_2.userId,
-				relType: "All" === request.relType ? request.user_2.follows_count > request.user_2.followed_by_count ? "follows" : "followed_by" : request.relType,
-				callBoth: "All" === request.relType,
-				checkDuplicates: false,
-				follows_count: request.user_2.follows_count,
-				followed_by_count: request.user_2.followed_by_count,
-				follows_processed: 0,
-				followed_by_processed: 0,
-				startTime: startTime,
-				timerInterval: timerInterval,
-				myData: [],
-				receivedResponses: 0
-			};
-			
-			prepareHtmlElements(fetchSettings_1, fetchSettings_2);
+		var fetchSettings_2 = {
+			id: 2,
+			request: null,
+			userName: request.user_2.userName,
+			pageSize: request.pageSize,
+			delay: request.delay,
+			csrfToken: request.csrfToken,
+			userId: request.user_2.userId,
+			relType: "All" === request.relType ? request.user_2.follows_count > request.user_2.followed_by_count ? "follows" : "followed_by" : request.relType,
+			callBoth: "All" === request.relType,
+			checkDuplicates: false,
+			follows_count: request.user_2.follows_count,
+			followed_by_count: request.user_2.followed_by_count,
+			follows_processed: 0,
+			followed_by_processed: 0,
+			startTime: startTime,
+			timerInterval: timerInterval,
+			myData: [],
+			receivedResponses: 0
+		};
 
-			running = 2;
-			var p1 = promiseFetchInstaUsers(fetchSettings_1);
-			var p2 = promiseFetchInstaUsers(fetchSettings_2);
+		prepareHtmlElements(fetchSettings_1, fetchSettings_2);
 
-			Promise.all([p1, p2]).then(values => {
-				let[obj1, obj2] = values;
-				let arr = intersectArrays(obj1.myData, obj2.myData);
-				if (arr.length > 0) { //if common users are found
-					prepareHtmlElementsForIntersection(arr);
-					promiseGetFullInfo(arr).then(function () {
-						generationCompleted(request);
-					});
-				} else {
+		running = 2;
+		var p1 = promiseFetchInstaUsers(fetchSettings_1);
+		var p2 = promiseFetchInstaUsers(fetchSettings_2);
+
+		Promise.all([p1, p2]).then(values => {
+			let[obj1, obj2] = values;
+			let arr = intersectArrays(obj1.myData, obj2.myData);
+			if (arr.length > 0) { //if common users are found
+				prepareHtmlElementsForIntersection(arr);
+				promiseGetFullInfo(arr).then(function () {
 					generationCompleted(request);
-				}
-			});
+				});
+			} else {
+				generationCompleted(request);
+			}
+		});
 	}
 
 	function promiseGetFullInfo(arr) {
@@ -128,7 +128,9 @@ $(function () {
 				resolve();
 			} else {
 				htmlElements.intersection.asProgress("go", ++index);
-				getFullInfo(arr, index, resolve); //do I need delay requesting user info?
+				setTimeout(function () {
+					getFullInfo(arr, index, resolve);
+				}, 200); //IS IT NEEDED?
 			}
 		});
 	}
@@ -510,7 +512,7 @@ $(function () {
 			headers: {
 				"X-Instagram-AJAX": '1',
 				"X-CSRFToken": obj.csrfToken,
-				"X-Requested-With": XMLHttpRequest,
+				//"X-Requested-With": XMLHttpRequest,
 				"eferer": "https://www.instagram.com/" + obj.userName + "/"
 			},
 			method: 'POST',
@@ -518,10 +520,12 @@ $(function () {
 			success: function (data, textStatus, xhr) {
 				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
+					console.log("HTTP429 error.", new Date());
 					setTimeout(function () {
+						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("HTTP429"), +instaDefOptions.retryInterval / 60000);
+					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					return;
 				}
 				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
@@ -575,28 +579,30 @@ $(function () {
 				console.log("error ajax");
 				console.log(arguments);
 				if (jqXHR.status === 0) {
-					alert('Not connect.\n Verify Network. \n Request will be retried in 3 munutes');
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
+					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
+					console.log("HTTP429 error.", new Date());
 					setTimeout(function () {
+						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
 					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 
 				} else if (jqXHR.status == 404) {
-					alert('Requested page not found. [404]');
+					alert(messages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
-					alert('Internal Server Error [500].');
+					alert(messages.getMessage("HTTP500"));
 				} else if (exception === 'parsererror') {
-					alert('Requested JSON parse failed.');
+					alert(messages.getMessage("JSONPARSEERROR"));
 				} else if (exception === 'timeout') {
-					alert('Time out error.');
+					alert(messages.getMessage("TIMEOUT"));
 				} else if (exception === 'abort') {
-					alert('Ajax request aborted.');
+					alert(messages.getMessage("AJAXABORT"));
 				} else {
-					alert('Uncaught Error.\n' + jqXHR.responseText);
+					alert(messages.getMessage("UNCAUGHT", jqXHR.responseText));
 				}
 			}
 		});
@@ -606,7 +612,7 @@ $(function () {
 		if (instaDefOptions.noDelayForInit && (obj.receivedResponses < (instaDefOptions.requestsToSkipDelay / 2))) {
 			return 0;
 		}
-		return  running * +obj.delay;
+		return running * +obj.delay;
 	}
 
 });

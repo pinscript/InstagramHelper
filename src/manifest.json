@@ -4,7 +4,7 @@
 	"name": "Helper Tools for Instagram",
 	"short_name": "Helper For Insta",
 	"description": "Create a list of instagram users, export it into CSV file; find common users of 2 users, also other helpfers for instagram.com",
-	"version": "0.270",
+	"version": "0.280",
 
 	"options_ui": {
 		"page": "options.html",
@@ -33,7 +33,7 @@
 
 	"content_scripts": [{
 			"matches": ["https://www.instagram.com/*"],
-			"js": ["instaDefOptions.js", "PromiseChrome.js", "instagramHelper.js"]
+			"js": ["instaDefOptions.js", "PromiseChrome.js", "messages.js", "instagramHelper.js"]
 		}
 	],
 

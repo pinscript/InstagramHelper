@@ -2,11 +2,14 @@
 
 var userInfo = function () {};
 
-userInfo.getUserProfile = function (username, callback) {
+userInfo.getUserProfile = function (username) {
 	"use strict";
 
 	return new Promise(function (resolve, reject) {
+		getUserProfile(username, resolve, reject);
+	});
 
+	function getUserProfile(username, resolve, reject) {
 		var link = `https://www.instagram.com/${username}/?__a=1`;
 		$.ajax({
 			url: link,
@@ -52,13 +55,28 @@ userInfo.getUserProfile = function (username, callback) {
 				});
 				resolve(obj);
 			},
-			error: function (xhr) {
-				console.log(`Error making ajax request to get ${username} profile, status - ${xhr.status}`);
+			error: function (jqXHR) {
+				console.log(`Error making ajax request to get ${username} profile, status - ${jqXHR.status}`);
 				console.log(arguments);
-				alert(`error getting the user ${username} profile, status - ${xhr.status}`);
-				reject();
+				if (jqXHR.status === 0) {
+					setTimeout(function () {
+						getUserProfile(username, resolve, reject);
+					}, instaDefOptions.retryInterval);
+					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
+				} else if (jqXHR.status === 429) {
+					console.log("HTTP429 error getting the user profile.", new Date());
+					setTimeout(function () {
+						console.log("Continue execution after HTTP429 error.", new Date());
+						getUserProfile(username, resolve, reject);
+					}, instaDefOptions.retryInterval);
+					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+
+				} else {
+					alert(messages.getMessage("ERRGETTINGUSER", username, jqXHR.status));
+					reject();
+				}
 			},
 			async: true
 		});
-	});
+	}
 };
