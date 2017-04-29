@@ -15,7 +15,7 @@ $(function () {
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 		if (request.action == "get_insta_users") {
 
-			var promise =  instaDefOptions.you === request.userName ? userInfo.getUserProfile(request.viewerUserName) : request.userName;
+			var promise = instaDefOptions.you === request.userName ? userInfo.getUserProfile(request.viewerUserName) : request.userName;
 			Promise.all([promise]).then(values => {
 				if (typeof values[0] === "object") {
 					request.userName = request.viewerUserName;
@@ -27,20 +27,6 @@ $(function () {
 				}
 				startFetching(request);
 			});
-/*
-			if (instaDefOptions.you === request.userName) {
-				request.userName = request.viewerUserName;
-				userInfo.getUserProfile(request.viewerUserName).then(function (obj) {
-					request.user_is_private = obj.is_private;
-					request.follows_count = obj.follows_count;
-					request.followed_by_count = obj.followed_by_count;
-					request.userId = obj.id;
-					request.user_followed_by_viewer = false;
-					startFetching(request)
-				});
-			} else {
-				startFetching(request);
-			}*/
 		}
 	});
 
@@ -134,7 +120,7 @@ $(function () {
 					},
 					search: false
 				}, {
-					label: 'Follows<br/>you',
+					label: 'Follows <br/>you',
 					name: 'follows_viewer',
 					width: '80',
 					formatter: 'checkbox',
@@ -164,7 +150,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Follows<br/>user',
+					label: 'Follows <br/>user',
 					name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -179,7 +165,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Followed<br/> by user',
+					label: 'Followed <br/>by user',
 					name: 'user_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -276,6 +262,7 @@ $(function () {
 			del: false,
 			refresh: true
 		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
+
 	}
 
 	function showExportDiv() {
@@ -296,6 +283,32 @@ $(function () {
 			this.download = "export.csv";
 			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
 		});
+
+		$("#export").on("click", function () {
+			$("#jqGrid").jqGrid("exportToExcel", {
+				includeLabels: false,
+				includeGroupHeader: false,
+				includeFooter: false,
+				fileName: "jqGridExport.xlsx" //TODO: USER NAME
+			});
+		});
+		$("#export2").on("click", function () {
+			$("#jqGrid").jqGrid("exportToCsv", {
+				separator: ",",
+				separatorReplace: "", // in order to interpret numbers
+				quote: '"',
+				escquote: '"',
+				newLine: "\r\n", // navigator.userAgent.match(/Windows/) ?	'\r\n' : '\n';
+				replaceNewLine: " ",
+				includeCaption: true,
+				includeLabels: true,
+				includeGroupHeader: true,
+				includeFooter: true,
+				fileName: "jqGridExport.csv",
+				returnAsString: false
+			});
+		});
+
 	}
 
 	function prepareHtmlElements(obj) {
@@ -381,7 +394,7 @@ $(function () {
 			success: function (data, textStatus, xhr) {
 				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
-					console.log("HTTP429 error.", new Date());					
+					console.log("HTTP429 error.", new Date());
 					setTimeout(function () {
 						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj);
@@ -454,11 +467,11 @@ $(function () {
 					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
-					console.log("HTTP429 error.", new Date());					
+					console.log("HTTP429 error.", new Date());
 					setTimeout(function () {
 						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj);
-					}, instaDefOptions.retryInterval); 
+					}, instaDefOptions.retryInterval);
 					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));
