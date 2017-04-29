@@ -10,6 +10,8 @@ $(function () {
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
+		status_1: document.getElementById('status_1'),
+		status_2: document.getElementById('status_2'),
 		follows_1: $('#follows_1'),
 		followed_by_1: $('#followed_by_1'),
 		follows_2: $('#follows_2'),
@@ -183,8 +185,8 @@ $(function () {
 		}, 1000);
 	}
 
-	function updateStatusDiv(message) {
-		htmlElements.statusDiv.textContent = message;
+	function updateStatusDiv(div, message) {
+		htmlElements[div].textContent = message;
 	}
 
 	function showJQGrid(request) {
@@ -233,7 +235,7 @@ $(function () {
 					},
 					search: false
 				}, {
-					label: 'Follows<br/>you',
+					label: 'Follows <br/>you',
 					name: 'follows_viewer',
 					width: '80',
 					formatter: 'checkbox',
@@ -248,7 +250,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Followed<br>by you',
+					label: 'Followed <br>by you',
 					name: 'followed_by_viewer',
 					width: '80',
 					formatter: 'checkbox',
@@ -263,7 +265,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: `Follows<br/>${request.user_1.userName}`,
+					label: `Follows <br/>${request.user_1.userName}`,
 					name: 'user_1_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -278,7 +280,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: `Followed<br/> by ${request.user_1.userName}`,
+					label: `Followed <br/> by ${request.user_1.userName}`,
 					name: 'user_1_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -293,7 +295,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: `Follows<br/>${request.user_2.userName}`,
+					label: `Follows <br/>${request.user_2.userName}`,
 					name: 'user_2_followed_by', //relationship: followed_by - the list of the user's followers
 					width: '80',
 					formatter: 'checkbox',
@@ -308,7 +310,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: `Followed<br/> by ${request.user_2.userName}`,
+					label: `Followed <br/> by ${request.user_2.userName}`,
 					name: 'user_2_follows', //relationship: follows - from the list of the followed person by user
 					width: '80',
 					formatter: 'checkbox',
@@ -461,7 +463,7 @@ $(function () {
 
 	function prepareHtmlElementsForIntersection(arr) {
 
-		updateStatusDiv(`Found common users ${arr.length}`);
+		updateStatusDiv("statusDiv", `Found common users ${arr.length}`);
 		document.getElementById("intersection_title").textContent = "Getting the detailed info";
 		htmlElements.intersection.asProgress({
 			namespace: 'progress',
@@ -488,11 +490,13 @@ $(function () {
 		clearInterval(request.timerInterval);
 		var timer = document.querySelector('#timer');
 		htmlElements.intersection.asProgress("finish").asProgress("stop");
-		updateStatusDiv(`Completed, spent time - ${timer.textContent}, found common users - ${myData.length}
+		updateStatusDiv("statusDiv", `Completed, spent time - ${timer.textContent}, found common users - ${myData.length}
 			(${request.user_1.userName} follows - ${request.user_1.follows_count} and followed by - ${request.user_1.followed_by_count} &&
 			${request.user_2.userName} follows - ${request.user_2.follows_count} and followed by - ${request.user_2.followed_by_count})`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
+			htmlElements.status_1.remove();
+			htmlElements.status_2.remove();			
 		}, 3000);
 		showJQGrid(request);
 	}
@@ -528,7 +532,7 @@ $(function () {
 					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					return;
 				}
-				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
+				updateStatusDiv(`status_${obj.id}`, `${obj.userName}: received users - ${data[obj.relType].nodes.length} (${obj.relType})`);
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 					var found = false;
@@ -571,6 +575,7 @@ $(function () {
 						}, calculateTimeOut(obj));
 					} else {
 						running--;
+						updateStatusDiv(`status_${obj.id}`, `${obj.userName}: generation completed - ${obj.myData.length} users`)
 						resolve(obj);
 					}
 				}
