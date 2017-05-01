@@ -135,7 +135,7 @@ $(function () {
 					},
 					search: true
 				}, {
-					label: 'Followed<br>by you',
+					label: 'Followed <br>by you',
 					name: 'followed_by_viewer',
 					width: '80',
 					formatter: 'checkbox',
@@ -255,19 +255,38 @@ $(function () {
 			caption: "Users of " + obj.userName,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
-		}).jqGrid('navGrid', "#jqGridPager", {
-			search: true, // show search button on the toolbar
-			add: false,
-			edit: false,
-			del: false,
-			refresh: true
-		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
+		}).jqGrid('navGrid', "#jqGridPager", 
+			{ search: true, add: false, edit: false, del: false, refresh: true},
+			{ },
+            { },
+            { },
+            { multipleSearch: true, closeAfterSearch:true, closeOnEscape:true, searchOnEnter:true, showQuery:true },    // pSearch (works with these options)
+            { }   		
+		).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 
 	}
 
-	function showExportDiv() {
+	function showExportDiv(obj) {
 
-		$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
+		var formatDate = function(date) {
+			var year = date.getFullYear(),
+				month = date.getMonth() + 1, 
+				day = date.getDate(),
+				hour = date.getHours(),
+				minute = date.getMinutes(),
+				second = date.getSeconds();
+			month = '00'.substr(("" + month).length, 1) + month;
+			day = '00'.substr(("" + day).length, 1) + day;
+			hour = '00'.substr(("" + hour).length, 1) + hour;
+			minute = '00'.substr(("" + minute).length, 1) + minute;
+			//make padding
+
+			return "" + year + month + day + "_" + hour + minute;
+		}
+
+		$("#exportDiv").show();
+
+		//$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
 		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
 		var csvFields;
@@ -280,19 +299,19 @@ $(function () {
 		$("#linkExportCSV").click(function () {
 			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
 			console.log("the length of returned CSV string - " + csv.length);
-			this.download = "export.csv";
+			this.download = `user_${obj.userName}_${formatDate(new Date())}.csv`;
 			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
 		});
 
-		$("#export").on("click", function () {
+		$("#export_XLSX").on("click", function () {
 			$("#jqGrid").jqGrid("exportToExcel", {
-				includeLabels: false,
+				includeLabels: true,
 				includeGroupHeader: false,
 				includeFooter: false,
-				fileName: "jqGridExport.xlsx" //TODO: USER NAME
+				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`
 			});
 		});
-		$("#export2").on("click", function () {
+		$("#export_CSV").on("click", function () {
 			$("#jqGrid").jqGrid("exportToCsv", {
 				separator: ",",
 				separatorReplace: "", // in order to interpret numbers
@@ -304,7 +323,7 @@ $(function () {
 				includeLabels: true,
 				includeGroupHeader: true,
 				includeFooter: true,
-				fileName: "jqGridExport.csv",
+				fileName: `user_${obj.userName}_${formatDate(new Date())}.csv`,
 				returnAsString: false
 			});
 		});
@@ -366,7 +385,7 @@ $(function () {
 			//timer.parentNode.removeChild(timer);
 		}, 3000);
 		showJQGrid(obj);
-		showExportDiv();
+		showExportDiv(obj);
 	}
 
 	function fetchInstaUsers(obj) {
@@ -395,11 +414,11 @@ $(function () {
 				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
 					console.log("HTTP429 error.", new Date());
+					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					setTimeout(function () {
 						console.log("Continue execution after HTTP429 error.", new Date());
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					return;
 				}
 				//if (typeof data[obj.relType].nodes === "undefined") {
@@ -468,8 +487,11 @@ $(function () {
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
+					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					//todo: countdown timer +instaDefOptions.retryInterval / 1000
 					setTimeout(function () {
 						console.log("Continue execution after HTTP429 error.", new Date());
+						updateStatusDiv(messages.getMessage("HTTP429CONT"));
 						fetchInstaUsers(obj);
 					}, instaDefOptions.retryInterval);
 					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
