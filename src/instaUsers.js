@@ -255,26 +255,32 @@ $(function () {
 			caption: "Users of " + obj.userName,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
-		}).jqGrid('navGrid', "#jqGridPager", 
-			{ search: true, add: false, edit: false, del: false, refresh: true},
-			{ },
-            { },
-            { },
-            { multipleSearch: true, closeAfterSearch:true, closeOnEscape:true, searchOnEnter:true, showQuery:true },    // pSearch (works with these options)
-            { }   		
-		).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
+		}).jqGrid('navGrid', "#jqGridPager", {
+			search: true,
+			add: false,
+			edit: false,
+			del: false,
+			refresh: true
+		}, {}, {}, {}, {
+			multipleSearch: true,
+			closeAfterSearch: true,
+			closeOnEscape: true,
+			searchOnEnter: true,
+			showQuery: true
+		}, // pSearch (works with these options)
+		{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 
 	}
 
 	function showExportDiv(obj) {
 
-		var formatDate = function(date) {
+		var formatDate = function (date) {
 			var year = date.getFullYear(),
-				month = date.getMonth() + 1, 
-				day = date.getDate(),
-				hour = date.getHours(),
-				minute = date.getMinutes(),
-				second = date.getSeconds();
+			month = date.getMonth() + 1,
+			day = date.getDate(),
+			hour = date.getHours(),
+			minute = date.getMinutes(),
+			second = date.getSeconds();
 			month = '00'.substr(("" + month).length, 1) + month;
 			day = '00'.substr(("" + day).length, 1) + day;
 			hour = '00'.substr(("" + hour).length, 1) + hour;
@@ -308,7 +314,10 @@ $(function () {
 				includeLabels: true,
 				includeGroupHeader: false,
 				includeFooter: false,
-				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`
+				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`,
+				replaceStr: function (str) {
+					return str;
+				}
 			});
 		});
 		$("#export_CSV").on("click", function () {
@@ -446,6 +455,9 @@ $(function () {
 						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
 						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
 						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
+						delete data[obj.relType].nodes[i].followed_by;
+						delete data[obj.relType].nodes[i].follows;
+						delete data[obj.relType].nodes[i].media;
 						myData.push(data[obj.relType].nodes[i]);
 					}
 				}
