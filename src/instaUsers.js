@@ -234,21 +234,6 @@ $(function () {
 					cellattr: function () {
 						return 'title="Posts"';
 					}
-				}, {
-					name: 'username',
-					hidden: true
-				}, {
-					name: 'id',
-					hidden: true
-				}, {
-					name: 'full_name',
-					hidden: true
-				}, {
-					name: 'connected_fb_page',
-					hidden: true
-				}, {
-					name: 'external_url',
-					hidden: true
 				}
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
@@ -286,29 +271,35 @@ $(function () {
 			day = '00'.substr(("" + day).length, 1) + day;
 			hour = '00'.substr(("" + hour).length, 1) + hour;
 			minute = '00'.substr(("" + minute).length, 1) + minute;
-			//make padding
-
 			return "" + year + month + day + "_" + hour + minute;
+		}
+
+		var replaceStr = function (str) {
+			//if (!str) {
+			//	return str;
+			//}
+			var arr = str.match(instaDefOptions.regCheckBox);
+			if ((arr||[]).length > 0) {
+				return arr[1];
+			} 
+			arr = str.match(instaDefOptions.regProfile);
+			if ((arr||[]).length > 0) {
+				return arr[1];
+			} 
+			//TODO: would be nice to have in replaceStr the name of the column
+			if (instaDefOptions.regTestInfo.test(str)) { //this is our Info column,
+				//console.log(str);
+				str = str
+					.replace(instaDefOptions.newLine, "," + String.fromCharCode(10))
+					.replace(instaDefOptions.cleanInfo, "");
+				return str;
+			}	
+			return str;
 		}
 
 		$("#exportDiv").show();
 
 		//$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
-
-		//TODO: ALLOW TO UPDATE csvFields WHEN GRID IS GENERATED?
-		var csvFields;
-		chrome.storage.sync.get({
-			csvFields: instaDefOptions.defCsvFields //TODO: Use Default
-		}, (items) => {
-			csvFields = items.csvFields;
-		});
-
-		$("#linkExportCSV").click(function () {
-			var csv = (new InstaPrepareCsv()).arrayToCsv(myData, csvFields);
-			console.log("the length of returned CSV string - " + csv.length);
-			this.download = `user_${obj.userName}_${formatDate(new Date())}.csv`;
-			this.href = "data:application/csv;charset=UTF-8," + encodeURIComponent(csv); //TODO: better UTF-16?
-		});
 
 		$("#export_XLSX").on("click", function () {
 			$("#jqGrid").jqGrid("exportToExcel", {
@@ -316,46 +307,10 @@ $(function () {
 				includeGroupHeader: false,
 				includeFooter: false,
 				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`,
-				replaceStr: function (str) {
-					if (!str) {
-						return str;
-					}
-					var arr = str.match(instaDefOptions.regCheckBox);
-					if ((arr||[]).length > 0) {
-						return arr[1];
-					} 
-					arr = str.match(instaDefOptions.regProfile);
-					if ((arr||[]).length > 0) {
-						return arr[1];
-					} 
-					if (instaDefOptions.regTestInfo.test(str)) {
-						str = str.replace(instaDefOptions.cleanInfo, "").replace(/<br\s*\/>/gi, "," + String.fromCharCode(10));
-						//url:<a href='http://www.riga.lv/' target='_blank'>http://www.riga.lv/</a>
-						return str;
-					}	
-					console.log(str);
-					return str;
-				}
+				replaceStr: replaceStr
 			});
 		});
 		
-		$("#export_CSV").on("click", function () {
-			$("#jqGrid").jqGrid("exportToCsv", {
-				separator: ",",
-				separatorReplace: "", // in order to interpret numbers
-				quote: '"',
-				escquote: '"',
-				newLine: "\r\n", // navigator.userAgent.match(/Windows/) ?	'\r\n' : '\n';
-				replaceNewLine: " ",
-				includeCaption: true,
-				includeLabels: true,
-				includeGroupHeader: true,
-				includeFooter: true,
-				fileName: `user_${obj.userName}_${formatDate(new Date())}.csv`,
-				returnAsString: false
-			});
-		});
-
 	}
 
 	function prepareHtmlElements(obj) {

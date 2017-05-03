@@ -4,17 +4,13 @@
 
 	var defPageSize = instaDefOptions.defPageSize;
 	var defDelay = instaDefOptions.defDelay;
-	var defCsvFields = instaDefOptions.defCsvFields;
-	//excluded from default - profile_pic_url_hd, biography,  is_verified, requested_by_viewer
 
 	function save_options() {
 		var pageSize = document.getElementById('pageSize').value;
 		var delay = document.getElementById('delay').value;
-		var csvFields = document.getElementById('csvFields').value;
 		chrome.storage.sync.set({
 			pageSize: pageSize,
-			delay: delay,
-			csvFields: csvFields
+			delay: delay
 		}, function () {
 			// Update status to let user know options were saved.
 			var status = document.getElementById('status');
@@ -28,20 +24,17 @@
 	function restore_options() {
 		chrome.storage.sync.get({
 			pageSize: defPageSize,
-			delay: defDelay,
-			csvFields: defCsvFields
+			delay: defDelay
 		}, function (items) {
 			document.getElementById('pageSize').value = items.pageSize;
 			document.getElementById('delay').value = items.delay;
-			document.getElementById('csvFields').value = items.csvFields;
 		});
 	}
 
 	function restore_defaults() {
 		chrome.storage.sync.set({
 			pageSize: defPageSize,
-			delay: defDelay,
-			csvFields: defCsvFields
+			delay: defDelay		
 		}, function () {
 			restore_options();
 			var status = document.getElementById('status');
