@@ -199,7 +199,7 @@ $(function () {
 			height: "100%",
 			rownumbers: true,
 			colModel: [{
-					label: 'Picture',
+					label: 'User',
 					name: 'profile_pic_url_hd',
 					width: '320',
 					align: 'center',
@@ -228,7 +228,8 @@ $(function () {
 					name: 'biography',
 					sortable: false,
 					formatter: function (cellvalue, model, row) {
-						return cellvalue ? `<p>${cellvalue}</p>` : "";
+						//return cellvalue ? `<p>${cellvalue}</p>` : "";
+						return cellvalue ? cellvalue : "";
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
 						return 'style="white-space: normal;"';
@@ -401,12 +402,19 @@ $(function () {
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
 		}).jqGrid('navGrid', "#jqGridPager", {
-			search: true, // show search button on the toolbar
+			search: true,
 			add: false,
 			edit: false,
 			del: false,
 			refresh: true
-		}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: autowidth doesn't work
+		}, {}, {}, {}, {
+			multipleSearch: true,
+			closeAfterSearch: true,
+			closeOnEscape: true,
+			searchOnEnter: true,
+			showQuery: true
+		}, // pSearch (works with these options)
+		{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: autowidth doesn't work
 	}
 
 	function prepareHtmlElements(obj1, obj2) {
@@ -496,7 +504,7 @@ $(function () {
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 			htmlElements.status_1.remove();
-			htmlElements.status_2.remove();			
+			htmlElements.status_2.remove();
 		}, 3000);
 		showJQGrid(request);
 	}

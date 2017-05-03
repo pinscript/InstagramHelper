@@ -83,7 +83,7 @@ $(function () {
 			height: "100%",
 			rownumbers: true,
 			colModel: [{
-					label: 'Picture',
+					label: 'User',
 					name: 'profile_pic_url_hd',
 					width: '320',
 					align: 'center',
@@ -113,7 +113,8 @@ $(function () {
 					name: 'biography',
 					sortable: false,
 					formatter: function (cellvalue, model, row) {
-						return cellvalue ? `<p>${cellvalue}</p>` : "";
+					//	return cellvalue ? `<p>${cellvalue}</p>` : "";
+						return cellvalue ? cellvalue : "";
 					},
 					cellattr: function (rowId, tv, rawObject, cm, rdata) {
 						return 'style="white-space: normal;"';
@@ -316,10 +317,28 @@ $(function () {
 				includeFooter: false,
 				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`,
 				replaceStr: function (str) {
+					if (!str) {
+						return str;
+					}
+					var arr = str.match(instaDefOptions.regCheckBox);
+					if ((arr||[]).length > 0) {
+						return arr[1];
+					} 
+					arr = str.match(instaDefOptions.regProfile);
+					if ((arr||[]).length > 0) {
+						return arr[1];
+					} 
+					if (instaDefOptions.regTestInfo.test(str)) {
+						str = str.replace(instaDefOptions.cleanInfo, "").replace(/<br\s*\/>/gi, "," + String.fromCharCode(10));
+						//url:<a href='http://www.riga.lv/' target='_blank'>http://www.riga.lv/</a>
+						return str;
+					}	
+					console.log(str);
 					return str;
 				}
 			});
 		});
+		
 		$("#export_CSV").on("click", function () {
 			$("#jqGrid").jqGrid("exportToCsv", {
 				separator: ",",
