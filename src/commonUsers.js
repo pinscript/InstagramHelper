@@ -379,26 +379,11 @@ $(function () {
 					cellattr: function () {
 						return 'title="Posts"';
 					}
-				}, {
-					name: 'username',
-					hidden: true
-				}, {
-					name: 'id',
-					hidden: true
-				}, {
-					name: 'full_name',
-					hidden: true
-				}, {
-					name: 'connected_fb_page',
-					hidden: true
-				}, {
-					name: 'external_url',
-					hidden: true
 				}
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: `Common Users of ${request.userName_1} and ${request.userName_2}`,
+			caption: `Common Users of ${request.user_1.userName} and ${request.user_2.userName}`,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
 		}).jqGrid('navGrid', "#jqGridPager", {
@@ -415,6 +400,22 @@ $(function () {
 			showQuery: true
 		}, // pSearch (works with these options)
 		{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: autowidth doesn't work
+	}
+
+	function showExportDiv(obj) {
+
+		$("#exportDiv").show();
+
+		$("#export_XLSX").on("click", function () {
+			$("#jqGrid").jqGrid("exportToExcel", {
+				includeLabels: true,
+				includeGroupHeader: false,
+				includeFooter: false,
+				fileName: `commonusers_${obj.user_1.userName}_and_${obj.user_2.userName}_${exportUtils.formatDate(new Date())}.xlsx`,
+				replaceStr: exportUtils.replaceStr
+			});
+		});
+
 	}
 
 	function prepareHtmlElements(obj1, obj2) {
@@ -507,6 +508,7 @@ $(function () {
 			htmlElements.status_2.remove();
 		}, 3000);
 		showJQGrid(request);
+		showExportDiv(request);		
 	}
 
 	function fetchInstaUsers(obj, resolve) {

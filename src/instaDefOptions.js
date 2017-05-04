@@ -2,9 +2,9 @@ var instaDefOptions = function() {
 	return {
 		you : "<<YOU>>",
 		defDelay : 1000,
-		defPageSize : 100,
+		defPageSize : 20,
 		noDelayForInit : true,
-		requestsToSkipDelay : 100, 
+		requestsToSkipDelay : 1000, 
 		retryInterval : 180000,
 		regCheckBox : /^\s*<\s*input.+type\s*=\s*"checkbox".+value\s*=\s*(?:"|')\s*(true|false)/i,
 		regProfile : /^\s*<\s*a\s.*href\s*=\s*(?:"|')([^"']+)/i,

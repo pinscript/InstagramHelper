@@ -260,54 +260,15 @@ $(function () {
 
 	function showExportDiv(obj) {
 
-		var formatDate = function (date) {
-			var year = date.getFullYear(),
-			month = date.getMonth() + 1,
-			day = date.getDate(),
-			hour = date.getHours(),
-			minute = date.getMinutes(),
-			second = date.getSeconds();
-			month = '00'.substr(("" + month).length, 1) + month;
-			day = '00'.substr(("" + day).length, 1) + day;
-			hour = '00'.substr(("" + hour).length, 1) + hour;
-			minute = '00'.substr(("" + minute).length, 1) + minute;
-			return "" + year + month + day + "_" + hour + minute;
-		}
-
-		var replaceStr = function (str) {
-			//if (!str) {
-			//	return str;
-			//}
-			var arr = str.match(instaDefOptions.regCheckBox);
-			if ((arr||[]).length > 0) {
-				return arr[1];
-			} 
-			arr = str.match(instaDefOptions.regProfile);
-			if ((arr||[]).length > 0) {
-				return arr[1];
-			} 
-			//TODO: would be nice to have in replaceStr the name of the column
-			if (instaDefOptions.regTestInfo.test(str)) { //this is our Info column,
-				//console.log(str);
-				str = str
-					.replace(instaDefOptions.newLine, "," + String.fromCharCode(10))
-					.replace(instaDefOptions.cleanInfo, "");
-				return str;
-			}	
-			return str;
-		}
-
 		$("#exportDiv").show();
-
-		//$("body").prepend('<div id="exportCSV"><a id="linkExportCSV" href="">Export to CSV file</a></div>');
 
 		$("#export_XLSX").on("click", function () {
 			$("#jqGrid").jqGrid("exportToExcel", {
 				includeLabels: true,
 				includeGroupHeader: false,
 				includeFooter: false,
-				fileName: `user_${obj.userName}_${formatDate(new Date())}.xlsx`,
-				replaceStr: replaceStr
+				fileName: `user_${obj.userName}_${exportUtils.formatDate(new Date())}.xlsx`,
+				replaceStr: exportUtils.replaceStr
 			});
 		});
 		
@@ -360,7 +321,17 @@ $(function () {
 	function generationCompleted(obj) {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
-		updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}, followed by - ${obj.followed_by_count})`);
+		var diffFollowed = "", diffFollows = "";
+		//console.log(obj);
+		if (obj.followed_by_count != obj.followed_by_processed) {
+			diffFollowed = `(actually returned ${obj.followed_by_processed})`;
+			
+		}
+		if (obj.follows_count != obj.follows_processed) {
+			diffFollows = `(actually returned ${obj.follows_processed})`;
+		}
+
+		updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, followed by - ${obj.followed_by_count}${diffFollowed})`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 			//htmlElements.followed_by.remove();
@@ -398,11 +369,19 @@ $(function () {
 				if (429 == xhr.status) {
 					console.log("HTTP429 error.", new Date());
 					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
-					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date());
-						fetchInstaUsers(obj);
-					}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-					return;
+					timeout.setTimeout(3000)
+						.then(function(){
+							return countdown.doCountdown("status", (new Date()).getTime() + +instaDefOptions.retryInterval)
+						})
+						.then(function(){
+							console.log("Continue execution after HTTP429 error.", new Date());
+							fetchInstaUsers(obj);
+						});
+					//setTimeout(function () {
+					//	console.log("Continue execution after HTTP429 error.", new Date());
+					//	fetchInstaUsers(obj);
+					//}, instaDefOptions.retryInterval); //TODO: Test and make configurable
+					//return;
 				}
 				//if (typeof data[obj.relType].nodes === "undefined") {
 				//	alert("the users are not returned, seems you are not logged in or trying to gather the list of users of shared account");
@@ -474,13 +453,21 @@ $(function () {
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
 					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
-					//todo: countdown timer +instaDefOptions.retryInterval / 1000
-					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date());
-						updateStatusDiv(messages.getMessage("HTTP429CONT"));
-						fetchInstaUsers(obj);
-					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					timeout.setTimeout(3000)
+						.then(function(){
+							return countdown.doCountdown("status", (new Date()).getTime() + +instaDefOptions.retryInterval)
+						})
+						.then(function(){
+							console.log("Continue execution after HTTP429 error.", new Date());
+							fetchInstaUsers(obj);
+						});
+					
+					//setTimeout(function () {
+					//	console.log("Continue execution after HTTP429 error.", new Date());
+					//	updateStatusDiv(messages.getMessage("HTTP429CONT"));
+					//	fetchInstaUsers(obj);
+					//}, instaDefOptions.retryInterval);
+					//alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
