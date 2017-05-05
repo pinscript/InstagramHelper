@@ -3,7 +3,7 @@ var messages = function () {
 
 	var m = {
 		"HTTP404": "Requested page not found. [404]",
-		"HTTP429": "Instagram returned HTTP 429 Error Code that means too many requests were already generated. The execution will continue in ${0} minutes after you close this dialog!",
+		"HTTP429": "Instagram returned HTTP 429 Error Code that means too many requests were already generated. The execution will continue in ${0} minutes!",
 		"HTTP429CONT": "The pause after HTTP 429 Error is finished. Trying to continue the execution.",
 		"HTTP500": "Internal Server Error [500].",
 		"NOTCONNECTED": "Not connected. Verify Network. Request will be retried in ${0} munutes!",

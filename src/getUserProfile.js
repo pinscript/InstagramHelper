@@ -64,6 +64,7 @@ userInfo.getUserProfile = function (username) {
 					}, instaDefOptions.retryInterval);
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
+					//TODO: improve error handling
 					console.log("HTTP429 error getting the user profile.", new Date());
 					setTimeout(function () {
 						console.log("Continue execution after HTTP429 error.", new Date());

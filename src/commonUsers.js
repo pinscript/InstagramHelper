@@ -104,10 +104,10 @@ $(function () {
 			if (arr.length > 0) { //if common users are found
 				prepareHtmlElementsForIntersection(arr);
 				promiseGetFullInfo(arr).then(function () {
-					generationCompleted(request);
+					generationCompleted(request, obj1, obj2);
 				});
 			} else {
-				generationCompleted(request);
+				generationCompleted(request, obj1, obj2);
 			}
 		});
 	}
@@ -194,7 +194,7 @@ $(function () {
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
-			rowNum: 1000, //TODO: put it into options?
+			rowNum: instaDefOptions.gridPageSize,
 			autowidth: true,
 			height: "100%",
 			rownumbers: true,
@@ -495,13 +495,28 @@ $(function () {
 		htmlElements[obj.relType + "_" + obj.id].asProgress("finish").asProgress("stop");
 	}
 
-	function generationCompleted(request) {
+	function generationCompleted(request, obj1, obj2) {
 		clearInterval(request.timerInterval);
 		var timer = document.querySelector('#timer');
 		htmlElements.intersection.asProgress("finish").asProgress("stop");
+
+		var diffFollowed_1 = "", diffFollows_1 = "", diffFollowed_2 = "", diffFollows_2 = "";
+		if (obj1.followed_by_count != obj1.followed_by_processed) {
+			diffFollowed_1 = `(actually returned ${obj1.followed_by_processed})`;
+		}
+		if (obj1.follows_count != obj1.follows_processed) {
+			diffFollows_1 = `(actually returned ${obj1.follows_processed})`;
+		}
+		if (obj2.followed_by_count != obj2.followed_by_processed) {
+			diffFollowed_2 = `(actually returned ${obj2.followed_by_processed})`;
+		}
+		if (obj2.follows_count != obj2.follows_processed) {
+			diffFollows_2 = `(actually returned ${obj2.follows_processed})`;
+		}
+
 		updateStatusDiv("statusDiv", `Completed, spent time - ${timer.textContent}, found common users - ${myData.length}
-			(${request.user_1.userName} follows - ${request.user_1.follows_count} and followed by - ${request.user_1.followed_by_count} &&
-			${request.user_2.userName} follows - ${request.user_2.follows_count} and followed by - ${request.user_2.followed_by_count})`);
+			(${request.user_1.userName} follows - ${request.user_1.follows_count}${diffFollows_1} and followed by - ${request.user_1.followed_by_count}${diffFollowed_1} &&
+			${request.user_2.userName} follows - ${request.user_2.follows_count}${diffFollows_2} and followed by - ${request.user_2.followed_by_count}${diffFollowed_2})`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 			htmlElements.status_1.remove();
@@ -535,11 +550,19 @@ $(function () {
 				obj.receivedResponses += 1;
 				if (429 == xhr.status) {
 					console.log("HTTP429 error.", new Date());
-					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date());
-						fetchInstaUsers(obj, resolve);
-					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					timeout.setTimeout(3000)
+						.then(function(){
+							return countdown.doCountdown(`status_${obj.id}`, (new Date()).getTime() + +instaDefOptions.retryInterval)
+						})
+						.then(function(){
+							console.log("Continue execution after HTTP429 error.", new Date());
+							fetchInstaUsers(obj);
+						});					
+					//setTimeout(function () {
+					//	console.log("Continue execution after HTTP429 error.", new Date());
+					//	fetchInstaUsers(obj, resolve);
+					//}, instaDefOptions.retryInterval);
+					//alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 					return;
 				}
 				updateStatusDiv(`status_${obj.id}`, `${obj.userName}: received users - ${data[obj.relType].nodes.length} (${obj.relType})`);
@@ -600,11 +623,20 @@ $(function () {
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
-					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date());
-						fetchInstaUsers(obj, resolve);
-					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					timeout.setTimeout(3000)
+						.then(function(){
+							return countdown.doCountdown(`status_${obj.id}`, (new Date()).getTime() + +instaDefOptions.retryInterval)
+						})
+						.then(function(){
+							console.log("Continue execution after HTTP429 error.", new Date());
+							fetchInstaUsers(obj);
+						});
+					
+					//setTimeout(function () {
+					//	console.log("Continue execution after HTTP429 error.", new Date());
+					//	fetchInstaUsers(obj, resolve);
+					//}, instaDefOptions.retryInterval);
+					//alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));

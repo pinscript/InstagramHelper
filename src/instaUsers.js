@@ -77,7 +77,7 @@ $(function () {
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
-			rowNum: 1000,
+			rowNum: instaDefOptions.gridPageSize, 
 			autowidth: true,
 			//shrinkToFit: true,
 			height: "100%",
@@ -381,7 +381,7 @@ $(function () {
 					//	console.log("Continue execution after HTTP429 error.", new Date());
 					//	fetchInstaUsers(obj);
 					//}, instaDefOptions.retryInterval); //TODO: Test and make configurable
-					//return;
+					return;
 				}
 				//if (typeof data[obj.relType].nodes === "undefined") {
 				//	alert("the users are not returned, seems you are not logged in or trying to gather the list of users of shared account");

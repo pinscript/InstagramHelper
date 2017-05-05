@@ -25,7 +25,7 @@ countdown.doCountdown = function (element, stopTime) {
                 var seconds = time % 60;
                 if (seconds < 10) seconds = "0" + seconds; 
                 var text = minutes + ':' + seconds;
-                el.innerHTML = `Retry in ${text}`;
+                el.innerHTML = `Paused because of HTTP429 error. Continue in ${text}`;
             }
         }, 1000);
 
