@@ -519,7 +519,7 @@ $(function () {
 		updateStatusDiv("statusDiv", `Completed, spent time - ${timer.textContent}, common users - ${myData.length}
 			(${request.user_1.userName} follows - ${request.user_1.follows_count}${diffFollows_1} and followed by - ${request.user_1.followed_by_count}${diffFollowed_1} && 
 			${request.user_2.userName} follows - ${request.user_2.follows_count}${diffFollows_2} and followed by - ${request.user_2.followed_by_count}${diffFollowed_2}),
-			sent HTTP requests - ${~~obj1.receivedResponses + ~~obj2.receivedResponses}`);
+			sent HTTP requests - ${~~obj1.receivedResponses + ~~obj2.receivedResponses + ~~myData.length}`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 			htmlElements.status_1.remove();
@@ -560,7 +560,7 @@ $(function () {
 						})
 						.then(function(){
 							console.log("Continue execution after HTTP429 error.", new Date());
-							fetchInstaUsers(obj);
+							fetchInstaUsers(obj, resolve);
 						});					
 					return;
 				}
@@ -629,7 +629,7 @@ $(function () {
 						})
 						.then(function(){
 							console.log("Continue execution after HTTP429 error.", new Date());
-							fetchInstaUsers(obj);
+							fetchInstaUsers(obj, resolve);
 						});
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));
