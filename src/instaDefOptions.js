@@ -5,7 +5,7 @@ var instaDefOptions = function() {
 		defPageSize : 20,
 		gridPageSize : 500,
 		noDelayForInit : true,
-		requestsToSkipDelay : 120, 
+		requestsToSkipDelay : 150, 
 		retryInterval : 180000,
 		regCheckBox : /^\s*<\s*input.+type\s*=\s*"checkbox".+value\s*=\s*(?:"|')\s*(true|false)/i,
 		regProfile : /^\s*<\s*a\s.*href\s*=\s*(?:"|')([^"']+)/i,

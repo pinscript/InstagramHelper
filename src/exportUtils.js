@@ -17,7 +17,6 @@ var exportUtils = function() {
 		} 
 		//TODO: would be nice to have in replaceStr the name of the column
 		if (instaDefOptions.regTestInfo.test(str)) { //this is our Info column,
-			//console.log(str);
 			str = str
 				.replace(instaDefOptions.newLine, "," + String.fromCharCode(10))
 				.replace(instaDefOptions.cleanInfo, "");

@@ -68,8 +68,9 @@ $(function () {
 		}, 1000);
 	}
 
-	function updateStatusDiv(message) {
+	function updateStatusDiv(message, color) {
 		htmlElements.statusDiv.textContent = message;
+		htmlElements.statusDiv.style.color = color || "black";
 	}
 
 	function showJQGrid(obj) {
@@ -322,7 +323,6 @@ $(function () {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
 		var diffFollowed = "", diffFollows = "";
-		//console.log(obj);
 		if (obj.followed_by_count != obj.followed_by_processed) {
 			diffFollowed = `(actually returned ${obj.followed_by_processed})`;
 			
@@ -331,7 +331,10 @@ $(function () {
 			diffFollows = `(actually returned ${obj.follows_processed})`;
 		}
 
-		updateStatusDiv(`Completed, spent time - ${timer.textContent}, created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, followed by - ${obj.followed_by_count}${diffFollowed})`);
+		updateStatusDiv(`Completed, spent time - ${timer.textContent}, 
+			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, 
+			followed by - ${obj.followed_by_count}${diffFollowed}),
+			sent HTTP requests - ${obj.receivedResponses}`);
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
 			//htmlElements.followed_by.remove();
@@ -366,28 +369,20 @@ $(function () {
 			data: obj.request,
 			success: function (data, textStatus, xhr) {
 				obj.receivedResponses += 1;
-				if (429 == xhr.status) {
+				if (429 == xhr.status) { //sometime 429 was identified as success, todo
 					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
 					timeout.setTimeout(3000)
 						.then(function(){
-							return countdown.doCountdown("status", (new Date()).getTime() + +instaDefOptions.retryInterval)
+							return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
 						})
 						.then(function(){
 							console.log("Continue execution after HTTP429 error.", new Date());
 							fetchInstaUsers(obj);
 						});
-					//setTimeout(function () {
-					//	console.log("Continue execution after HTTP429 error.", new Date());
-					//	fetchInstaUsers(obj);
-					//}, instaDefOptions.retryInterval); //TODO: Test and make configurable
 					return;
 				}
-				//if (typeof data[obj.relType].nodes === "undefined") {
-				//	alert("the users are not returned, seems you are not logged in or trying to gather the list of users of shared account");
-				//  return;
-				//}
-				updateStatusDiv("received users - " + data[obj.relType].nodes.length + " (" + obj.relType + ")");
+				updateStatusDiv(`received users - ${data[obj.relType].nodes.length} (${obj.relType}/${obj.receivedResponses})`);
 				//otherwise assume return code is 200?
 				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
 					var found = false;
@@ -452,22 +447,15 @@ $(function () {
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
 					timeout.setTimeout(3000)
 						.then(function(){
-							return countdown.doCountdown("status", (new Date()).getTime() + +instaDefOptions.retryInterval)
+							return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
 						})
 						.then(function(){
 							console.log("Continue execution after HTTP429 error.", new Date());
 							fetchInstaUsers(obj);
 						});
-					
-					//setTimeout(function () {
-					//	console.log("Continue execution after HTTP429 error.", new Date());
-					//	updateStatusDiv(messages.getMessage("HTTP429CONT"));
-					//	fetchInstaUsers(obj);
-					//}, instaDefOptions.retryInterval);
-					//alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
