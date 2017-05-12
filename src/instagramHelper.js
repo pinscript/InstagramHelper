@@ -66,7 +66,7 @@
 	});
 
 	chrome.runtime.sendMessage({
-		action: "show"
+		action: "showHelperIcon"
 	});
 
 })();

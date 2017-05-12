@@ -15,12 +15,13 @@
 			}
 		}
 
-		if (request.action == "show") {
+		if (request.action == "showHelperIcon") {
 			promiseChrome.promiseQuery({
-				active: true,
-				currentWindow: true
+				url : "https://www.instagram.com/*"
 			}).then(function (tabs) {
-				chrome.pageAction.show(tabs[0].id);
+				for (var i = 0; i < tabs.length; i++) {
+					chrome.pageAction.show(tabs[i].id);
+				}
 			});
 		} else if (("get_insta_users" === request.action) || ("get_common_users" === request.action)) {
 
