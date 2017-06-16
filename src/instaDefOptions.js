@@ -11,6 +11,10 @@ var instaDefOptions = function() {
 		regProfile : /^\s*<\s*a\s.*href\s*=\s*(?:"|')([^"']+)/i,
 		regTestInfo : /^\s*id:/,
 		cleanInfo : /<\/?.[^>]*>/g,
-		newLine : /<br\s*\/>(?=.)/gi //should be followed by at least one symbol
+		newLine : /<br\s*\/>(?=.)/gi, //should be followed by at least one symbol
+		queryId : {
+			followed_by : "17851374694183129",
+			follows : "17874545323001329"
+		}
 	}
 }();

@@ -530,47 +530,26 @@ $(function () {
 	}
 
 	function fetchInstaUsers(obj, resolve) {
-
-		if (!obj.request) {
-			obj.request = $.param({
-					q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
-					ref: "relationships::follow_list"
-				});
-		}
-
+		console.log(obj);
+		var urlTemplate = `https://www.instagram.com/graphql/query/?query_id=${instaDefOptions.queryId[obj.relType]}&id=${obj.userId}&first=${obj.pageSize}`;
+		obj.url = obj.url || urlTemplate;
+		console.log(obj.url);
 		$.ajax({
-			url: "https://www.instagram.com/query/",
-			crossDomain: true,
+			url: obj.url,
+			method: 'GET',
 			headers: {
-				"X-Instagram-AJAX": '1',
 				"X-CSRFToken": obj.csrfToken,
-				//"X-Requested-With": XMLHttpRequest,
 				"eferer": "https://www.instagram.com/" + obj.userName + "/"
 			},
-			method: 'POST',
-			data: obj.request,
-			success: function (data, textStatus, xhr) {
+			success: function (res, textStatus, xhr) {
 				obj.receivedResponses += 1;
-				if (429 == xhr.status) { //sometime 429 was identified as success, todo 
-					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(`status_${obj.id}`, obj.userName + ":" + messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");					
-					timeout.setTimeout(3000)
-						.then(function(){
-							return countdown.doCountdown(`status_${obj.id}`, obj.userName + ": ",(new Date()).getTime() + +instaDefOptions.retryInterval)
-						})
-						.then(function(){
-							console.log("Continue execution after HTTP429 error.", new Date());
-							fetchInstaUsers(obj, resolve);
-						});					
-					return;
-				}
-				updateStatusDiv(`status_${obj.id}`, `${obj.userName}: received users - ${data[obj.relType].nodes.length} (${obj.relType}/${obj.receivedResponses})`);
-				//otherwise assume return code is 200?
-				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
+				var data = res.data.user[Object.keys(res.data.user)[0]];				
+				updateStatusDiv(`status_${obj.id}`, `${obj.userName}: received users - ${data.edges.length} (${obj.relType}/${obj.receivedResponses})`);
+				for (let i = 0; i < data.edges.length; i++) {
 					var found = false;
 					if (obj.checkDuplicates) { //only when the second run happens (or we started with already opened result page)
 						for (let j = 0; j < obj.myData.length; j++) {
-							if (data[obj.relType].nodes[i].username === obj.myData[j].username) {
+							if (data.edges[i].node.username === obj.myData[j].username) {
 								found = true;
 								//console.log(`username ${myData[j].username} is found at ${i}`);
 								obj.myData[j]["user_" + obj.relType] = true;
@@ -579,26 +558,23 @@ $(function () {
 						}
 					}
 					if (!(found)) {
-						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
-						obj.myData.push(data[obj.relType].nodes[i]);
+						data.edges[i].node.user_follows = false; //explicitly set the value for correct search
+						data.edges[i].node.user_followed_by = false; //explicitly set the value for correct search
+						data.edges[i].node["user_" + obj.relType] = true;
+						obj.myData.push(data.edges[i].node);
 					}
 				}
-				updateProgressBar(obj, data[obj.relType].nodes.length);
+				updateProgressBar(obj, data.edges.length);
 
-				if (data[obj.relType].page_info.has_next_page) {
-					obj.request = $.param({
-							q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page}, nodes {id, username}}}`,
-							ref: "relationships::follow_list"
-						});
+				if (data.page_info.has_next_page) {
+					obj.url = `${urlTemplate}&after=${data.page_info.end_cursor}`;					
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, calculateTimeOut(obj));
 				} else {
 					stopProgressBar(obj);
 					if (obj.callBoth) {
-						obj.request = null;
+						obj.url = null;
 						obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
 						obj.callBoth = false;
 						obj.checkDuplicates = true;

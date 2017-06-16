@@ -4,7 +4,7 @@
 	"name": "Helper Tools for Instagram",
 	"short_name": "Helper For Insta",
 	"description": "Create a list of instagram users, export it into CSV file; find common users of 2 users, also other helpfers for instagram.com",
-	"version": "0.300",
+	"version": "0.301",
 
 	"options_ui": {
 		"page": "options.html",
@@ -15,7 +15,7 @@
 
 	"page_action": {
 		"default_icon": "img/icon19.png",
-		"default_title": "Helper Tools for Instagram.com - 0.300",
+		"default_title": "Helper Tools for Instagram.com - 0.301",
 		"default_popup": "popup.html"
 	},
 

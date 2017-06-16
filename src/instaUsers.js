@@ -9,7 +9,8 @@ $(function () {
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
 		follows: $('#follows'),
-		followed_by: $('#followed_by')
+		followed_by: $('#followed_by'),
+		intersection: $("#intersection")		
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -322,6 +323,8 @@ $(function () {
 	function generationCompleted(obj) {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
+		htmlElements.intersection.asProgress("finish").asProgress("stop");
+		
 		var diffFollowed = "", diffFollows = "";
 		if (obj.followed_by_count != obj.followed_by_processed) {
 			diffFollowed = `(actually returned ${obj.followed_by_processed})`;
@@ -346,85 +349,48 @@ $(function () {
 	}
 
 	function fetchInstaUsers(obj) {
-
-		if (!obj.request) {
-			obj.request = $.param({
-					q: `ig_user(${obj.userId}) {${obj.relType}.first(${obj.pageSize}) {count, page_info {end_cursor, has_next_page},
-			nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
-			external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
-					ref: "relationships::follow_list"
-				});
-		}
-
+		var urlTemplate = `https://www.instagram.com/graphql/query/?query_id=${instaDefOptions.queryId[obj.relType]}&id=${obj.userId}&first=${obj.pageSize}`;
+		obj.url = obj.url || urlTemplate;
 		$.ajax({
-			url: "https://www.instagram.com/query/",
-			crossDomain: true,
+			url: obj.url,
+			method: 'GET',
 			headers: {
-				"X-Instagram-AJAX": '1',
 				"X-CSRFToken": obj.csrfToken,
-				//"X-Requested-With": XMLHttpRequest,
 				"eferer": "https://www.instagram.com/" + obj.userName + "/"
 			},
-			method: 'POST',
-			data: obj.request,
-			success: function (data, textStatus, xhr) {
+			success: function (res, textStatus, xhr) {
 				obj.receivedResponses += 1;
-				if (429 == xhr.status) { //sometime 429 was identified as success, todo
-					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
-					timeout.setTimeout(3000)
-						.then(function(){
-							return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
-						})
-						.then(function(){
-							console.log("Continue execution after HTTP429 error.", new Date());
-							fetchInstaUsers(obj);
-						});
-					return;
-				}
-				updateStatusDiv(`received users - ${data[obj.relType].nodes.length} (${obj.relType}/${obj.receivedResponses})`);
-				//otherwise assume return code is 200?
-				for (let i = 0; i < data[obj.relType].nodes.length; i++) {
+				var data = res.data.user[Object.keys(res.data.user)[0]];
+				updateStatusDiv(`received users - ${data.edges.length} (${obj.relType}/${obj.receivedResponses})`);
+				for (let i = 0; i < data.edges.length; i++) {
 					var found = false;
 					if (obj.checkDuplicates) { //only when the second run happens (or we started with already opened result page)
 						for (let j = 0; j < myData.length; j++) {
-							if (data[obj.relType].nodes[i].username === myData[j].username) {
+							if (data.edges[i].node.username === myData[j].username) {
 								found = true;
-								//console.log(`username ${myData[j].username} is found at ${i}`);
 								myData[j]["user_" + obj.relType] = true;
 								break;
 							}
 						}
 					}
 					if (!(found)) {
-						data[obj.relType].nodes[i].followed_by_count = data[obj.relType].nodes[i].followed_by.count;
-						data[obj.relType].nodes[i].follows_count = data[obj.relType].nodes[i].follows.count;
-						data[obj.relType].nodes[i].media_count = data[obj.relType].nodes[i].media.count;
-						data[obj.relType].nodes[i].user_follows = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i].user_followed_by = false; //explicitly set the value for correct search
-						data[obj.relType].nodes[i]["user_" + obj.relType] = true;
-						delete data[obj.relType].nodes[i].followed_by;
-						delete data[obj.relType].nodes[i].follows;
-						delete data[obj.relType].nodes[i].media;
-						myData.push(data[obj.relType].nodes[i]);
+						data.edges[i].node.user_follows = false; //explicitly set the value for correct search
+						data.edges[i].node.user_followed_by = false; //explicitly set the value for correct search
+						data.edges[i].node["user_" + obj.relType] = true;
+						myData.push(data.edges[i].node);
 					}
 				}
-				updateProgressBar(obj, data[obj.relType].nodes.length);
+				updateProgressBar(obj, data.edges.length);
 
-				if (data[obj.relType].page_info.has_next_page) {
-					obj.request = $.param({
-							q: `ig_user(${obj.userId}) {${obj.relType}.after(${data[obj.relType].page_info.end_cursor}, ${obj.pageSize}) {count, page_info {end_cursor, has_next_page},
-					nodes {id, is_verified, followed_by_viewer, requested_by_viewer, full_name, profile_pic_url_hd, username, connected_fb_page, 
-					external_url, biography, follows_viewer, is_private, follows { count }, followed_by { count }, media { count }}}}`, 
-							ref: "relationships::follow_list"
-						});
+				if (data.page_info.has_next_page) { //need to continue
+					obj.url = `${urlTemplate}&after=${data.page_info.end_cursor}`;
 					setTimeout(function () {
 						fetchInstaUsers(obj);
 					}, calculateTimeOut(obj));
 				} else {
 					stopProgressBar(obj);
 					if (obj.callBoth) {
-						obj.request = null;
+						obj.url = null;
 						obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
 						obj.callBoth = false;
 						obj.checkDuplicates = true;
@@ -433,13 +399,17 @@ $(function () {
 						}, calculateTimeOut(obj));
 					} else {
 						//we are done
-						generationCompleted(obj);
+						prepareHtmlElementsForIntersection(myData);
+						promiseGetFullInfo(obj, myData).then(function () {
+								generationCompleted(obj);
+						});
 					}
 				}
 			},
 			error: function (jqXHR, exception) {
 				console.log("error ajax");
 				console.log(arguments); //jqXHR.status
+				return;
 				if (jqXHR.status === 0) {
 					setTimeout(function () {
 						fetchInstaUsers(obj);
@@ -471,7 +441,45 @@ $(function () {
 				}
 			}
 		});
+	}
 
+	function promiseGetFullInfo(obj, arr) {
+		return new Promise(function (resolve, reject) {
+			getFullInfo(obj, arr, 0, resolve);
+		});
+	}
+
+	function prepareHtmlElementsForIntersection(arr) {
+
+		updateStatusDiv("statusDiv", `Found users ${arr.length}`);
+		document.getElementById("intersection_title").textContent = "Getting the detailed info";
+		htmlElements.intersection.asProgress({
+			namespace: 'progress',
+			min: 0,
+			max: arr.length,
+			goal: arr.length,
+			labelCallback(n) {
+				return this.getPercentage(n) + "%";
+			}
+		});
+	}
+
+
+	function getFullInfo(obj, arr, index, resolve) {
+		userInfo.getUserProfile(arr[index].username).then(function (obj) {
+		//	console.log(myData[index]);
+			myData[index] = $.extend({}, myData[index], obj);;
+			if (index === arr.length - 1) {
+				resolve();
+			} else {
+
+				//++index;	
+				htmlElements.intersection.asProgress("go", ++index);
+				setTimeout(function () {
+					getFullInfo(obj, arr, index, resolve);
+				}, calculateTimeOut(obj)); //TODO: IS IT NEEDED?
+			}
+		});
 	}
 
 	function calculateTimeOut(obj) {
