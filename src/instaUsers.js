@@ -6,11 +6,12 @@ $(function () {
 	"use strict";
 
 	var myData = [];
+
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
 		follows: $('#follows'),
 		followed_by: $('#followed_by'),
-		intersection: $("#intersection")		
+		intersection: $("#intersection")
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -65,7 +66,7 @@ $(function () {
 			var minutes = parseInt(x % 60, 10);
 			x /= 60;
 			var hours = parseInt(x % 24, 10);
-			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length)  + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
+			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length) + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
 		}, 1000);
 	}
 
@@ -79,164 +80,164 @@ $(function () {
 			pager: "#jqGridPager",
 			datatype: "local",
 			data: myData,
-			rowNum: instaDefOptions.gridPageSize, 
+			rowNum: instaDefOptions.gridPageSize,
 			autowidth: true,
 			//shrinkToFit: true,
 			height: "100%",
 			rownumbers: true,
 			colModel: [{
-					label: 'User',
-					name: 'profile_pic_url_hd',
-					width: '320',
-					align: 'center',
-					sortable: false,
-					formatter: function (cellvalue, model, row) {
-						return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
-					},
-					search: false
-				}, {
-					label: 'Info',
-					name: 'id',
-					//width: '200',
-					sortable: false,
-					formatter: function (cellvalue, model, row) {
-						var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
-						ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
-						ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
-						ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
-						return ret;
-					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="white-space: normal;"';
-					},
-					search: false
-				}, {
-					label: 'Bio',
-					name: 'biography',
-					sortable: false,
-					formatter: function (cellvalue, model, row) {
+				label: 'User',
+				name: 'profile_pic_url_hd',
+				width: '320',
+				align: 'center',
+				sortable: false,
+				formatter: function (cellvalue, model, row) {
+					return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
+				},
+				search: false
+			}, {
+				label: 'Info',
+				name: 'id',
+				//width: '200',
+				sortable: false,
+				formatter: function (cellvalue, model, row) {
+					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
+					ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
+					ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
+					ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
+					return ret;
+				},
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="white-space: normal;"';
+				},
+				search: false
+			}, {
+				label: 'Bio',
+				name: 'biography',
+				sortable: false,
+				formatter: function (cellvalue, model, row) {
 					//	return cellvalue ? `<p>${cellvalue}</p>` : "";
-						return cellvalue ? cellvalue : "";
-					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="white-space: normal;"';
-					},
-					search: false
-				}, {
-					label: 'Follows <br/>you',
-					name: 'follows_viewer',
-					width: '80',
-					formatter: 'checkbox',
-					align: 'center',
-					stype: 'select',
-					searchoptions: {
-						sopt: ["eq"],
-						value: ":Any;true:Yes;false:No"
-					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;" title="Follows you"';
-					},
-					search: true
-				}, {
-					label: 'Followed <br>by you',
-					name: 'followed_by_viewer',
-					width: '80',
-					formatter: 'checkbox',
-					align: 'center',
-					stype: 'select',
-					searchoptions: {
-						sopt: ["eq"],
-						value: ":Any;true:Yes;false:No"
-					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
-						return 'style="background-color: #fbf9ee;" title="Followed by you"';
-					},
-					search: true
-				}, {
-					label: 'Follows <br/>user',
-					name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
-					width: '80',
-					formatter: 'checkbox',
-					align: 'center',
-					stype: 'select',
-					searchoptions: {
-						sopt: ["eq"],
-						value: ":Any;true:Yes;false:No"
-					},
-					cellattr: function () {
-						return `title="Follows ${obj.userName}"`;
-					},
-					search: true
-				}, {
-					label: 'Followed <br/>by user',
-					name: 'user_follows', //relationship: follows - from the list of the followed person by user
-					width: '80',
-					formatter: 'checkbox',
-					align: 'center',
-					stype: 'select',
-					searchoptions: {
-						sopt: ["eq"],
-						value: ":Any;true:Yes;false:No"
-					},
-					cellattr: function () {
-						return `title="Followed by ${obj.userName}"`;
-					},
-					search: true
-				}, {
-					label: 'Private',
-					name: 'is_private',
-					width: '80',
-					formatter: 'checkbox',
-					align: 'center',
-					stype: 'select',
-					searchoptions: {
-						sopt: ["eq"],
-						value: ":Any;true:Yes;false:No"
-					},
-					cellattr: function () {
-						return 'title="Is private"';
-					},
-					search: true
-				}, {
-					label: 'Followers',
-					name: 'followed_by_count',
-					width: '70',
-					align: 'center',
-					sorttype: 'number',
-					search: true,
-					searchoptions: {
-						sopt: ["ge", "le", "eq"]
-					},
-					cellattr: function () {
-						return 'title="Followers"';
-					}
-				}, {
-					label: 'Following',
-					name: 'follows_count',
-					width: '70',
-					align: 'center',
-					sorttype: 'number',
-					search: true,
-					searchoptions: {
-						sopt: ["ge", "le", "eq"]
-					},
-					cellattr: function () {
-						return 'title="Following"';
-					}
-				}, {
-					label: 'Posts',
-					name: 'media_count',
-					width: '70',
-					align: 'center',
-					sorttype: 'number',
-					search: true,
-					searchoptions: {
-						sopt: ["ge", "le", "eq"]
-					},
-					cellattr: function () {
-						return 'title="Posts"';
-					}
+					return cellvalue ? cellvalue : "";
+				},
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="white-space: normal;"';
+				},
+				search: false
+			}, {
+				label: 'Follows <br/>you',
+				name: 'follows_viewer',
+				width: '80',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="background-color: #fbf9ee;" title="Follows you"';
+				},
+				search: true
+			}, {
+				label: 'Followed <br>by you',
+				name: 'followed_by_viewer',
+				width: '80',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					return 'style="background-color: #fbf9ee;" title="Followed by you"';
+				},
+				search: true
+			}, {
+				label: 'Follows <br/>user',
+				name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
+				width: '80',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function () {
+					return `title="Follows ${obj.userName}"`;
+				},
+				search: true
+			}, {
+				label: 'Followed <br/>by user',
+				name: 'user_follows', //relationship: follows - from the list of the followed person by user
+				width: '80',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function () {
+					return `title="Followed by ${obj.userName}"`;
+				},
+				search: true
+			}, {
+				label: 'Private',
+				name: 'is_private',
+				width: '80',
+				formatter: 'checkbox',
+				align: 'center',
+				stype: 'select',
+				searchoptions: {
+					sopt: ["eq"],
+					value: ":Any;true:Yes;false:No"
+				},
+				cellattr: function () {
+					return 'title="Is private"';
+				},
+				search: true
+			}, {
+				label: 'Followers',
+				name: 'followed_by_count',
+				width: '70',
+				align: 'center',
+				sorttype: 'number',
+				search: true,
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				},
+				cellattr: function () {
+					return 'title="Followers"';
 				}
+			}, {
+				label: 'Following',
+				name: 'follows_count',
+				width: '70',
+				align: 'center',
+				sorttype: 'number',
+				search: true,
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				},
+				cellattr: function () {
+					return 'title="Following"';
+				}
+			}, {
+				label: 'Posts',
+				name: 'media_count',
+				width: '70',
+				align: 'center',
+				sorttype: 'number',
+				search: true,
+				searchoptions: {
+					sopt: ["ge", "le", "eq"]
+				},
+				cellattr: function () {
+					return 'title="Posts"';
+				}
+			}
 			],
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
@@ -250,13 +251,13 @@ $(function () {
 			del: false,
 			refresh: true
 		}, {}, {}, {}, {
-			multipleSearch: true,
-			closeAfterSearch: true,
-			closeOnEscape: true,
-			searchOnEnter: true,
-			showQuery: true
-		}, // pSearch (works with these options)
-		{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
+				multipleSearch: true,
+				closeAfterSearch: true,
+				closeOnEscape: true,
+				searchOnEnter: true,
+				showQuery: true
+			}, // pSearch (works with these options)
+			{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: find why autowidth doesn't work
 
 	}
 
@@ -273,7 +274,6 @@ $(function () {
 				replaceStr: exportUtils.replaceStr
 			});
 		});
-		
 	}
 
 	function prepareHtmlElements(obj) {
@@ -324,11 +324,10 @@ $(function () {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
 		htmlElements.intersection.asProgress("finish").asProgress("stop");
-		
+
 		var diffFollowed = "", diffFollows = "";
 		if (obj.followed_by_count != obj.followed_by_processed) {
 			diffFollowed = `(actually returned ${obj.followed_by_processed})`;
-			
 		}
 		if (obj.follows_count != obj.follows_processed) {
 			diffFollows = `(actually returned ${obj.follows_processed})`;
@@ -338,15 +337,14 @@ $(function () {
 			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, 
 			followed by - ${obj.followed_by_count}${diffFollowed}),
 			sent HTTP requests - ${obj.receivedResponses}`);
-		setTimeout(function () {
-			document.getElementById('tempUiElements').remove();
-			//htmlElements.followed_by.remove();
-			//htmlElements.follows.remove();
-			//timer.parentNode.removeChild(timer);
-		}, 3000);
 		showJQGrid(obj);
 		showExportDiv(obj);
+
+		setTimeout(function () {
+			document.getElementById('tempUiElements').remove();
+		}, 3000);
 	}
+
 
 	function fetchInstaUsers(obj) {
 		var urlTemplate = `https://www.instagram.com/graphql/query/?query_id=${instaDefOptions.queryId[obj.relType]}&id=${obj.userId}&first=${obj.pageSize}`;
@@ -399,17 +397,16 @@ $(function () {
 						}, calculateTimeOut(obj));
 					} else {
 						//we are done
-						prepareHtmlElementsForIntersection(myData);
+						prepareHtmlElementsForIntersection(obj, myData);
 						promiseGetFullInfo(obj, myData).then(function () {
-								generationCompleted(obj);
+							generationCompleted(obj);
 						});
 					}
 				}
 			},
 			error: function (jqXHR, exception) {
 				console.log("error ajax");
-				console.log(arguments); //jqXHR.status
-				return;
+				console.log(arguments);
 				if (jqXHR.status === 0) {
 					setTimeout(function () {
 						fetchInstaUsers(obj);
@@ -417,15 +414,7 @@ $(function () {
 					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
-					timeout.setTimeout(3000)
-						.then(function(){
-							return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
-						})
-						.then(function(){
-							console.log("Continue execution after HTTP429 error.", new Date());
-							fetchInstaUsers(obj);
-						});
+					retryError(jqXHR.status, obj);
 				} else if (jqXHR.status == 404) {
 					alert(messages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
@@ -443,15 +432,30 @@ $(function () {
 		});
 	}
 
+	function retryError(code, obj) {
+		console.log("HTTP error", new Date());
+		updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
+		timeout.setTimeout(3000)
+			.then(function () {
+				return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
+			})
+			.then(function () {
+				console.log("Continue execution after HTTP error", new Date());
+				fetchInstaUsers(obj);
+			});
+
+	}
+
 	function promiseGetFullInfo(obj, arr) {
 		return new Promise(function (resolve, reject) {
-			getFullInfo(obj, arr, 0, resolve);
+			obj.processedUsers = 0;
+			getFullInfo(obj, arr, resolve);
 		});
 	}
 
-	function prepareHtmlElementsForIntersection(arr) {
+	function prepareHtmlElementsForIntersection(obj, arr) {
 
-		updateStatusDiv("statusDiv", `Found users ${arr.length}`);
+		updateStatusDiv(`Found users ${arr.length}`);
 		document.getElementById("intersection_title").textContent = "Getting the detailed info";
 		htmlElements.intersection.asProgress({
 			namespace: 'progress',
@@ -459,26 +463,25 @@ $(function () {
 			max: arr.length,
 			goal: arr.length,
 			labelCallback(n) {
-				return this.getPercentage(n) + "%";
+				const percentage = this.getPercentage(n);
+				return `Users: ${obj.processedUsers}/${arr.length}/${percentage}%`;
 			}
 		});
 	}
 
 
-	function getFullInfo(obj, arr, index, resolve) {
-		userInfo.getUserProfile(arr[index].username).then(function (obj) {
-		//	console.log(myData[index]);
-			myData[index] = $.extend({}, myData[index], obj);;
-			if (index === arr.length - 1) {
+	function getFullInfo(obj, arr, resolve) {
+		userInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
+			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);;
+			obj.receivedResponses++;
+			htmlElements.intersection.asProgress("go", obj.processedUsers++);
+			if (obj.processedUsers === arr.length) {
 				resolve();
-			} else {
-
-				//++index;	
-				htmlElements.intersection.asProgress("go", ++index);
-				setTimeout(function () {
-					getFullInfo(obj, arr, index, resolve);
-				}, calculateTimeOut(obj)); //TODO: IS IT NEEDED?
+				return;
 			}
+			setTimeout(function () {
+				getFullInfo(obj, arr, resolve);
+			}, calculateTimeOut(obj));
 		});
 	}
 

@@ -18,7 +18,6 @@ var messages = function () {
 		"USERNAMEISREQ": "Please provide the user name.",
 		"USERNAMEISREQPAR": "Please specify the ${0} user name.",
 		"TABISOPEN": "Found already open tab with results, please close this tab before processing!"
-
 	}
 
 	function getMessage(key) {
