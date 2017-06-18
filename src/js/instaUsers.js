@@ -481,7 +481,7 @@ $(function () {
 			}
 			setTimeout(function () {
 				getFullInfo(obj, arr, resolve);
-			}, calculateTimeOut(obj));
+			}, 0);
 		});
 	}
 

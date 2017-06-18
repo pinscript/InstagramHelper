@@ -72,6 +72,16 @@ userInfo.getUserProfile = function (username) {
 					}, instaDefOptions.retryInterval);
 					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 
+				} else if (jqXHR.status === 502) {
+					//TODO: improve error handling
+					console.log("HTTP502 error getting the user profile.", new Date());
+					setTimeout(function () {
+						console.log("Continue execution after HTTP502 error.", new Date());
+						getUserProfile(username, resolve, reject);
+					}, 30000);
+
+					alert("HTTP502 error, continue after 30 seconds");
+				
 				} else {
 					alert(messages.getMessage("ERRGETTINGUSER", username, jqXHR.status));
 					reject();
