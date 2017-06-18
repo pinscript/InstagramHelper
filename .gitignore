@@ -45,5 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-src/img/icon256.png
-src/src.zip
+
+# Custom changes
+*.zip

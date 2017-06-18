@@ -15,7 +15,7 @@
 
 	"page_action": {
 		"default_icon": "img/icon19.png",
-		"default_title": "Helper Tools for Instagram.com - 0.302",
+		"default_title": "Helper Tools for Instagram.com - 0.302a",
 		"default_popup": "popup.html"
 	},
 
@@ -27,13 +27,13 @@
 	},
 
 	"background": {
-		"scripts": ["PromiseChrome.js", "background.js"],
+		"scripts": ["js/PromiseChrome.js", "js/background.js"],
 		"persistent": true
 	},
 
 	"content_scripts": [{
 			"matches": ["https://www.instagram.com/*"],
-			"js": ["instaDefOptions.js", "PromiseChrome.js", "messages.js", "instagramHelper.js"]
+			"js": ["js/instaDefOptions.js", "js/PromiseChrome.js", "js/messages.js", "js/instagramHelper.js"]
 		}
 	],
 
