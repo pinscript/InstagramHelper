@@ -1,6 +1,16 @@
-var FetchUsers = function (obj, myData, htmlElements, updateStatusDiv, resolve) {
+var FetchUsers = function (settings) {
+
+    //obj, myData, htmlElements, updateStatusDiv, resolve
 
     "use strict";
+
+    var {
+		obj,
+        myData,
+        htmlElements,
+        updateStatusDiv,
+        resolve
+	} = settings;
 
     var urlTemplate;
 
@@ -48,7 +58,7 @@ var FetchUsers = function (obj, myData, htmlElements, updateStatusDiv, resolve) 
 
         if (data.page_info.has_next_page) { //need to continue
             obj.url = `${urlTemplate}&after=${data.page_info.end_cursor}`;
-            setTimeout( () => fetchInstaUsers(), calculateTimeOut(obj));
+            setTimeout(() => this.fetchInstaUsers(), calculateTimeOut(obj));
             return;
         }
         htmlElements[obj.relType].asProgress("finish").asProgress("stop"); //stopProgressBar(obj);
@@ -57,7 +67,7 @@ var FetchUsers = function (obj, myData, htmlElements, updateStatusDiv, resolve) 
             obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
             obj.callBoth = false;
             obj.checkDuplicates = true;
-            setTimeout( () => fetchInstaUsers(), calculateTimeOut(obj));
+            setTimeout(() => this.fetchInstaUsers(), calculateTimeOut(obj));
             return;
         }
         resolve();
@@ -67,11 +77,11 @@ var FetchUsers = function (obj, myData, htmlElements, updateStatusDiv, resolve) 
         console.log("error ajax");
         console.log(arguments);
         if (jqXHR.status === 0) {
-            setTimeout( () => fetchInstaUsers(), instaDefOptions.retryInterval);
+            setTimeout(() => this.fetchInstaUsers(), instaDefOptions.retryInterval);
             alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
         } else if (jqXHR.status === 429) {
             console.log("HTTP429 error.", new Date());
-            retryError(jqXHR.status);
+            this.retryError(jqXHR.status);
         } else if (jqXHR.status == 404) {
             alert(messages.getMessage("HTTP404"));
         } else if (jqXHR.status == 500) {
@@ -96,7 +106,7 @@ var FetchUsers = function (obj, myData, htmlElements, updateStatusDiv, resolve) 
             })
             .then(function () {
                 console.log("Continue execution after HTTP error", new Date());
-                fetchInstaUsers();
+                this.fetchInstaUsers();
             });
     }
 

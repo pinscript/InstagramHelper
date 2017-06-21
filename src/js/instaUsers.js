@@ -11,7 +11,7 @@ $(function () {
 		statusDiv: document.getElementById('status'),
 		follows: $('#follows'),
 		followed_by: $('#followed_by'),
-		intersection: $("#intersection")
+		detailedinfo: $("#detailedinfo")
 	};
 
 	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
@@ -66,7 +66,8 @@ $(function () {
 		userInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
 			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);;
 			obj.receivedResponses++;
-			htmlElements.intersection.asProgress("go", obj.processedUsers++);
+			htmlElements.detailedinfo.asProgress("go", obj.processedUsers++);
+			updateStatusDiv(`Getting detailed info for users: ${obj.processedUsers} of ${arr.length}`);
 			if (obj.processedUsers === arr.length) {
 				resolve();
 				return;
@@ -84,7 +85,12 @@ $(function () {
 
 	function promiseFetchInstaUsers(obj) {
 		return new Promise(function (resolve, reject) {
-			var f = new FetchUsers(obj, myData, htmlElements, updateStatusDiv, resolve);
+
+
+			var f = new FetchUsers(Object.assign({}, {
+				obj, myData, htmlElements, updateStatusDiv, resolve				
+			}));
+
 			f.fetchInstaUsers(); 
 		});
 	}
@@ -152,7 +158,7 @@ $(function () {
 	function generationCompleted(obj) {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
-		htmlElements.intersection.asProgress("finish").asProgress("stop");
+		htmlElements.detailedinfo.asProgress("finish").asProgress("stop");
 
 		var diffFollowed = "", diffFollows = "";
 		if (obj.followed_by_count != obj.followed_by_processed) {
@@ -182,8 +188,8 @@ $(function () {
 
 	function prepareHtmlElementsUserDetails(obj, arr) {
 		updateStatusDiv(`Found users ${arr.length}`);
-		document.getElementById("intersection_title").textContent = "Getting the detailed info";
-		htmlElements.intersection.asProgress({
+		document.getElementById("detailedinfo_title").textContent = "Getting the detailed info";
+		htmlElements.detailedinfo.asProgress({
 			namespace: 'progress',
 			min: 0,
 			max: arr.length,
