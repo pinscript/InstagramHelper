@@ -1,7 +1,5 @@
 var FetchUsers = function (settings) {
 
-    //obj, myData, htmlElements, updateStatusDiv, resolve
-
     "use strict";
 
     var {
@@ -15,7 +13,7 @@ var FetchUsers = function (settings) {
     var urlTemplate;
 
     var fetchInstaUsers = function () { //do I need obj?
-        console.log("fetchInstaUsers", this);
+       // console.log("fetchInstaUsers", this);
         urlTemplate = `https://www.instagram.com/graphql/query/?query_id=${instaDefOptions.queryId[obj.relType]}&id=${obj.userId}&first=${obj.pageSize}`;
         obj.url = obj.url || urlTemplate;
         $.ajax({
@@ -32,7 +30,7 @@ var FetchUsers = function (settings) {
     }
 
     var successFetch = function (res, textStatus, xhr) {
-        console.log("successFetch", this);
+       // console.log("successFetch", this);
         obj.receivedResponses += 1;
         var data = res.data.user[Object.keys(res.data.user)[0]];
         updateStatusDiv(`received users - ${data.edges.length} (${obj.relType}/${obj.receivedResponses})`);
@@ -70,7 +68,7 @@ var FetchUsers = function (settings) {
             setTimeout(() => this.fetchInstaUsers(), calculateTimeOut(obj));
             return;
         }
-        resolve();
+        resolve(obj);
     }
 
     var errorFetch = function (jqXHR, exception) {

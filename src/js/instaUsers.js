@@ -6,6 +6,7 @@ $(function () {
 	"use strict";
 
 	var myData = [];
+	var userName = "";
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
@@ -54,7 +55,11 @@ $(function () {
 			processedUsers: 0 	//processed users in get full info
 		};
 		prepareHtmlElements(fetchSettings);
-		promiseFetchInstaUsers(fetchSettings).then(function(){
+		promiseFetchInstaUsers(fetchSettings).then(function (obj) {
+			
+			showJQGrid(obj, simpleColModel);
+			showExportDiv(obj);		
+
 			prepareHtmlElementsUserDetails(fetchSettings, myData);
 			promiseGetFullInfo(fetchSettings, myData).then(function () {
 				generationCompleted(fetchSettings);
@@ -88,10 +93,10 @@ $(function () {
 
 
 			var f = new FetchUsers(Object.assign({}, {
-				obj, myData, htmlElements, updateStatusDiv, resolve				
+				obj, myData, htmlElements, updateStatusDiv, resolve
 			}));
 
-			f.fetchInstaUsers(); 
+			f.fetchInstaUsers();
 		});
 	}
 
@@ -172,8 +177,9 @@ $(function () {
 			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, 
 			followed by - ${obj.followed_by_count}${diffFollowed}),
 			sent HTTP requests - ${obj.receivedResponses}`);
-		showJQGrid(obj);
-		showExportDiv(obj);
+		
+		$(".ui-jqgrid").replaceWith("<table id='jqGrid'></table>");
+		showJQGrid(obj, fullColModel);
 
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
@@ -201,7 +207,10 @@ $(function () {
 		});
 	}
 
-	function showJQGrid(obj) {
+	function showJQGrid(obj, colModel) {
+
+		userName = obj.userName;
+
 		$("#jqGrid").jqGrid({
 			pager: "#jqGridPager",
 			datatype: "local",
@@ -210,158 +219,7 @@ $(function () {
 			autowidth: true,
 			height: "100%",
 			rownumbers: true,
-			colModel: [{
-				label: 'User',
-				name: 'profile_pic_url_hd',
-				width: '320',
-				align: 'center',
-				sortable: false,
-				formatter: function (cellvalue, model, row) {
-					return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
-				},
-				search: false
-			}, {
-				label: 'Info',
-				name: 'id',
-				sortable: false,
-				formatter: function (cellvalue, model, row) {
-					var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
-					ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
-					ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
-					ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
-					return ret;
-				},
-				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="white-space: normal;"';
-				},
-				search: false
-			}, {
-				label: 'Bio',
-				name: 'biography',
-				sortable: false,
-				formatter: function (cellvalue, model, row) {
-					return cellvalue ? cellvalue : "";
-				},
-				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="white-space: normal;"';
-				},
-				search: false
-			}, {
-				label: 'Follows <br/>you',
-				name: 'follows_viewer',
-				width: '80',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
-				},
-				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="background-color: #fbf9ee;" title="Follows you"';
-				},
-				search: true
-			}, {
-				label: 'Followed <br>by you',
-				name: 'followed_by_viewer',
-				width: '80',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
-				},
-				cellattr: function (rowId, tv, rawObject, cm, rdata) {
-					return 'style="background-color: #fbf9ee;" title="Followed by you"';
-				},
-				search: true
-			}, {
-				label: 'Follows <br/>user',
-				name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
-				width: '80',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
-				},
-				cellattr: function () {
-					return `title="Follows ${obj.userName}"`;
-				},
-				search: true
-			}, {
-				label: 'Followed <br/>by user',
-				name: 'user_follows', //relationship: follows - from the list of the followed person by user
-				width: '80',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
-				},
-				cellattr: function () {
-					return `title="Followed by ${obj.userName}"`;
-				},
-				search: true
-			}, {
-				label: 'Private',
-				name: 'is_private',
-				width: '80',
-				formatter: 'checkbox',
-				align: 'center',
-				stype: 'select',
-				searchoptions: {
-					sopt: ["eq"],
-					value: ":Any;true:Yes;false:No"
-				},
-				cellattr: function () {
-					return 'title="Is private"';
-				},
-				search: true
-			}, {
-				label: 'Followers',
-				name: 'followed_by_count',
-				width: '70',
-				align: 'center',
-				sorttype: 'number',
-				search: true,
-				searchoptions: {
-					sopt: ["ge", "le", "eq"]
-				},
-				cellattr: function () {
-					return 'title="Followers"';
-				}
-			}, {
-				label: 'Following',
-				name: 'follows_count',
-				width: '70',
-				align: 'center',
-				sorttype: 'number',
-				search: true,
-				searchoptions: {
-					sopt: ["ge", "le", "eq"]
-				},
-				cellattr: function () {
-					return 'title="Following"';
-				}
-			}, {
-				label: 'Posts',
-				name: 'media_count',
-				width: '70',
-				align: 'center',
-				sorttype: 'number',
-				search: true,
-				searchoptions: {
-					sopt: ["ge", "le", "eq"]
-				},
-				cellattr: function () {
-					return 'title="Posts"';
-				}
-			}
-			],
+			colModel: colModel,
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
 			caption: "Users of " + obj.userName,
@@ -379,10 +237,233 @@ $(function () {
 				closeOnEscape: true,
 				searchOnEnter: true,
 				showQuery: true
-			}, 
+			},
 			{}).jqGrid('setGridWidth', $('#jqGrid').width() - 20); //TODO: why autowidth doesn't work? what is taken into account
 
 	}
+
+	var fullColModel = [{
+		label: 'User',
+		name: 'profile_pic_url_hd',
+		width: '320',
+		align: 'center',
+		sortable: false,
+		formatter: function (cellvalue, model, row) {
+			return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
+		},
+		search: false
+	}, {
+		label: 'Info',
+		name: 'id',
+		sortable: false,
+		formatter: function (cellvalue, model, row) {
+			var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
+			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
+			ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
+			ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
+			return ret;
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="white-space: normal;"';
+		},
+		search: false
+	}, {
+		label: 'Bio',
+		name: 'biography',
+		sortable: false,
+		formatter: function (cellvalue, model, row) {
+			return cellvalue ? cellvalue : "";
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="white-space: normal;"';
+		},
+		search: false
+	}, {
+		label: 'Follows <br/>you',
+		name: 'follows_viewer',
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="background-color: #fbf9ee;" title="Follows you"';
+		},
+		search: true
+	}, {
+		label: 'Followed <br>by you',
+		name: 'followed_by_viewer',
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="background-color: #fbf9ee;" title="Followed by you"';
+		},
+		search: true
+	}, {
+		label: 'Follows <br/>user',
+		name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function () {
+			return `title="Follows ${userName}"`;
+		},
+		search: true
+	}, {
+		label: 'Followed <br/>by user',
+		name: 'user_follows', //relationship: follows - from the list of the followed person by user
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function () {
+			return `title="Followed by ${userName}"`;
+		},
+		search: true
+	}, {
+		label: 'Private',
+		name: 'is_private',
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function () {
+			return 'title="Is private"';
+		},
+		search: true
+	}, {
+		label: 'Followers',
+		name: 'followed_by_count',
+		width: '70',
+		align: 'center',
+		sorttype: 'number',
+		search: true,
+		searchoptions: {
+			sopt: ["ge", "le", "eq"]
+		},
+		cellattr: function () {
+			return 'title="Followers"';
+		}
+	}, {
+		label: 'Following',
+		name: 'follows_count',
+		width: '70',
+		align: 'center',
+		sorttype: 'number',
+		search: true,
+		searchoptions: {
+			sopt: ["ge", "le", "eq"]
+		},
+		cellattr: function () {
+			return 'title="Following"';
+		}
+	}, {
+		label: 'Posts',
+		name: 'media_count',
+		width: '70',
+		align: 'center',
+		sorttype: 'number',
+		search: true,
+		searchoptions: {
+			sopt: ["ge", "le", "eq"]
+		},
+		cellattr: function () {
+			return 'title="Posts"';
+		}
+	}];
+
+
+	var simpleColModel = [{
+		label: 'User',
+		name: 'profile_pic_url',
+		//width: '320',
+		align: 'center',
+		sortable: false,
+		formatter: function (cellvalue, model, row) {
+			return `<a href='https://www.instagram.com/${row.username}' target='_blank'><img src='${cellvalue}' alt='' /></a>`;
+		},
+		search: false
+	}, {
+		label: 'Info',
+		name: 'id',
+		sortable: false,
+		formatter: function (cellvalue, model, row) {
+			var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
+			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
+			return ret;
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="white-space: normal;"';
+		},
+		search: false
+	}, {
+		label: 'Followed <br>by you',
+		name: 'followed_by_viewer',
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+			return 'style="background-color: #fbf9ee;" title="Followed by you"';
+		},
+		search: true
+	}, {
+		label: 'Follows <br/>user',
+		name: 'user_followed_by', //relationship: followed_by - the list of the user's followers
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function () {
+			return `title="Follows ${userName}"`;
+		},
+		search: true
+	}, {
+		label: 'Followed <br/>by user',
+		name: 'user_follows', //relationship: follows - from the list of the followed person by user
+		width: '80',
+		formatter: 'checkbox',
+		align: 'center',
+		stype: 'select',
+		searchoptions: {
+			sopt: ["eq"],
+			value: ":Any;true:Yes;false:No"
+		},
+		cellattr: function () {
+			return `title="Followed by ${userName}"`;
+		},
+		search: true
+	}];
 
 
 });
