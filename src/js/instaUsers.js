@@ -1,5 +1,5 @@
-/* jshint esnext: true */
-/* globals chrome */
+/* globals chrome, $, _gaq, Promise */
+/* globals instaDefOptions, instaUserInfo, exportUtils, FetchUsers */
 
 $(function () {
 
@@ -16,10 +16,10 @@ $(function () {
 		detailedinfo: $("#detailedinfo")
 	};
 
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	chrome.runtime.onMessage.addListener(function (request) {
 		if (request.action == "get_insta_users") {
 
-			var promise = instaDefOptions.you === request.userName ? userInfo.getUserProfile(request.viewerUserName) : request.userName;
+			var promise = instaDefOptions.you === request.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.userName;
 			Promise.all([promise]).then(values => {
 				if (typeof values[0] === "object") {
 					request.userName = request.viewerUserName;
@@ -71,8 +71,8 @@ $(function () {
 	}
 
 	function getFullInfo(obj, arr, resolve, reject) {
-		userInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
-			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);;
+		instaUserInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
+			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);
 			obj.receivedResponses++;
 			htmlElements.detailedinfo.asProgress("go", obj.processedUsers++);
 			updateStatusDiv(`Getting detailed info for users: ${obj.processedUsers} of ${arr.length}`);
@@ -96,8 +96,7 @@ $(function () {
 	}
 
 	function promiseFetchInstaUsers(obj) {
-		return new Promise(function (resolve, reject) {
-
+		return new Promise(function (resolve) {
 
 			var f = new FetchUsers(Object.assign({}, {
 				obj, myData, htmlElements, updateStatusDiv, resolve
@@ -280,7 +279,7 @@ $(function () {
 			ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
 			return ret;
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="white-space: normal;"';
 		},
 		search: false
@@ -288,10 +287,10 @@ $(function () {
 		label: 'Bio',
 		name: 'biography',
 		sortable: false,
-		formatter: function (cellvalue, model, row) {
+		formatter: function (cellvalue) {
 			return cellvalue ? cellvalue : "";
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="white-space: normal;"';
 		},
 		search: false
@@ -306,7 +305,7 @@ $(function () {
 			sopt: ["eq"],
 			value: ":Any;true:Yes;false:No"
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Follows you"';
 		},
 		search: true
@@ -321,7 +320,7 @@ $(function () {
 			sopt: ["eq"],
 			value: ":Any;true:Yes;false:No"
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Followed by you"';
 		},
 		search: true
@@ -431,7 +430,7 @@ $(function () {
 			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
 			return ret;
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="white-space: normal;"';
 		},
 		search: false
@@ -446,7 +445,7 @@ $(function () {
 			sopt: ["eq"],
 			value: ":Any;true:Yes;false:No"
 		},
-		cellattr: function (rowId, tv, rawObject, cm, rdata) {
+		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Followed by you"';
 		},
 		search: true

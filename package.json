@@ -1,0 +1,23 @@
+{
+  "name": "instagramhelper",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint src/js --color"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OllegK/InstagramHelper.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OllegK/InstagramHelper/issues"
+  },
+  "homepage": "https://github.com/OllegK/InstagramHelper#readme",
+  "dependencies": {
+    "eslint": "^4.1.0"
+  }
+}

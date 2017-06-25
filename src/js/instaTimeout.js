@@ -1,6 +1,7 @@
-/* globals chrome */
+/* globals Promise */
+/* exported instaTimeout */
 
-var timeout = function () {
+var instaTimeout = function () {
 	"use strict";
 
 	var setTimeout = function(ms) {

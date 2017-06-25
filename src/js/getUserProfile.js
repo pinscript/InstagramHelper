@@ -1,8 +1,8 @@
-/* jshint esnext: true */
+/* globals Promise, $, instaDefOptions, instaMessages */
 
-var userInfo = function () {};
+var instaUserInfo = function () {};
 
-userInfo.getUserProfile = function (username) {
+instaUserInfo.getUserProfile = function (username) {
 	"use strict";
 
 	return new Promise(function (resolve, reject) {
@@ -56,34 +56,34 @@ userInfo.getUserProfile = function (username) {
 				resolve(obj);
 			},
 			error: function (jqXHR) {
-				console.log(`Error making ajax request to get ${username} profile, status - ${jqXHR.status}`);
-				console.log(arguments);
+				console.log(`Error making ajax request to get ${username} profile, status - ${jqXHR.status}`); //eslint-disable-line no-console
+				console.log(arguments); //eslint-disable-line no-console
 				if (jqXHR.status === 0) {
 					setTimeout(function () {
 						getUserProfile(username, resolve, reject);
 					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
+					alert(instaMessages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					//TODO: improve error handling
-					console.log("HTTP429 error getting the user profile.", new Date());
+					console.log("HTTP429 error getting the user profile.", new Date()); //eslint-disable-line no-console
 					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date());
+						console.log("Continue execution after HTTP429 error.", new Date()); //eslint-disable-line no-console
 						getUserProfile(username, resolve, reject);
 					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					alert(instaMessages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
 
 				} else if (jqXHR.status === 502) {
 					//TODO: improve error handling
-					console.log("HTTP502 error getting the user profile.", new Date());
+					console.log("HTTP502 error getting the user profile.", new Date()); //eslint-disable-line no-console
 					setTimeout(function () {
-						console.log("Continue execution after HTTP502 error.", new Date());
+						console.log("Continue execution after HTTP502 error.", new Date()); //eslint-disable-line no-console
 						getUserProfile(username, resolve, reject);
 					}, 30000);
 
 					alert("HTTP502 error, continue after 30 seconds");
 				
 				} else {
-					alert(messages.getMessage("ERRGETTINGUSER", username, jqXHR.status));
+					alert(instaMessages.getMessage("ERRGETTINGUSER", username, jqXHR.status));
 					reject();
 				}
 			},

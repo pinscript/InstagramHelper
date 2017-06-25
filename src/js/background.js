@@ -1,9 +1,8 @@
-/* jshint esnext: true */
-/* globals chrome */
+/* globals chrome, PromiseChrome */
 
 (function () {
 	"use strict";
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	chrome.runtime.onMessage.addListener(function (request) {
 
 		let promiseChrome = new PromiseChrome();
 		let url;
@@ -30,7 +29,7 @@
 			promiseChrome.promiseCreateTab({
 				'url': url,
 				'selected': true
-			}).then(function (tab) {
+			}).then(function () {
 				chrome.tabs.onUpdated.addListener(sendModifyResultPage);
 			});
 		}

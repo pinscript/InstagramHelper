@@ -1,8 +1,8 @@
-/* jshint esnext: true */
-/* globals chrome, document, instaDefOptions, PromiseChrome */
+/* globals chrome, document, instaDefOptions, PromiseChrome, instaMessages */
+
 (function () {
 	"use strict";
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	chrome.runtime.onMessage.addListener(function (request) {
 
 		var getSharedData = function () {
 			var id = "InstaHelperInjection";
@@ -35,7 +35,7 @@
 				request.csrfToken = sharedData.config.csrf_token;
 
 				if (sharedData.config.viewer === null) {
-					alert(messages.getMessage("NOTLOGGEDIN"));
+					alert(instaMessages.getMessage("NOTLOGGEDIN"));
 					return;
 				}
 				request.viewerUserName = sharedData.config.viewer.username;
@@ -43,20 +43,20 @@
 				if ("get_common_users" === request.action) {
 					if ((request.viewerUserName === request.user_1.userName) || (request.viewerUserName === request.user_2.userName)) {
 						if ((request.user_1.userName === instaDefOptions.you) || (request.user_2.userName === instaDefOptions.you)) {
-							alert(messages.getMessage("THESAMEUSERS"));
+							alert(instaMessages.getMessage("THESAMEUSERS"));
 							return;
 						}
 					}
 					if (request.user_1.user_is_private && !request.user_1.user_followed_by_viewer && request.viewerUserName != request.user_1.userName) {
-						alert(messages.getMessage("NOTALLOWEDUSER", request.user_1.userName));
+						alert(instaMessages.getMessage("NOTALLOWEDUSER", request.user_1.userName));
 						return;
 					}
 					if (request.user_2.user_is_private && !request.user_2.user_followed_by_viewer && request.viewerUserName != request.user_2.userName) {
-						alert(messages.getMessage("NOTALLOWEDUSER", request.user_2.userName));
+						alert(instaMessages.getMessage("NOTALLOWEDUSER", request.user_2.userName));
 						return;
 					}
 				} else if (request.user_is_private && !request.user_followed_by_viewer && request.viewerUserName != request.userName) {
-					alert(messages.getMessage("NOTALLOWEDUSER", request.userName));
+					alert(instaMessages.getMessage("NOTALLOWEDUSER", request.userName));
 					return;
 				}
 				chrome.runtime.sendMessage(request);

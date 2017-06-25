@@ -1,3 +1,5 @@
+/* exported instaDefOptions */
+
 var instaDefOptions = function() {
 	return {
 		you : "<<YOU>>",

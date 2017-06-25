@@ -1,5 +1,5 @@
-/* jshint esnext: true */
-/* globals chrome */
+/* globals chrome, $, Promise, _gaq */
+/* globals instaDefOptions, instaUserInfo, instaMessages, instaTimeout, instaCountdown, exportUtils */
 
 $(function () {
 
@@ -19,14 +19,14 @@ $(function () {
 		intersection: $("#intersection")
 	};
 
-	chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+	chrome.runtime.onMessage.addListener(function (request) {
 		if (request.action == "get_common_users") {
 
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
 			request.timerInterval = timerInterval;
-			var promise1 = instaDefOptions.you === request.user_1.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
-			var promise2 = instaDefOptions.you === request.user_2.userName ? userInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
+			var promise1 = instaDefOptions.you === request.user_1.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
+			var promise2 = instaDefOptions.you === request.user_2.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
 			Promise.all([promise1, promise2]).then(values => {
 				if (typeof values[0] === "object") {
 					request.user_1.userName = request.viewerUserName;
@@ -113,13 +113,13 @@ $(function () {
 	}
 
 	function promiseGetFullInfo(arr) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			getFullInfo(arr, 0, resolve);
 		});
 	}
 
 	function getFullInfo(arr, index, resolve) {
-		userInfo.getUserProfile(arr[index].username).then(function (obj) {
+		instaUserInfo.getUserProfile(arr[index].username).then(function (obj) {
 			obj.user_1_followed_by = arr[index].user_1_followed_by;
 			obj.user_1_follows = arr[index].user_1_follows;
 			obj.user_2_followed_by = arr[index].user_2_followed_by;
@@ -138,7 +138,7 @@ $(function () {
 	}
 
 	function promiseFetchInstaUsers(obj) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			fetchInstaUsers(obj, resolve);
 		});
 	}
@@ -221,7 +221,7 @@ $(function () {
 						ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
 						return ret;
 					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					cellattr: function () {
 						return 'style="white-space: normal;"';
 					},
 					search: false
@@ -229,11 +229,11 @@ $(function () {
 					label: 'Bio',
 					name: 'biography',
 					sortable: false,
-					formatter: function (cellvalue, model, row) {
+					formatter: function (cellvalue) {
 						//return cellvalue ? `<p>${cellvalue}</p>` : "";
 						return cellvalue ? cellvalue : "";
 					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					cellattr: function () {
 						return 'style="white-space: normal;"';
 					},
 					search: false
@@ -248,7 +248,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					cellattr: function () {
 						return 'style="background-color: #fbf9ee;"  title="Follows you"';
 					},
 					search: true
@@ -263,7 +263,7 @@ $(function () {
 						sopt: ["eq"],
 						value: ":Any;true:Yes;false:No"
 					},
-					cellattr: function (rowId, tv, rawObject, cm, rdata) {
+					cellattr: function () {
 						return 'style="background-color: #fbf9ee;" title="Followed by you"';
 					},
 					search: true
@@ -541,7 +541,7 @@ $(function () {
 				"X-CSRFToken": obj.csrfToken,
 				"eferer": "https://www.instagram.com/" + obj.userName + "/"
 			},
-			success: function (res, textStatus, xhr) {
+			success: function (res) {
 				obj.receivedResponses += 1;
 				var data = res.data.user[Object.keys(res.data.user)[0]];				
 				updateStatusDiv(`status_${obj.id}`, `${obj.userName}: received users - ${data.edges.length} (${obj.relType}/${obj.receivedResponses})`);
@@ -595,30 +595,30 @@ $(function () {
 					setTimeout(function () {
 						fetchInstaUsers(obj, resolve);
 					}, instaDefOptions.retryInterval);
-					alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
+					alert(instaMessages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					console.log("HTTP429 error.", new Date());
-					updateStatusDiv(`status_${obj.id}`, obj.userName + ":" + messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");					
-					timeout.setTimeout(3000)
+					updateStatusDiv(`status_${obj.id}`, obj.userName + ":" + instaMessages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");					
+					instaTimeout.setTimeout(3000)
 						.then(function(){
-							return countdown.doCountdown(`status_${obj.id}`, obj.userName + ": ", (new Date()).getTime() + +instaDefOptions.retryInterval)
+							return instaCountdown.doCountdown(`status_${obj.id}`, obj.userName + ": ", (new Date()).getTime() + +instaDefOptions.retryInterval)
 						})
 						.then(function(){
 							console.log("Continue execution after HTTP429 error.", new Date());
 							fetchInstaUsers(obj, resolve);
 						});
 				} else if (jqXHR.status == 404) {
-					alert(messages.getMessage("HTTP404"));
+					alert(instaMessages.getMessage("HTTP404"));
 				} else if (jqXHR.status == 500) {
-					alert(messages.getMessage("HTTP500"));
+					alert(instaMessages.getMessage("HTTP500"));
 				} else if (exception === 'parsererror') {
-					alert(messages.getMessage("JSONPARSEERROR"));
+					alert(instaMessages.getMessage("JSONPARSEERROR"));
 				} else if (exception === 'timeout') {
-					alert(messages.getMessage("TIMEOUT"));
+					alert(instaMessages.getMessage("TIMEOUT"));
 				} else if (exception === 'abort') {
-					alert(messages.getMessage("AJAXABORT"));
+					alert(instaMessages.getMessage("AJAXABORT"));
 				} else {
-					alert(messages.getMessage("UNCAUGHT", jqXHR.responseText));
+					alert(instaMessages.getMessage("UNCAUGHT", jqXHR.responseText));
 				}
 			}
 		});

@@ -1,4 +1,5 @@
-/* globals chrome, document */
+/* globals chrome, document, instaDefOptions, _gaq */
+
 (function () {
 	"use strict";
 

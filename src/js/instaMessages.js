@@ -1,4 +1,6 @@
-var messages = function () {
+/* exported instaMessages */
+
+var instaMessages = function () {
 	"use strict";
 
 	var m = {

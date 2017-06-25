@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 7,
+    "sourceType": "script"
+  },
+  "env": {
+    "browser": true,
+    "node": false,
+    "mocha": false
+  },
+  "rules": {
+    "no-console": 1,
+    "no-useless-escape": 1
+  }
+}

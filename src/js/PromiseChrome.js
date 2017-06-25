@@ -1,22 +1,24 @@
-/* globals chrome */
+/* globals chrome, Promise */
 
+/* exported PromiseChrome */
+	
 var PromiseChrome = function () {
 	"use strict";
 
 	function promiseQuery(options) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			chrome.tabs.query(options, resolve);
 		});
 	}
 
 	function promiseCreateTab(options) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			chrome.tabs.create(options, resolve);
 		});
 	}
 
 	function promiseGetStorage(options) {
-		return new Promise(function (resolve, reject) {
+		return new Promise(function (resolve) {
 			chrome.storage.sync.get(options, resolve);
 		});
 	}

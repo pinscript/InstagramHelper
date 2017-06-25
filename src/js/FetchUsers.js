@@ -1,3 +1,6 @@
+/* globals $, instaDefOptions, instaMessages, instaTimeout, instaCountdown */
+/* exported FetchUsers */
+
 var FetchUsers = function (settings) {
 
     "use strict";
@@ -29,7 +32,7 @@ var FetchUsers = function (settings) {
         });
     }
 
-    var successFetch = function (res, textStatus, xhr) {
+    var successFetch = function (res) {
        // console.log("successFetch", this);
         obj.receivedResponses += 1;
         var data = res.data.user[Object.keys(res.data.user)[0]];
@@ -76,31 +79,31 @@ var FetchUsers = function (settings) {
         console.log(arguments);
         if (jqXHR.status === 0) {
             setTimeout(() => this.fetchInstaUsers(), instaDefOptions.retryInterval);
-            alert(messages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
+            alert(instaMessages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
         } else if (jqXHR.status === 429) {
             console.log("HTTP429 error.", new Date());
-            this.retryError(jqXHR.status);
+            this.retryError();
         } else if (jqXHR.status == 404) {
-            alert(messages.getMessage("HTTP404"));
+            alert(instaMessages.getMessage("HTTP404"));
         } else if (jqXHR.status == 500) {
-            alert(messages.getMessage("HTTP500"));
+            alert(instaMessages.getMessage("HTTP500"));
         } else if (exception === 'parsererror') {
-            alert(messages.getMessage("JSONPARSEERROR"));
+            alert(instaMessages.getMessage("JSONPARSEERROR"));
         } else if (exception === 'timeout') {
-            alert(messages.getMessage("TIMEOUT"));
+            alert(instaMessages.getMessage("TIMEOUT"));
         } else if (exception === 'abort') {
-            alert(messages.getMessage("AJAXABORT"));
+            alert(instaMessages.getMessage("AJAXABORT"));
         } else {
-            alert(messages.getMessage("UNCAUGHT", jqXHR.responseText));
+            alert(instaMessages.getMessage("UNCAUGHT", jqXHR.responseText));
         }
     }
 
-    function retryError(code) {
+    this.retryError = function() {
         console.log("HTTP error", new Date());
-        updateStatusDiv(messages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
-        timeout.setTimeout(3000)
+        updateStatusDiv(instaMessages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000), "red");
+        instaTimeout.setTimeout(3000)
             .then(function () {
-                return countdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
+                return instaCountdown.doCountdown("status", "", (new Date()).getTime() + +instaDefOptions.retryInterval)
             })
             .then(function () {
                 console.log("Continue execution after HTTP error", new Date());

@@ -1,5 +1,5 @@
-/* jshint esnext: true */
-/* globals chrome, PromiseChrome, userInfo, _gaq */
+/* globals chrome, _gaq, $, Promise */
+/* globals PromiseChrome, instaDefOptions, instaMessages, instaUserInfo */
 
 $(function () {
 	"use strict";
@@ -10,14 +10,14 @@ $(function () {
 
 		var userName = $("#username").val();
 		if (!userName) {
-			alert(messages.getMessage("USERNAMEISREQ"));
+			alert(instaMessages.getMessage("USERNAMEISREQ"));
 			return;
 		}
 
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('instaUsers.html')
 		}).then(function () {
-			var promiseUserInfo = instaDefOptions.you === userName ? userName : userInfo.getUserProfile(userName);
+			var promiseUserInfo = instaDefOptions.you === userName ? userName : instaUserInfo.getUserProfile(userName);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
@@ -36,32 +36,32 @@ $(function () {
 					relType: $('input[name=relType]:checked').attr("id")
 				});
 			});
-		}, () => alert(messages.getMessage("TABISOPEN")));
+		}, () => alert(instaMessages.getMessage("TABISOPEN")));
 	});
 
 	$('#findCommonUsers').click(function () {
 		var userName_1 = $("#username_1").val();
 		if (!userName_1) {
-			alert(messages.getMessage("USERNAMEISREQPAR", "1st"));
+			alert(instaMessages.getMessage("USERNAMEISREQPAR", "1st"));
 			return;
 		}
 
 		var userName_2 = $("#username_2").val();
 		if (!userName_2) {
-			alert(messages.getMessage("USERNAMEISREQPAR", "2nd"));
+			alert(instaMessages.getMessage("USERNAMEISREQPAR", "2nd"));
 			return;
 		}
 
 		if (userName_1 === userName_2) {
-			alert(messages.getMessage("THESAMEUSERS"));
+			alert(instaMessages.getMessage("THESAMEUSERS"));
 			return
 		}
 
 		promiseChrome.promiseCheckOpenTab({
 			url: chrome.extension.getURL('commonUsers.html')
 		}).then(function () {
-			var promiseUserInfo1 = instaDefOptions.you === userName_1 ? userName_1 : userInfo.getUserProfile(userName_1);
-			var promiseUserInfo2 = instaDefOptions.you === userName_2 ? userName_2 : userInfo.getUserProfile(userName_2);
+			var promiseUserInfo1 = instaDefOptions.you === userName_1 ? userName_1 : instaUserInfo.getUserProfile(userName_1);
+			var promiseUserInfo2 = instaDefOptions.you === userName_2 ? userName_2 : instaUserInfo.getUserProfile(userName_2);
 			var promiseQueryActiveTab = promiseChrome.promiseQuery({
 					active: true,
 					currentWindow: true
@@ -90,7 +90,7 @@ $(function () {
 					relType: "All"
 				});
 			});
-		}, () => alert(messages.getMessage("TABISOPEN")));
+		}, () => alert(instaMessages.getMessage("TABISOPEN")));
 	});
 });
 
@@ -104,10 +104,10 @@ window.onload = function () {
 		currentWindow: true
 	}, function (tabs) {
 
-		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/);
+		var arr = tabs[0].url.match(/(?:taken-by=|instagram.com\/)(.[^\/]+)/); //eslint-disable-line no-useless-escape
 
 		if (arr) {
-			userInfo.getUserProfile(arr[1]).then(function (obj) {
+			instaUserInfo.getUserProfile(arr[1]).then(function (obj) {
 
 				var $html = "";
 				delete obj.profile_pic_url_hd;

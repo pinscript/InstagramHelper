@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Insta Common Users</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.custom.css" />
-    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
-    <link rel="stylesheet" href="lib/asProgress/css/asProgress.css" />
-  </head>
-  <body>
+
+<head>
+  <title>Insta Common Users</title>
+  <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/jquery-ui.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="lib/jqGrid/css/ui.jqgrid.custom.css" />
+  <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
+  <link rel="stylesheet" href="lib/asProgress/css/asProgress.css" />
+</head>
+
+<body>
   <div id="status" style="padding: 5px; font-weight: bold;"></div>
   <div id="status_1" style="padding: 5px;"></div>
   <div id="status_2" style="padding: 5px;"></div>
   <div id="tempUiElements" style="padding: 5px; font-weight: bold;">
-    <div id="timer">0h:00m:00s</div>
+    <div id="timer" style="padding-bottom: 5px;">0h:00m:00s</div>
     <div id="followed_by_1_title">Followed By</div>
     <div id="followed_by_1" role="progressbar">
       <div class="progress__bar">
@@ -46,21 +48,23 @@
     </div>
   </div>
   <div id="exportDiv" style="display:none; padding: 5px;">
-  <button id="export_XLSX">Export to Excel</button>
-  </div>  
+    <button id="export_XLSX">Export to Excel</button>
+  </div>
   <table id="jqGrid"></table>
   <div id="jqGridPager"></div>
-  <script src="js/ga.js"></script> 
-  <script src="lib/jquery-3.1.1.min.js"></script> 
-  <script src="lib/asProgress/jquery-asProgress.js"></script> 
-  <script src="js/getUserProfile.js"></script> 
-  <script src="js/instaDefOptions.js"></script> 
-  <script src="js/messages.js"></script>   
+  <script src="js/ga.js"></script>
+  <script src="lib/jquery-3.1.1.min.js"></script>
+  <script src="lib/asProgress/jquery-asProgress.js"></script>
+  <script src="js/getUserProfile.js"></script>
+  <script src="js/instaDefOptions.js"></script>
+  <script src="js/instaMessages.js"></script>
   <script src="lib/jszip.min.js"></script>
-  <script src="js/exportUtils.js"></script> 
-  <script src="js/countdown.js"></script> 
-  <script src="js/timeout.js"></script>  
-  <script src="js/commonUsers.js"></script> 
-  <script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script> 
-  <script type="text/ecmascript" src="lib/jqGrid/grid.locale-en.js"></script></body>
+  <script src="js/exportUtils.js"></script>
+  <script src="js/instaCountdown.js"></script>
+  <script src="js/instaTimeout.js"></script>
+  <script src="js/commonUsers.js"></script>
+  <script type="text/ecmascript" src="lib/jqGrid/jquery.jqGrid.min.js"></script>
+  <script type="text/ecmascript" src="lib/jqGrid/grid.locale-en.js"></script>
+</body>
+
 </html>
