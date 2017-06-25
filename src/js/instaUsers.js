@@ -7,6 +7,7 @@ $(function () {
 
 	var myData = [];
 	var userName = "";
+	var cancelProcessing = false;
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
@@ -58,16 +59,18 @@ $(function () {
 		promiseFetchInstaUsers(fetchSettings).then(function (obj) {
 			
 			showJQGrid(obj, simpleColModel);
-			showExportDiv(obj);		
+			showDetailsDiv(obj);		
 
 			prepareHtmlElementsUserDetails(fetchSettings, myData);
 			promiseGetFullInfo(fetchSettings, myData).then(function () {
-				generationCompleted(fetchSettings);
+				generationCompleted(fetchSettings, true);
+			}).catch(function(){
+				generationCompleted(fetchSettings, false);
 			});
 		});
 	}
 
-	function getFullInfo(obj, arr, resolve) {
+	function getFullInfo(obj, arr, resolve, reject) {
 		userInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
 			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);;
 			obj.receivedResponses++;
@@ -77,8 +80,12 @@ $(function () {
 				resolve();
 				return;
 			}
+			if (cancelProcessing) {
+				reject();
+				return;
+			}
 			setTimeout(function () {
-				getFullInfo(obj, arr, resolve);
+				getFullInfo(obj, arr, resolve, reject);
 			}, 0);
 		});
 	}
@@ -114,9 +121,11 @@ $(function () {
 		}, 1000);
 	}
 
-	function showExportDiv(obj) {
+	function showDetailsDiv(obj) {
 
+		$("#details").show();
 		$("#exportDiv").show();
+		
 		$("#export_XLSX").on("click", function () {
 			$("#jqGrid").jqGrid("exportToExcel", {
 				includeLabels: true,
@@ -126,6 +135,9 @@ $(function () {
 				replaceStr: exportUtils.replaceStr
 			});
 		});
+
+		$("#cancelDetInfo").on("click", () => cancelProcessing = confirm("Do you want to cancel?")); 
+	
 	}
 
 	function prepareHtmlElements(obj) {
@@ -160,7 +172,7 @@ $(function () {
 		}
 	}
 
-	function generationCompleted(obj) {
+	function generationCompleted(obj, resolved) {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
 		htmlElements.detailedinfo.asProgress("finish").asProgress("stop");
@@ -173,22 +185,26 @@ $(function () {
 			diffFollows = `(actually returned ${obj.follows_processed})`;
 		}
 
-		updateStatusDiv(`Completed, spent time - ${timer.textContent}, 
+		updateStatusDiv(`${resolved ? "Completed" : "Detailed info collection was cancelled"}, 
+			spent time - ${timer.textContent}, 
 			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, 
 			followed by - ${obj.followed_by_count}${diffFollowed}),
 			sent HTTP requests - ${obj.receivedResponses}`);
 		
-		$(".ui-jqgrid").replaceWith("<table id='jqGrid'></table>");
-		showJQGrid(obj, fullColModel);
+		if (resolved) {
+			$(".ui-jqgrid").replaceWith("<table id='jqGrid'></table>");
+			showJQGrid(obj, fullColModel);
+		}
 
 		setTimeout(function () {
 			document.getElementById('tempUiElements').remove();
+			document.getElementById('details').remove();
 		}, 3000);
 	}
 
 	function promiseGetFullInfo(obj, arr) {
 		return new Promise(function (resolve, reject) {
-			getFullInfo(obj, arr, resolve);
+			getFullInfo(obj, arr, resolve, reject);
 		});
 	}
 
@@ -205,6 +221,7 @@ $(function () {
 				return `Users: ${obj.processedUsers}/${arr.length}/${percentage}%`;
 			}
 		});
+		//assign on click event if confirm 
 	}
 
 	function showJQGrid(obj, colModel) {
