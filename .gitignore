@@ -76,3 +76,5 @@ typings/
 
 # Custom changes
 *.zip
+dist/
+

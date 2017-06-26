@@ -16,11 +16,15 @@ var FetchUsers = function (settings) {
     var urlTemplate;
 
     var fetchInstaUsers = function () { //do I need obj?
-       // console.log("fetchInstaUsers", this);
-        urlTemplate = `https://www.instagram.com/graphql/query/?query_id=${instaDefOptions.queryId[obj.relType]}&id=${obj.userId}&first=${obj.pageSize}`;
-        obj.url = obj.url || urlTemplate;
+
         $.ajax({
-            url: obj.url,
+            url: "https://www.instagram.com/graphql/query",
+            data: {
+                query_id: instaDefOptions.queryId[obj.relType],
+                id: obj.userId,
+                first: obj.pageSize,
+                after: obj.end_cursor ? obj.end_cursor : null
+            },
             context: this,
             method: 'GET',
             headers: {
@@ -58,13 +62,13 @@ var FetchUsers = function (settings) {
         updateProgressBar(obj, data.edges.length);
 
         if (data.page_info.has_next_page) { //need to continue
-            obj.url = `${urlTemplate}&after=${data.page_info.end_cursor}`;
+            obj.end_cursor = data.page_info.end_cursor;
             setTimeout(() => this.fetchInstaUsers(), calculateTimeOut(obj));
             return;
         }
         htmlElements[obj.relType].asProgress("finish").asProgress("stop"); //stopProgressBar(obj);
         if (obj.callBoth) {
-            obj.url = null;
+            obj.end_cursor = null;
             obj.relType = obj.relType === "follows" ? "followed_by" : "follows";
             obj.callBoth = false;
             obj.checkDuplicates = true;
