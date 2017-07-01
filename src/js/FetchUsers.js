@@ -56,8 +56,22 @@ var FetchUsers = function (settings) {
     resolve(obj);
   };
 
+  var retryError = function () {
+    console.log('HTTP error', new Date());
+    updateStatusDiv(instaMessages.getMessage('HTTP429', +instaDefOptions.retryInterval / 60000), 'red');
+    instaTimeout.setTimeout(3000)
+      .then(function () {
+        return instaCountdown.doCountdown('status', '', (new Date()).getTime() + +instaDefOptions.retryInterval);
+      })
+      .then( () => {
+        console.log('Continue execution after HTTP error', new Date());
+        this.fetchInstaUsers();
+      });
+  };
+
   var errorFetch = function (jqXHR, exception) {
     console.log('error ajax');
+    //todo: handle 502?
     console.log(arguments);
     if (jqXHR.status === 0) {
       setTimeout(() => this.fetchInstaUsers(), instaDefOptions.retryInterval);
@@ -102,19 +116,6 @@ var FetchUsers = function (settings) {
     });
   };
 
-  this.retryError = function () {
-    console.log('HTTP error', new Date());
-    updateStatusDiv(instaMessages.getMessage('HTTP429', +instaDefOptions.retryInterval / 60000), 'red');
-    instaTimeout.setTimeout(3000)
-      .then(function () {
-        return instaCountdown.doCountdown('status', '', (new Date()).getTime() + +instaDefOptions.retryInterval);
-      })
-      .then(function () {
-        console.log('Continue execution after HTTP error', new Date());
-        this.fetchInstaUsers();
-      });
-  };
-
   function calculateTimeOut(obj) {
     if (instaDefOptions.noDelayForInit && (obj.receivedResponses < instaDefOptions.requestsToSkipDelay)) {
       return 0;
@@ -129,7 +130,8 @@ var FetchUsers = function (settings) {
   }
 
   return {
-    fetchInstaUsers: fetchInstaUsers
+    fetchInstaUsers: fetchInstaUsers,
+    retryError: retryError
   };
 
 };
