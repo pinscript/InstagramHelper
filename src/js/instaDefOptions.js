@@ -1,13 +1,14 @@
 /* exported instaDefOptions */
+/* jshint -W106 */
 
-var instaDefOptions = function() {
+var instaDefOptions = (function() {
 	return {
-		you : "<<YOU>>",
+		you : '<<YOU>>',
 		defDelay : 1000,
 		defPageSize : 20,
 		gridPageSize : 500,
 		noDelayForInit : true,
-		requestsToSkipDelay : 150, 
+		requestsToSkipDelay : 150,
 		retryInterval : 180000,
 		regCheckBox : /^\s*<\s*input.+type\s*=\s*"checkbox".+value\s*=\s*(?:"|')\s*(true|false)/i,
 		regProfile : /^\s*<\s*a\s.*href\s*=\s*(?:"|')([^"']+)/i,
@@ -15,8 +16,8 @@ var instaDefOptions = function() {
 		cleanInfo : /<\/?.[^>]*>/g,
 		newLine : /<br\s*\/>(?=.)/gi, //should be followed by at least one symbol
 		queryId : {
-			followed_by : "17851374694183129",
-			follows : "17874545323001329"
+			followed_by : '17851374694183129',
+			follows : '17874545323001329'
 		}
-	}
-}();
+	};
+}());

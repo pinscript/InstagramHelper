@@ -1,8 +1,10 @@
 /* globals chrome, PromiseChrome */
 
 (function () {
-	"use strict";
-	chrome.runtime.onMessage.addListener(function (request) {
+
+	'use strict';
+
+  chrome.runtime.onMessage.addListener(function (request) {
 
 		let promiseChrome = new PromiseChrome();
 		let url;
@@ -14,15 +16,15 @@
 			}
 		}
 
-		if (request.action == "showHelperIcon") {
+		if (request.action === 'showHelperIcon') {
 			promiseChrome.promiseQuery({
-				url : "https://www.instagram.com/*"
+				url : 'https://www.instagram.com/*'
 			}).then(function (tabs) {
 				for (var i = 0; i < tabs.length; i++) {
 					chrome.pageAction.show(tabs[i].id);
 				}
 			});
-		} else if (("get_insta_users" === request.action) || ("get_common_users" === request.action)) {
+		} else if (('get_insta_users' === request.action) || ('get_common_users' === request.action)) {
 
 			url = chrome.extension.getURL(request.page);
 
@@ -41,8 +43,8 @@
 		var headers = details.requestHeaders;
 		//modify Referer to make insta happy
 		for (var header in headers) {
-			if (headers[header].name === "eferer") {
-				headers[header].name = "Referer";
+			if (headers[header].name === 'eferer') {
+				headers[header].name = 'Referer';
 				break;
 			}
 		}
@@ -51,7 +53,7 @@
 		};
 
 	}, {
-		urls: ["https://www.instagram.com/query/"]
+		urls: ['https://www.instagram.com/query/']
 	},
-		['blocking', "requestHeaders"]);
+		['blocking', 'requestHeaders']);
 })();

@@ -1,8 +1,9 @@
 /* globals Promise */
 /* exported instaTimeout */
 
-var instaTimeout = function () {
-	"use strict";
+var instaTimeout = (function () {
+
+	'use strict';
 
 	var setTimeout = function(ms) {
 		return new Promise(function (resolve) {
@@ -10,9 +11,9 @@ var instaTimeout = function () {
 				resolve();
 			}, ms);
 		});
-	}
+	};
 
 	return {
 		setTimeout: setTimeout
 	};
-}();
+}());

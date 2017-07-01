@@ -1,9 +1,11 @@
 /* globals chrome, $, Promise, _gaq */
 /* globals instaDefOptions, instaUserInfo, exportUtils, FetchUsers */
+/* jshint -W106 */
+
 
 $(function () {
 
-	"use strict";
+	'use strict';
 
 	var myData = [];
 
@@ -11,23 +13,25 @@ $(function () {
 		statusDiv: document.getElementById('status'),
 		status_1: document.getElementById('status_1'),
 		status_2: document.getElementById('status_2'),
-		follows_1: $('#follows_1'), 
+		follows_1: $('#follows_1'),
 		followed_by_1: $('#followed_by_1'),
 		follows_2: $('#follows_2'),
 		followed_by_2: $('#followed_by_2'),
-		intersection: $("#intersection")
+		intersection: $('#intersection')
 	};
 
 	chrome.runtime.onMessage.addListener(function (request) {
-		if (request.action == "get_common_users") {
+		if (request.action === 'get_common_users') {
 
 			var startTime = new Date();
 			var timerInterval = startTimer(document.querySelector('#timer'), new Date());
 			request.timerInterval = timerInterval;
-			var promise1 = instaDefOptions.you === request.user_1.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
-			var promise2 = instaDefOptions.you === request.user_2.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
+			var promise1 =
+        instaDefOptions.you === request.user_1.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_1.userName;
+			var promise2 =
+        instaDefOptions.you === request.user_2.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.user_2.userName;
 			Promise.all([promise1, promise2]).then(values => {
-				if (typeof values[0] === "object") {
+				if (typeof values[0] === 'object') {
 					request.user_1.userName = request.viewerUserName;
 					request.user_1.user_is_private = values[0].is_private;
 					request.user_1.follows_count = values[0].follows_count;
@@ -35,7 +39,7 @@ $(function () {
 					request.user_1.userId = values[0].id;
 					request.user_1.user_followed_by_viewer = false;
 				}
-				if (typeof values[1] === "object") {
+				if (typeof values[1] === 'object') {
 					request.user_2.userName = request.viewerUserName;
 					request.user_2.user_is_private = values[1].is_private;
 					request.user_2.follows_count = values[1].follows_count;
@@ -57,8 +61,8 @@ $(function () {
 			delay: request.delay,
 			csrfToken: request.csrfToken,
 			userId: request.user_1.userId,
-			relType: "All" === request.relType ? request.user_1.follows_count > request.user_1.followed_by_count ? "follows" : "followed_by" : request.relType,
-			callBoth: "All" === request.relType,
+			relType: 'All' === request.relType? request.user_1.follows_count > request.user_1.followed_by_count ? 'follows' : 'followed_by' : request.relType,
+			callBoth: 'All' === request.relType,
 			checkDuplicates: false,
 			follows_count: request.user_1.follows_count,
 			followed_by_count: request.user_1.followed_by_count,
@@ -78,8 +82,8 @@ $(function () {
 			delay: request.delay,
 			csrfToken: request.csrfToken,
 			userId: request.user_2.userId,
-			relType: "All" === request.relType ? request.user_2.follows_count > request.user_2.followed_by_count ? "follows" : "followed_by" : request.relType,
-			callBoth: "All" === request.relType,
+			relType: 'All' === request.relType ? request.user_2.follows_count > request.user_2.followed_by_count ? 'follows' : 'followed_by' : request.relType,
+			callBoth: 'All' === request.relType,
 			checkDuplicates: false,
 			follows_count: request.user_2.follows_count,
 			followed_by_count: request.user_2.followed_by_count,
@@ -124,15 +128,15 @@ $(function () {
 			obj.user_2_follows = arr[index].user_2_follows;
 
 			myData.push(obj);
-			htmlElements.intersection.asProgress("go", index + 1);
+			htmlElements.intersection.asProgress('go', index + 1);
 			if (index === arr.length - 1) {
 				resolve();
 				return;
-			} 
+			}
 
 			setTimeout(function () {
 				getFullInfo(arr, ++index, resolve);
-			}, 0); 
+			}, 0);
 
 		});
 	}
@@ -149,7 +153,7 @@ $(function () {
 				},
 				updateStatusDiv: function (message, color) {
 					htmlElements[`status_${obj.id}`].textContent = message;
-					htmlElements[`status_${obj.id}`].style.color = color || "black";
+					htmlElements[`status_${obj.id}`].style.color = color || 'black';
 				},
 				resolve: resolve
 			});
@@ -197,7 +201,7 @@ $(function () {
 			var minutes = parseInt(x % 60, 10);
 			x /= 60;
 			var hours = parseInt(x % 24, 10);
-			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length) + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
+			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
 		}, 1000);
 	}
 
@@ -205,17 +209,17 @@ $(function () {
 		console.log(htmlElements);
 		console.log(arguments);
 		htmlElements[div].textContent = message;
-		htmlElements[div].style.color = color || "black";
+		htmlElements[div].style.color = color || 'black';
 	}
 
 	function showJQGrid(request, colModel) {
-		$("#jqGrid").jqGrid({
-			pager: "#jqGridPager",
-			datatype: "local",
+		$('#jqGrid').jqGrid({
+			pager: '#jqGridPager',
+			datatype: 'local',
 			data: myData,
 			rowNum: instaDefOptions.gridPageSize,
 			autowidth: true,
-			height: "100%",
+			height: '100%',
 			rownumbers: true,
 			colModel: colModel,
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
@@ -223,7 +227,7 @@ $(function () {
 			caption: `Common Users of ${request.user_1.userName} and ${request.user_2.userName}`,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
-		}).jqGrid('navGrid', "#jqGridPager", {
+		}).jqGrid('navGrid', '#jqGridPager', {
 			search: true,
 			add: false,
 			edit: false,
@@ -241,10 +245,10 @@ $(function () {
 
 	function showExportDiv(obj) {
 
-		$("#exportDiv").show();
+		$('#exportDiv').show();
 
-		$("#export_XLSX").on("click", function () {
-			$("#jqGrid").jqGrid("exportToExcel", {
+		$('#export_XLSX').on('click', function () {
+			$('#jqGrid').jqGrid('exportToExcel', {
 				includeLabels: true,
 				includeGroupHeader: false,
 				includeFooter: false,
@@ -257,7 +261,7 @@ $(function () {
 
 	function prepareHtmlElements(obj1, obj2) {
 
-		document.getElementById("followed_by_1_title").textContent = `${obj1.userName} is followed by ${obj1.followed_by_count} users`;
+		document.getElementById('followed_by_1_title').textContent = `${obj1.userName} is followed by ${obj1.followed_by_count} users`;
 		htmlElements.followed_by_1.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -269,7 +273,7 @@ $(function () {
 			}
 		});
 
-		document.getElementById("follows_1_title").textContent = `${obj1.userName} follows ${obj1.follows_count} users`;
+		document.getElementById('follows_1_title').textContent = `${obj1.userName} follows ${obj1.follows_count} users`;
 		htmlElements.follows_1.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -281,7 +285,7 @@ $(function () {
 			}
 		});
 
-		document.getElementById("followed_by_2_title").textContent = `${obj2.userName} is followed by ${obj2.followed_by_count} users`;
+		document.getElementById('followed_by_2_title').textContent = `${obj2.userName} is followed by ${obj2.followed_by_count} users`;
 		htmlElements.followed_by_2.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -293,7 +297,7 @@ $(function () {
 			}
 		});
 
-		document.getElementById("follows_2_title").textContent = `${obj2.userName} follows ${obj2.follows_count} users`;
+		document.getElementById('follows_2_title').textContent = `${obj2.userName} follows ${obj2.follows_count} users`;
 		htmlElements.follows_2.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -309,15 +313,15 @@ $(function () {
 
 	function prepareHtmlElementsForIntersection(arr) {
 
-		updateStatusDiv("statusDiv", `Found common users ${arr.length}`);
-		document.getElementById("intersection_title").textContent = "Getting the detailed info";
+		updateStatusDiv('statusDiv', `Found common users ${arr.length}`);
+		document.getElementById('intersection_title').textContent = 'Getting the detailed info';
 		htmlElements.intersection.asProgress({
 			namespace: 'progress',
 			min: 0,
 			max: arr.length,
 			goal: arr.length,
 			labelCallback(n) {
-				return this.getPercentage(n) + "%";
+				return this.getPercentage(n) + '%';
 			}
 		});
 	}
@@ -325,24 +329,24 @@ $(function () {
 	function generationCompleted(request, obj1, obj2) {
 		clearInterval(request.timerInterval);
 		var timer = document.querySelector('#timer');
-		htmlElements.intersection.asProgress("finish").asProgress("stop");
+		htmlElements.intersection.asProgress('finish').asProgress('stop');
 
-		var diffFollowed_1 = "", diffFollows_1 = "", diffFollowed_2 = "", diffFollows_2 = "";
-		if (obj1.followed_by_count != obj1.followed_by_processed) {
+		var diffFollowed_1 = '', diffFollows_1 = '', diffFollowed_2 = '', diffFollows_2 = '';
+		if (obj1.followed_by_count !== obj1.followed_by_processed) {
 			diffFollowed_1 = `(actually returned ${obj1.followed_by_processed})`;
 		}
-		if (obj1.follows_count != obj1.follows_processed) {
+		if (obj1.follows_count !== obj1.follows_processed) {
 			diffFollows_1 = `(actually returned ${obj1.follows_processed})`;
 		}
-		if (obj2.followed_by_count != obj2.followed_by_processed) {
+		if (obj2.followed_by_count !== obj2.followed_by_processed) {
 			diffFollowed_2 = `(actually returned ${obj2.followed_by_processed})`;
 		}
-		if (obj2.follows_count != obj2.follows_processed) {
+		if (obj2.follows_count !== obj2.follows_processed) {
 			diffFollows_2 = `(actually returned ${obj2.follows_processed})`;
 		}
 
-		updateStatusDiv("statusDiv", `Completed, spent time - ${timer.textContent}, common users - ${myData.length}
-			(${request.user_1.userName} follows - ${request.user_1.follows_count}${diffFollows_1} and followed by - ${request.user_1.followed_by_count}${diffFollowed_1} && 
+		updateStatusDiv('statusDiv', `Completed, spent time - ${timer.textContent}, common users - ${myData.length}
+			(${request.user_1.userName} follows - ${request.user_1.follows_count}${diffFollows_1} and followed by - ${request.user_1.followed_by_count}${diffFollowed_1} &&
 			${request.user_2.userName} follows - ${request.user_2.follows_count}${diffFollows_2} and followed by - ${request.user_2.followed_by_count}${diffFollowed_2}),
 			sent HTTP requests - ${~~obj1.receivedResponses + ~~obj2.receivedResponses + ~~myData.length}`);
 		setTimeout(function () {
@@ -371,9 +375,9 @@ $(function () {
 			sortable: false,
 			formatter: function (cellvalue, model, row) {
 				var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
-				ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
-				ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
-				ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
+				ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : '';
+				ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : '';
+				ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : '';
 				return ret;
 			},
 			cellattr: function () {
@@ -385,7 +389,7 @@ $(function () {
 			name: 'biography',
 			sortable: false,
 			formatter: function (cellvalue) {
-				return cellvalue ? cellvalue : "";
+				return cellvalue ? cellvalue : '';
 			},
 			cellattr: function () {
 				return 'style="white-space: normal;"';
@@ -399,8 +403,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return 'style="background-color: #fbf9ee;"  title="Follows you"';
@@ -414,8 +418,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return 'style="background-color: #fbf9ee;" title="Followed by you"';
@@ -429,8 +433,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return `title="Follows ${request.user_1.userName}"`;
@@ -444,8 +448,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return `title="Followed by ${request.user_1.userName}"`;
@@ -459,8 +463,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return `title="Follows ${request.user_2.userName}"`;
@@ -474,8 +478,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return `title="Followed by ${request.user_2.userName}"`;
@@ -489,8 +493,8 @@ $(function () {
 			align: 'center',
 			stype: 'select',
 			searchoptions: {
-				sopt: ["eq"],
-				value: ":Any;true:Yes;false:No"
+				sopt: ['eq'],
+				value: ':Any;true:Yes;false:No'
 			},
 			cellattr: function () {
 				return 'title="Is private"';
@@ -504,7 +508,7 @@ $(function () {
 			sorttype: 'number',
 			search: true,
 			searchoptions: {
-				sopt: ["ge", "le", "eq"]
+				sopt: ['ge', 'le', 'eq']
 			},
 			cellattr: function () {
 				return 'title="Followers"';
@@ -517,7 +521,7 @@ $(function () {
 			sorttype: 'number',
 			search: true,
 			searchoptions: {
-				sopt: ["ge", "le", "eq"]
+				sopt: ['ge', 'le', 'eq']
 			},
 			cellattr: function () {
 				return 'title="Following"';
@@ -530,7 +534,7 @@ $(function () {
 			sorttype: 'number',
 			search: true,
 			searchoptions: {
-				sopt: ["ge", "le", "eq"]
+				sopt: ['ge', 'le', 'eq']
 			},
 			cellattr: function () {
 				return 'title="Posts"';

@@ -1,7 +1,7 @@
 {
   "name": "instagramhelper",
   "version": "1.0.0",
-  "description": "",
+  "description": "na",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +17,24 @@
     "url": "https://github.com/OllegK/InstagramHelper/issues"
   },
   "homepage": "https://github.com/OllegK/InstagramHelper#readme",
-  "dependencies": {
-    "eslint": "^4.1.0"
+  "dependencies": {},
+  "devDependencies": {
+    "eslint": "^4.1.0",
+    "gulp": "^3.9.1",
+    "gulp-csso": "^3.0.0",
+    "gulp-if": "^2.0.2",
+    "gulp-jscs": "^4.0.0",
+    "gulp-jshint": "^2.0.4",
+    "gulp-load-plugins": "^1.5.0",
+    "gulp-minify-html": "^1.0.6",
+    "gulp-print": "^2.0.1",
+    "gulp-uglify": "^3.0.0",
+    "gulp-util": "^3.0.8",
+    "gulp-zip": "^4.0.0",
+    "jshint": "^2.9.5",
+    "jshint-stylish": "^2.2.1",
+    "rimraf": "^2.6.1",
+    "uglify-es": "^3.0.22",
+    "yargs": "^8.0.2"
   }
 }

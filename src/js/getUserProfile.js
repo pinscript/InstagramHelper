@@ -1,9 +1,11 @@
-/* globals Promise, $, instaDefOptions, instaMessages */
+/* globals alert, Promise, $, instaDefOptions, instaMessages */
+/* jshint -W106 */
 
 var instaUserInfo = function () {};
 
 instaUserInfo.getUserProfile = function (username) {
-	"use strict";
+
+	'use strict';
 
 	return new Promise(function (resolve, reject) {
 		getUserProfile(username, resolve, reject);
@@ -62,28 +64,28 @@ instaUserInfo.getUserProfile = function (username) {
 					setTimeout(function () {
 						getUserProfile(username, resolve, reject);
 					}, instaDefOptions.retryInterval);
-					alert(instaMessages.getMessage("NOTCONNECTED", +instaDefOptions.retryInterval / 60000));
+					alert(instaMessages.getMessage('NOTCONNECTED', +instaDefOptions.retryInterval / 60000));
 				} else if (jqXHR.status === 429) {
 					//TODO: improve error handling
-					console.log("HTTP429 error getting the user profile.", new Date()); //eslint-disable-line no-console
+					console.log('HTTP429 error getting the user profile.', new Date()); //eslint-disable-line no-console
 					setTimeout(function () {
-						console.log("Continue execution after HTTP429 error.", new Date()); //eslint-disable-line no-console
+						console.log('Continue execution after HTTP429 error.', new Date()); //eslint-disable-line no-console
 						getUserProfile(username, resolve, reject);
 					}, instaDefOptions.retryInterval);
-					alert(instaMessages.getMessage("HTTP429", +instaDefOptions.retryInterval / 60000));
+					alert(instaMessages.getMessage('HTTP429', +instaDefOptions.retryInterval / 60000));
 
 				} else if (jqXHR.status === 502) {
 					//TODO: improve error handling
-					console.log("HTTP502 error getting the user profile.", new Date()); //eslint-disable-line no-console
+					console.log('HTTP502 error getting the user profile.', new Date()); //eslint-disable-line no-console
 					setTimeout(function () {
-						console.log("Continue execution after HTTP502 error.", new Date()); //eslint-disable-line no-console
+						console.log('Continue execution after HTTP502 error.', new Date()); //eslint-disable-line no-console
 						getUserProfile(username, resolve, reject);
 					}, 30000);
 
-					alert("HTTP502 error, continue after 30 seconds");
-				
+					alert('HTTP502 error, continue after 30 seconds');
+
 				} else {
-					alert(instaMessages.getMessage("ERRGETTINGUSER", username, jqXHR.status));
+					alert(instaMessages.getMessage('ERRGETTINGUSER', username, jqXHR.status));
 					reject();
 				}
 			},

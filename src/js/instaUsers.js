@@ -1,27 +1,29 @@
-/* globals chrome, $, _gaq, Promise */
+/* globals confirm, chrome, $, _gaq, Promise */
 /* globals instaDefOptions, instaUserInfo, exportUtils, FetchUsers */
+/* jshint -W106 */
+
 
 $(function () {
 
-	"use strict";
+	'use strict';
 
 	var myData = [];
-	var userName = "";
+	var userName = '';
 	var cancelProcessing = false;
 
 	var htmlElements = {
 		statusDiv: document.getElementById('status'),
 		follows: $('#follows'),
 		followed_by: $('#followed_by'),
-		detailedinfo: $("#detailedinfo")
+		detailedinfo: $('#detailedinfo')
 	};
 
 	chrome.runtime.onMessage.addListener(function (request) {
-		if (request.action == "get_insta_users") {
+		if (request.action === 'get_insta_users') {
 
 			var promise = instaDefOptions.you === request.userName ? instaUserInfo.getUserProfile(request.viewerUserName) : request.userName;
 			Promise.all([promise]).then(values => {
-				if (typeof values[0] === "object") {
+				if (typeof values[0] === 'object') {
 					request.userName = request.viewerUserName;
 					request.user_is_private = values[0].is_private;
 					request.follows_count = values[0].follows_count;
@@ -43,8 +45,8 @@ $(function () {
 			delay: request.delay,
 			csrfToken: request.csrfToken,
 			userId: request.userId,
-			relType: "All" === request.relType ? request.follows_count > request.followed_by_count ? "follows" : "followed_by" : request.relType,
-			callBoth: "All" === request.relType,
+			relType: 'All' === request.relType ? request.follows_count > request.followed_by_count ? 'follows' : 'followed_by' : request.relType,
+			callBoth: 'All' === request.relType,
 			checkDuplicates: myData.length > 0, //probably we are starting with already opened page , now it is obsolete, and actually should be False
 			follows_count: request.follows_count,
 			followed_by_count: request.followed_by_count,
@@ -57,9 +59,9 @@ $(function () {
 		};
 		prepareHtmlElements(fetchSettings);
 		promiseFetchInstaUsers(fetchSettings).then(function (obj) {
-			
+
 			showJQGrid(obj, simpleColModel);
-			showDetailsDiv(obj);		
+			showDetailsDiv(obj);
 
 			prepareHtmlElementsUserDetails(fetchSettings, myData);
 			promiseGetFullInfo(fetchSettings, myData).then(function () {
@@ -70,11 +72,16 @@ $(function () {
 		});
 	}
 
+	var updateStatusDiv = function (message, color) {
+		htmlElements.statusDiv.textContent = message;
+		htmlElements.statusDiv.style.color = color || 'black';
+	};
+
 	function getFullInfo(obj, arr, resolve, reject) {
 		instaUserInfo.getUserProfile(arr[obj.processedUsers].username).then(function (user) {
 			myData[obj.processedUsers] = $.extend({}, myData[obj.processedUsers], user);
 			obj.receivedResponses++;
-			htmlElements.detailedinfo.asProgress("go", obj.processedUsers++);
+			htmlElements.detailedinfo.asProgress('go', obj.processedUsers++);
 			updateStatusDiv(`Getting detailed info for users: ${obj.processedUsers} of ${arr.length}`);
 			if (obj.processedUsers === arr.length) {
 				resolve();
@@ -88,11 +95,6 @@ $(function () {
 				getFullInfo(obj, arr, resolve, reject);
 			}, 0);
 		});
-	}
-
-	var updateStatusDiv = function (message, color) {
-		htmlElements.statusDiv.textContent = message;
-		htmlElements.statusDiv.style.color = color || "black";
 	}
 
 	function promiseFetchInstaUsers(obj) {
@@ -116,17 +118,17 @@ $(function () {
 			var minutes = parseInt(x % 60, 10);
 			x /= 60;
 			var hours = parseInt(x % 24, 10);
-			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ("" + minutes).length) + minutes}m:${'00'.substring(0, 2 - ("" + seconds).length) + seconds}s`;
+			timer.textContent = `${hours}h:${'00'.substring(0, 2 - ('' + minutes).length) + minutes}m:${'00'.substring(0, 2 - ('' + seconds).length) + seconds}s`;
 		}, 1000);
 	}
 
 	function showDetailsDiv(obj) {
 
-		$("#details").show();
-		$("#exportDiv").show();
-		
-		$("#export_XLSX").on("click", function () {
-			$("#jqGrid").jqGrid("exportToExcel", {
+		$('#details').show();
+		$('#exportDiv').show();
+
+		$('#export_XLSX').on('click', function () {
+			$('#jqGrid').jqGrid('exportToExcel', {
 				includeLabels: true,
 				includeGroupHeader: false,
 				includeFooter: false,
@@ -135,15 +137,15 @@ $(function () {
 			});
 		});
 
-		$("#cancelDetInfo").on("click", () => cancelProcessing = confirm("Do you want to cancel?")); 
-	
+		$('#cancelDetInfo').on('click', () => cancelProcessing = confirm('Do you want to cancel?'));
+
 	}
 
 	function prepareHtmlElements(obj) {
 
-		if (obj.callBoth || ("followed_by" === obj.relType)) {
-			document.getElementById("followed_by_title").textContent = `${obj.userName} is followed by ${obj.followed_by_count} users`;
-			document.getElementById("followed_by_title").style.display = "block";
+		if (obj.callBoth || ('followed_by' === obj.relType)) {
+			document.getElementById('followed_by_title').textContent = `${obj.userName} is followed by ${obj.followed_by_count} users`;
+			document.getElementById('followed_by_title').style.display = 'block';
 			htmlElements.followed_by.show().asProgress({
 				namespace: 'progress',
 				min: 0,
@@ -155,9 +157,9 @@ $(function () {
 				}
 			});
 		}
-		if (obj.callBoth || ("follows" === obj.relType)) {
-			document.getElementById("follows_title").textContent = `${obj.userName} follows ${obj.follows_count} users`;
-			document.getElementById("follows_title").style.display = "block";
+		if (obj.callBoth || ('follows' === obj.relType)) {
+			document.getElementById('follows_title').textContent = `${obj.userName} follows ${obj.follows_count} users`;
+			document.getElementById('follows_title').style.display = 'block';
 			htmlElements.follows.show().asProgress({
 				namespace: 'progress',
 				min: 0,
@@ -174,24 +176,24 @@ $(function () {
 	function generationCompleted(obj, resolved) {
 		clearInterval(obj.timerInterval);
 		var timer = document.querySelector('#timer');
-		htmlElements.detailedinfo.asProgress("finish").asProgress("stop");
+		htmlElements.detailedinfo.asProgress('finish').asProgress('stop');
 
-		var diffFollowed = "", diffFollows = "";
-		if (obj.followed_by_count != obj.followed_by_processed) {
+		var diffFollowed = '', diffFollows = '';
+		if (obj.followed_by_count !== obj.followed_by_processed) {
 			diffFollowed = `(actually returned ${obj.followed_by_processed})`;
 		}
-		if (obj.follows_count != obj.follows_processed) {
+		if (obj.follows_count !== obj.follows_processed) {
 			diffFollows = `(actually returned ${obj.follows_processed})`;
 		}
 
-		updateStatusDiv(`${resolved ? "Completed" : "Detailed info collection was cancelled"}, 
-			spent time - ${timer.textContent}, 
-			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows}, 
+		updateStatusDiv(`${resolved ? 'Completed' : 'Detailed info collection was cancelled'},
+			spent time - ${timer.textContent},
+			created list length - ${myData.length} (follows - ${obj.follows_count}${diffFollows},
 			followed by - ${obj.followed_by_count}${diffFollowed}),
 			sent HTTP requests - ${obj.receivedResponses}`);
-		
+
 		if (resolved) {
-			$(".ui-jqgrid").replaceWith("<table id='jqGrid'></table>");
+			$('.ui-jqgrid').replaceWith('<table id="jqGrid"></table>');
 			showJQGrid(obj, fullColModel);
 		}
 
@@ -209,7 +211,7 @@ $(function () {
 
 	function prepareHtmlElementsUserDetails(obj, arr) {
 		updateStatusDiv(`Found users ${arr.length}`);
-		document.getElementById("detailedinfo_title").textContent = "Getting the detailed info";
+		document.getElementById('detailedinfo_title').textContent = 'Getting the detailed info';
 		htmlElements.detailedinfo.asProgress({
 			namespace: 'progress',
 			min: 0,
@@ -220,28 +222,28 @@ $(function () {
 				return `Users: ${obj.processedUsers}/${arr.length}/${percentage}%`;
 			}
 		});
-		//assign on click event if confirm 
+		//assign on click event if confirm
 	}
 
 	function showJQGrid(obj, colModel) {
 
 		userName = obj.userName;
 
-		$("#jqGrid").jqGrid({
-			pager: "#jqGridPager",
-			datatype: "local",
+		$('#jqGrid').jqGrid({
+			pager: '#jqGridPager',
+			datatype: 'local',
 			data: myData,
 			rowNum: instaDefOptions.gridPageSize,
 			autowidth: true,
-			height: "100%",
+			height: '100%',
 			rownumbers: true,
 			colModel: colModel,
 			viewrecords: true, // show the current page, data rang and total records on the toolbar
 			loadonce: true,
-			caption: "Users of " + obj.userName,
+			caption: 'Users of ' + obj.userName,
 		}).jqGrid('filterToolbar', {
 			searchOperators: true
-		}).jqGrid('navGrid', "#jqGridPager", {
+		}).jqGrid('navGrid', '#jqGridPager', {
 			search: true,
 			add: false,
 			edit: false,
@@ -274,9 +276,9 @@ $(function () {
 		sortable: false,
 		formatter: function (cellvalue, model, row) {
 			var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
-			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
-			ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : "";
-			ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : "";
+			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : '';
+			ret += row.connected_fb_page ? `FB:<a href='${row.connected_fb_page}' target='_blank'>${row.connected_fb_page}</a><br/>` : '';
+			ret += row.external_url ? `url:<a href='${row.external_url}' target='_blank'>${row.external_url}</a>` : '';
 			return ret;
 		},
 		cellattr: function () {
@@ -288,7 +290,7 @@ $(function () {
 		name: 'biography',
 		sortable: false,
 		formatter: function (cellvalue) {
-			return cellvalue ? cellvalue : "";
+			return cellvalue ? cellvalue : '';
 		},
 		cellattr: function () {
 			return 'style="white-space: normal;"';
@@ -302,8 +304,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Follows you"';
@@ -317,8 +319,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Followed by you"';
@@ -332,8 +334,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return `title="Follows ${userName}"`;
@@ -347,8 +349,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return `title="Followed by ${userName}"`;
@@ -362,8 +364,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return 'title="Is private"';
@@ -377,7 +379,7 @@ $(function () {
 		sorttype: 'number',
 		search: true,
 		searchoptions: {
-			sopt: ["ge", "le", "eq"]
+			sopt: ['ge', 'le', 'eq']
 		},
 		cellattr: function () {
 			return 'title="Followers"';
@@ -390,7 +392,7 @@ $(function () {
 		sorttype: 'number',
 		search: true,
 		searchoptions: {
-			sopt: ["ge", "le", "eq"]
+			sopt: ['ge', 'le', 'eq']
 		},
 		cellattr: function () {
 			return 'title="Following"';
@@ -403,18 +405,16 @@ $(function () {
 		sorttype: 'number',
 		search: true,
 		searchoptions: {
-			sopt: ["ge", "le", "eq"]
+			sopt: ['ge', 'le', 'eq']
 		},
 		cellattr: function () {
 			return 'title="Posts"';
 		}
 	}];
 
-
 	var simpleColModel = [{
 		label: 'User',
 		name: 'profile_pic_url',
-		//width: '320',
 		align: 'center',
 		sortable: false,
 		formatter: function (cellvalue, model, row) {
@@ -427,7 +427,7 @@ $(function () {
 		sortable: false,
 		formatter: function (cellvalue, model, row) {
 			var ret = `id:${row.id}<br/>username:<strong>${row.username}</strong><br/>`;
-			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : "";
+			ret += row.full_name ? `full name:<strong>${row.full_name}</strong><br/>` : '';
 			return ret;
 		},
 		cellattr: function () {
@@ -442,8 +442,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return 'style="background-color: #fbf9ee;" title="Followed by you"';
@@ -457,8 +457,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return `title="Follows ${userName}"`;
@@ -472,8 +472,8 @@ $(function () {
 		align: 'center',
 		stype: 'select',
 		searchoptions: {
-			sopt: ["eq"],
-			value: ":Any;true:Yes;false:No"
+			sopt: ['eq'],
+			value: ':Any;true:Yes;false:No'
 		},
 		cellattr: function () {
 			return `title="Followed by ${userName}"`;

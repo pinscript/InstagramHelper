@@ -1,9 +1,10 @@
 /* globals chrome, Promise */
 
 /* exported PromiseChrome */
-	
+
 var PromiseChrome = function () {
-	"use strict";
+
+  'use strict';
 
 	function promiseQuery(options) {
 		return new Promise(function (resolve) {

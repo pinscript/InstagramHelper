@@ -1,16 +1,17 @@
-/* globals chrome, _gaq, $, Promise */
+/* globals alert, chrome, _gaq, $, Promise */
 /* globals PromiseChrome, instaDefOptions, instaMessages, instaUserInfo */
+/* jshint -W106 */
 
 $(function () {
-	"use strict";
+	'use strict';
 
 	var promiseChrome = new PromiseChrome();
 
 	$('#instaUsers').click(function () {
 
-		var userName = $("#username").val();
+		var userName = $('#username').val();
 		if (!userName) {
-			alert(instaMessages.getMessage("USERNAMEISREQ"));
+			alert(instaMessages.getMessage('USERNAMEISREQ'));
 			return;
 		}
 
@@ -25,36 +26,36 @@ $(function () {
 			Promise.all([promiseUserInfo, promiseQueryActiveTab]).then(values => {
 				let[obj, tabs] = values;
 				chrome.tabs.sendMessage(tabs[0].id, {
-					action: "get_insta_users",
-					page: "instaUsers.html",
+					action: 'get_insta_users',
+					page: 'instaUsers.html',
 					userName: userName,
 					userId: obj.id,
 					user_is_private: obj.is_private,
 					user_followed_by_viewer: obj.followed_by_viewer,
 					follows_count: obj.follows_count,
 					followed_by_count: obj.followed_by_count,
-					relType: $('input[name=relType]:checked').attr("id")
+					relType: $('input[name=relType]:checked').attr('id')
 				});
 			});
-		}, () => alert(instaMessages.getMessage("TABISOPEN")));
+		}, () => alert(instaMessages.getMessage('TABISOPEN')));
 	});
 
 	$('#findCommonUsers').click(function () {
-		var userName_1 = $("#username_1").val();
+		var userName_1 = $('#username_1').val();
 		if (!userName_1) {
-			alert(instaMessages.getMessage("USERNAMEISREQPAR", "1st"));
+			alert(instaMessages.getMessage('USERNAMEISREQPAR', '1st'));
 			return;
 		}
 
-		var userName_2 = $("#username_2").val();
+		var userName_2 = $('#username_2').val();
 		if (!userName_2) {
-			alert(instaMessages.getMessage("USERNAMEISREQPAR", "2nd"));
+			alert(instaMessages.getMessage('USERNAMEISREQPAR', '2nd'));
 			return;
 		}
 
 		if (userName_1 === userName_2) {
-			alert(instaMessages.getMessage("THESAMEUSERS"));
-			return
+			alert(instaMessages.getMessage('THESAMEUSERS'));
+			return;
 		}
 
 		promiseChrome.promiseCheckOpenTab({
@@ -69,8 +70,8 @@ $(function () {
 			Promise.all([promiseUserInfo1, promiseUserInfo2, promiseQueryActiveTab]).then(values => {
 				let[obj1, obj2, tabs] = values;
 				chrome.tabs.sendMessage(tabs[0].id, {
-					action: "get_common_users",
-					page: "commonUsers.html",
+					action: 'get_common_users',
+					page: 'commonUsers.html',
 					user_1: {
 						userName: userName_1,
 						userId: obj1.id,
@@ -87,15 +88,15 @@ $(function () {
 						follows_count: obj2.follows_count,
 						followed_by_count: obj2.followed_by_count,
 					},
-					relType: "All"
+					relType: 'All'
 				});
 			});
-		}, () => alert(instaMessages.getMessage("TABISOPEN")));
+		}, () => alert(instaMessages.getMessage('TABISOPEN')));
 	});
 });
 
 window.onload = function () {
-	"use strict";
+	'use strict';
 
 	_gaq.push(['_trackPageview']);
 
@@ -109,26 +110,26 @@ window.onload = function () {
 		if (arr) {
 			instaUserInfo.getUserProfile(arr[1]).then(function (obj) {
 
-				var $html = "";
+				var $html = '';
 				delete obj.profile_pic_url_hd;
 				for (var key in obj) {
 					if (obj[key] !== null) {
-						if (("connected_fb_page" === key) || ("external_url" === key)) {
+						if (('connected_fb_page' === key) || ('external_url' === key)) {
 							$html += `${key}: <strong><a href='${obj[key]}' target='_blank'>${obj[key]}</a></strong><br/>`;
 						} else {
 							$html += `${key}: <strong>${obj[key]}</strong><br/>`;
 						}
 					}
 				}
-				$("#username").val(obj.username);
-				$("#username_1").val(obj.username);
-				$("#username_2").val(instaDefOptions.you);
-				$("#details").html($html);
+				$('#username').val(obj.username);
+				$('#username_1').val(obj.username);
+				$('#username_2').val(instaDefOptions.you);
+				$('#details').html($html);
 			});
 		} else {
-			$("#details").text("UserName is not found in URL");
-			$("#username").val(instaDefOptions.you);
-			$("#username_1").val(instaDefOptions.you);
+			$('#details').text('UserName is not found in URL');
+			$('#username').val(instaDefOptions.you);
+			$('#username_1').val(instaDefOptions.you);
 		}
 	});
 };

@@ -1,12 +1,13 @@
 /* globals chrome, document, instaDefOptions, _gaq */
 
 (function () {
-	"use strict";
+
+	'use strict';
 
 	var defPageSize = instaDefOptions.defPageSize;
 	var defDelay = instaDefOptions.defDelay;
 
-	function save_options() {
+	function saveOptions() {
 		var pageSize = document.getElementById('pageSize').value;
 		var delay = document.getElementById('delay').value;
 		chrome.storage.sync.set({
@@ -22,7 +23,7 @@
 		});
 	}
 
-	function restore_options() {
+	function restoreOptions() {
 		chrome.storage.sync.get({
 			pageSize: defPageSize,
 			delay: defDelay
@@ -32,12 +33,12 @@
 		});
 	}
 
-	function restore_defaults() {
+	function restoreDefaults() {
 		chrome.storage.sync.set({
 			pageSize: defPageSize,
-			delay: defDelay		
+			delay: defDelay
 		}, function () {
-			restore_options();
+			restoreOptions();
 			var status = document.getElementById('status');
 			status.textContent = 'Default options were restored.';
 			setTimeout(function () {
@@ -47,9 +48,9 @@
 
 	}
 
-	document.addEventListener('DOMContentLoaded', restore_options);
-	document.getElementById('save').addEventListener('click', save_options);
-	document.getElementById('restoreDefaults').addEventListener('click', restore_defaults);
+	document.addEventListener('DOMContentLoaded', restoreOptions);
+	document.getElementById('save').addEventListener('click', saveOptions);
+	document.getElementById('restoreDefaults').addEventListener('click', restoreDefaults);
 
 })();
 
